@@ -8,7 +8,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras import backend as keras
 from tensorflow.keras import Model
 
-def unet(pretrained_weights = None,input_size = (400,400,3)):
+def unet(pretrained_weights = None,input_size = (400, 400, 3)):
     inputs = Input(input_size)
     conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(inputs)
     conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv1)
@@ -57,6 +57,6 @@ def unet(pretrained_weights = None,input_size = (400,400,3)):
     #model.summary()
 
     if(pretrained_weights):
-    	model.load_weights(pretrained_weights)
+        model.load_weights(pretrained_weights)
 
     return model
