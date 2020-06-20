@@ -20,13 +20,13 @@ for i in range(100):
     cv2.imwrite( path_save ,img_array )
 """
 model.train(
-    train_images =  "training/training/images/",
-    train_annotations = "training/training/groundtruth_binary/",
+    train_images =  "../data/training/images/",
+    train_annotations = "../data/training/groundtruth_binary/",
     checkpoints_path = "/tmp/resnet50_unet_1" , epochs=1
 )
 
 out = model.predict_segmentation(
-    inp="training/training/validation_images/satImage_001.png",
+    inp="../data/test/images/satImage_001.png",
     out_fname="/tmp/out.png"
 )
 

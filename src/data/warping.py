@@ -1,11 +1,11 @@
 import Augmentor
 
-p = Augmentor.Pipeline("../training/training/images")
+p = Augmentor.Pipeline("../data/training/images")
 
 # Point to a directory containing ground truth data.
 # Images with the same file names will be added as ground truth data
 # and augmented in parallel to the original data.
-p.ground_truth("../training/training/groundtruth")
+p.ground_truth("../data/training/groundtruth")
 
 # Add operations to the pipeline as normal:
 p.rotate(probability=1, max_left_rotation=5, max_right_rotation=5)
