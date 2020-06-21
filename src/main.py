@@ -19,19 +19,18 @@ data_gen_args = dict(rotation_range=90,
                      horizontal_flip=True,
                      vertical_flip=True,
                      fill_mode='nearest',
-		     validation_split=0.2)
+                     validation_split=0.2)
 
 trainGen, validationGenerator = getTrainGenerators(data_gen_args, train_path, test_path, batch_size=4)
 
 model = unet()
 
 # To save the model
-#model_checkpoint = ModelCheckpoint('unet_roadseg.hdf5', monitor='loss', verbose=1, save_best_only=True)
-#model.fit(trainGen, steps_per_epoch=300, epochs=3, callbacks=[model_checkpoint], verbose=1)
+# model_checkpoint = ModelCheckpoint('unet_roadseg.hdf5', monitor='loss', verbose=1, save_best_only=True)
+# model.fit(trainGen, steps_per_epoch=300, epochs=3, callbacks=[model_checkpoint], verbose=1)
 
-model.fit(trainGen, validation_data=validationGenerator, steps_per_epoch=100, validation_steps=10, epochs=10, verbose=1)
+model.fit(trainGen, validation_data=validationGenerator, steps_per_epoch=100, validation_steps=10, epochs=2, verbose=1)
 
 testGen = testGenerator(test_path, num_image=90)
 results = model.predict(testGen, steps=30, verbose=1)
-saveResult(os.path.join(test_path, 'results'))
-
+saveResult(os.path.join(test_path, 'results'), results)
