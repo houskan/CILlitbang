@@ -29,7 +29,7 @@ model = unet()
 # model_checkpoint = ModelCheckpoint('unet_roadseg.hdf5', monitor='loss', verbose=1, save_best_only=True)
 # model.fit(trainGen, steps_per_epoch=300, epochs=3, callbacks=[model_checkpoint], verbose=1)
 
-model.fit(trainGen, validation_data=validationGenerator, steps_per_epoch=100, validation_steps=10, epochs=2, verbose=1)
+model.fit(trainGen, validation_data=validationGenerator, steps_per_epoch=100, validation_steps=10, epochs=10, verbose=1)
 
 testGen = testGenerator(test_path, num_image=90)
 results = model.predict(testGen, steps=30, verbose=1)
