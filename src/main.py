@@ -4,6 +4,7 @@ import tensorflow as tf
 from models.model import *
 from data.data import *
 
+
 train_path = '../data/training/'
 test_path = '../data/test/'
 data_gen_args = dict(rotation_range=90,
