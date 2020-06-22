@@ -1,13 +1,12 @@
 import numpy as np
 import tensorflow as tf
 
-
 if tf.test.gpu_device_name():
-    tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0],True)
-    #print('Default GPU Device: {}'.format(tf.test.gpu_device_name()))
+    tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
+    # print('Default GPU Device: {}'.format(tf.test.gpu_device_name()))
 
-from models.model import *
-from data.data import *
+from src.models.model import *
+from src.data.data import *
 
 train_path = '../data/training/'
 test_path = '../data/test/'
