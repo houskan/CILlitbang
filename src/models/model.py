@@ -1,12 +1,12 @@
 import numpy as np 
 import os
 import tensorflow as tf 
-from tensorflow.keras.models import *
-from tensorflow.keras.layers import *
-from tensorflow.keras.optimizers import *
-from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from tensorflow.keras import backend as keras
-from tensorflow.keras import Model
+from keras.models import *
+from keras.layers import *
+from keras.optimizers import *
+from keras.callbacks import ModelCheckpoint, LearningRateScheduler
+from keras import backend as keras
+from keras import Model
 
 def unet(pretrained_weights = None,input_size = (400, 400, 3)):
     inputs = Input(input_size)

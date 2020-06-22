@@ -2,7 +2,7 @@ import numpy as np
 
 import os
 
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator
 import skimage.io as io
 import skimage.transform as trans
 
