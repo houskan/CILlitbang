@@ -4,7 +4,6 @@ import tensorflow as tf
 from models.model import *
 from data.data import *
 
-
 train_path = '../data/training/'
 test_path = '../data/test/'
 data_gen_args = dict(rotation_range=90,
@@ -27,6 +26,7 @@ model = unet()
 
 model.fit(trainGen, validation_data=validationGenerator, steps_per_epoch=100, validation_steps=10, epochs=10, verbose=1)
 
-testGen = testGenerator(test_path, num_image=90)
-results = model.predict(testGen, steps=30, verbose=1)
-saveResult(os.path.join(test_path, 'results'), results)
+images = os.listdir(os.path.join(test_path, 'images'))
+testGen = testGenerator(test_path, num_image=len(images))
+results = model.predict(testGen, steps=len(images), verbose=1)
+saveResult(test_path, results)

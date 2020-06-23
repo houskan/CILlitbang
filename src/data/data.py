@@ -81,7 +81,7 @@ def validationGenerator():
 def testGenerator(test_path, num_image=10, target_size=(400, 400), image_color_mode='rgb'):
     test_path = os.path.join(test_path, 'images')
     dirs = os.listdir(test_path)
-    for i, file in zip(range(num_image), dirs):
+    for i, file in zip(range(len(dirs)), dirs):
         img = io.imread(os.path.join(test_path, file), as_gray=(False if image_color_mode == 'rgb' else True))
         img = img / 255.0
         img = trans.resize(img, target_size)
@@ -90,7 +90,11 @@ def testGenerator(test_path, num_image=10, target_size=(400, 400), image_color_m
         yield img
 
 
-def saveResult(save_path, npyfile):
+def saveResult(test_path, npyfile):
+    images = os.listdir(os.path.join(test_path, 'images'))
+    results = list(map(lambda x: os.path.join(test_path, 'results', x), images))
+    
     for i, item in enumerate(npyfile):
         img = item[:, :, 0]
-        io.imsave(os.path.join(save_path, "%d_predict.png" % i), img)
+        io.imsave(results[i], img)
+
