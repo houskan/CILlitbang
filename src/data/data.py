@@ -1,5 +1,7 @@
 import numpy as np
-
+import random
+import cv2
+import itertools
 import os
 
 from keras.preprocessing.image import ImageDataGenerator
@@ -7,14 +9,50 @@ import skimage.io as io
 import skimage.transform as trans
 
 
+def get_path_pairs(train_path, image_folder, mask_folder):
+    images = []
+    masks = []
+
+    images_path = os.path.join(train_path, image_folder)
+    mask_path = os.path.join(train_path, mask_folder)
+    for file in os.listdir(images_path):
+        images.append(os.path.join(images_path, file))
+    for file in os.listdir(mask_path):
+        masks.append(os.path.join(mask_path, file))
+
+    result = []
+    for pair in zip(images, masks):
+        result.append(pair)
+
+    return result
+
 def adjustData(img, mask):
     if (np.max(img) > 1.0):
         img = img / 255.0
-        mask = mask / 255.0
+        mask = mask / np.max(mask)
         mask[mask > 0.5] = 1.0
         mask[mask <= 0.5] = 0.0
     return (img, mask)
 
+def adjustResnetImg(img):
+    img = cv2.resize(img, (input_width, input_height))
+    img = img.astype(np.float32)
+    #Subtracting mean from color channels. Values are from keras-segmentation, can maybe be improved (or might not be necessary at all - not tested yet)
+    img[:, :, 0] -= 103.939
+    img[:, :, 1] -= 116.779
+    img[:, :, 2] -= 123.68
+    img = img[:, :, ::-1]
+
+    return img
+
+def adjustResnetMask(mask):
+    mask = cv2.resize(mask, (output_width, output_height), interpolation=cv2.INTER_NEAREST)
+    mask = mask[:, :, 0]
+    mask = mask / np.max(mask)
+    mask[mask > 0.5] = 1.0
+    mask[mask <= 0.5] = 0.0
+
+    return mask
 
 def getTrainGenerators(aug_dict, train_path, test_path, batch_size=4, image_color_mode='rgb',
                        mask_color_mode='grayscale', target_size=(400, 400), seed=1):
@@ -70,6 +108,35 @@ def trainGenerator():
         img, mask = adjustData(img, mask)
         yield (img, mask)
 
+def trainResnetGenerator(batch_size, train_path, image_folder, mask_folder, n_classes,
+        input_height, input_width, output_height, output_width):
+
+    path_pairs = get_path_pairs(train_path, image_folder, mask_folder)
+    random.shuffle(path_pairs)
+    cycle = itertools.cycle(path_pairs)
+
+    while(True):
+        X = []
+        Y = []
+        for _ in range(batch_size):
+            img_path, mask_path = next(cycle)
+
+            img = cv2.imread(img_path, 1)
+            mask = cv2.imread(mask_path, 1)
+
+            img = adjustResnetImg(img)
+            mask = adjustResnetMask(mask)
+
+            seg_labels = np.zeros((output_height, output_width, n_classes))
+            for c in range(2):
+                seg_labels[:, :, c] = (mask == c).astype(int)
+            seg_labels = np.reshape(seg_labels, (output_width*output_height, n_classes))
+
+            X.append(img)
+            Y.append(seg_labels)
+
+        yield np.array(X), np.array(Y)
+
 
 def validationGenerator():
     global validation_generator
@@ -89,7 +156,23 @@ def testGenerator(test_path, num_image=10, target_size=(400, 400), image_color_m
         img = np.reshape(img, (1,) + img.shape)
         yield img
 
+def testResnetGenerator(test_path, image_folder, input_height, input_width):
 
+    folder = os.path.join(test_path, image_folder)
+    for file in os.listdir(folder):
+        X = []
+
+        img = cv2.imread(os.path.join(folder, file))
+        img = adjustResnetImg(img)
+
+        X.append(img)
+
+        yield np.array(X)
+
+
+"""
+Not yet correct for resnet! Code in main.py is correct for testing one image. Easily applied to multiple images here. Will do when I can test again. 
+"""
 def saveResult(test_path, npyfile):
     images = os.listdir(os.path.join(test_path, 'images'))
     results = list(map(lambda x: os.path.join(test_path, 'results', x), images))
@@ -97,4 +180,3 @@ def saveResult(test_path, npyfile):
     for i, item in enumerate(npyfile):
         img = item[:, :, 0]
         io.imsave(results[i], img)
-
