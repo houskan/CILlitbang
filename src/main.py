@@ -48,7 +48,7 @@ testGen = testResnetGenerator(test_path, 'images', input_height, input_width)
 """
 Will adapt this code into saveResult as soon as I can test stuff again on my desktop PC - Steven
 """
-test_img = cv2.imread(os.path.join(test_path, 'images/test_7.png'))
+test_img = cv2.imread(os.path.join(train_path, 'images/satImage_001.png'))
 test_img = cv2.resize(test_img, (input_width, input_height))
 test_img = test_img.astype(np.float32)
 test_img[:, :, 0] -= 103.939

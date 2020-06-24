@@ -34,7 +34,7 @@ def adjustData(img, mask):
         mask[mask <= 0.5] = 0.0
     return (img, mask)
 
-def adjustResnetImg(img):
+def adjustResnetImg(img, input_width, input_height):
     img = cv2.resize(img, (input_width, input_height))
     img = img.astype(np.float32)
     #Subtracting mean from color channels. Values are from keras-segmentation, can maybe be improved (or might not be necessary at all - not tested yet)
@@ -45,7 +45,7 @@ def adjustResnetImg(img):
 
     return img
 
-def adjustResnetMask(mask):
+def adjustResnetMask(mask, output_width, output_height):
     mask = cv2.resize(mask, (output_width, output_height), interpolation=cv2.INTER_NEAREST)
     mask = mask[:, :, 0]
     mask = mask / np.max(mask)
@@ -124,11 +124,11 @@ def trainResnetGenerator(batch_size, train_path, image_folder, mask_folder, n_cl
             img = cv2.imread(img_path, 1)
             mask = cv2.imread(mask_path, 1)
 
-            img = adjustResnetImg(img)
-            mask = adjustResnetMask(mask)
+            img = adjustResnetImg(img, input_width, input_height)
+            mask = adjustResnetMask(mask, output_width, output_height)
 
             seg_labels = np.zeros((output_height, output_width, n_classes))
-            for c in range(2):
+            for c in range(n_classes):
                 seg_labels[:, :, c] = (mask == c).astype(int)
             seg_labels = np.reshape(seg_labels, (output_width*output_height, n_classes))
 
@@ -163,7 +163,7 @@ def testResnetGenerator(test_path, image_folder, input_height, input_width):
         X = []
 
         img = cv2.imread(os.path.join(folder, file))
-        img = adjustResnetImg(img)
+        img = adjustResnetImg(img, input_width, input_height)
 
         X.append(img)
 
