@@ -139,5 +139,6 @@ def resnet50_unet(n_classes, input_height=416, input_width=608,
     model = _unet(n_classes, get_resnet50_encoder,
                   input_height=input_height, input_width=input_width)
     model.model_name = "resnet50_unet"
-    model.compile(optimizer = 'adadelta', loss = 'binary_crossentropy', metrics = ['accuracy'])
+    opt = Adam(learning_rate=0.0001)
+    model.compile(optimizer=opt, loss = 'binary_crossentropy', metrics = ['accuracy'])
     return model
