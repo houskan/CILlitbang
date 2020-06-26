@@ -169,10 +169,6 @@ def testResnetGenerator(test_path, image_folder, input_height, input_width):
 
         yield np.array(X)
 
-
-"""
-Not yet correct for resnet! Code in main.py is correct for testing one image. Easily applied to multiple images here. Will do when I can test again. 
-"""
 def saveResult(test_path, npyfile):
     images = os.listdir(os.path.join(test_path, 'images'))
     results = list(map(lambda x: os.path.join(test_path, 'results', x), images))
@@ -180,3 +176,19 @@ def saveResult(test_path, npyfile):
     for i, item in enumerate(npyfile):
         img = item[:, :, 0]
         io.imsave(results[i], img)
+
+def saveResnetResult(test_path, images, results, output_height, output_width, n_classes):
+    colors = [(0,0,0), (255, 255, 255)]
+    resultNames = list(map(lambda x: os.path.join(test_path, 'results', x), images))
+
+    for i, item in enumerate(results):
+        result = item.reshape((output_height,  output_width, n_classes)).argmax(axis=2)
+        seg_img = np.zeros((output_height, output_width, 3))
+        for c in range(n_classes):
+            seg_arr_c = result[:, :] == c
+            seg_img[:, :, 0] += ((seg_arr_c)*(colors[c][0])).astype('uint8')
+            seg_img[:, :, 1] += ((seg_arr_c)*(colors[c][1])).astype('uint8')
+            seg_img[:, :, 2] += ((seg_arr_c)*(colors[c][2])).astype('uint8')
+
+        img = cv2.resize(seg_img, (608, 608))
+        cv2.imwrite(resultNames[i], img)

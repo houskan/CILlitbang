@@ -114,8 +114,6 @@ def get_resnet50_encoder(input_height=224,  input_width=224,
     assert input_height % 32 == 0
     assert input_width % 32 == 0
 
-    IMAGE_ORDERING = 'channels_last'
-
     img_input = Input(shape=(input_height, input_width, 3))
 
     bn_axis = 3
