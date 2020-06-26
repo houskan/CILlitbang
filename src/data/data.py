@@ -108,12 +108,23 @@ def trainGenerator():
         img, mask = adjustData(img, mask)
         yield (img, mask)
 
-def trainResnetGenerator(batch_size, train_path, image_folder, mask_folder, n_classes,
-        input_height, input_width, output_height, output_width):
+def getResnetGenerators(train_path, image_folder, mask_folder, 
+                        input_height, input_width, output_height, output_width, n_classes, batch_size, validation_split):
 
     path_pairs = get_path_pairs(train_path, image_folder, mask_folder)
     random.shuffle(path_pairs)
-    cycle = itertools.cycle(path_pairs)
+
+    global training_pairs, validation_pairs
+    training_pairs = [path_pairs[i] for i in range(int(100*validation_split), len(path_pairs))]
+    validation_pairs = [path_pairs[i] for i in range(int(100*validation_split))]
+
+    return (trainResnetGenerator(input_height, input_width, output_height, output_width, n_classes, batch_size), 
+        validationResnetGenerator(input_height, input_width, output_height, output_width, n_classes, batch_size))
+
+def trainResnetGenerator(input_height, input_width, output_height, output_width, n_classes, batch_size):
+
+    global training_pairs
+    cycle = itertools.cycle(training_pairs)
 
     while(True):
         X = []
@@ -143,6 +154,33 @@ def validationGenerator():
     for (img, mask) in validation_generator:
         img, mask = adjustData(img, mask)
         yield (img, mask)
+
+def validationResnetGenerator(input_height, input_width, output_height, output_width, n_classes, batch_size):
+
+    global validation_pairs
+    cycle = itertools.cycle(validation_pairs)
+
+    while(True):
+        X = []
+        Y = []
+        for _ in range(batch_size):
+            img_path, mask_path = next(cycle)
+
+            img = cv2.imread(img_path, 1)
+            mask = cv2.imread(mask_path, 1)
+
+            img = adjustResnetImg(img, input_width, input_height)
+            mask = adjustResnetMask(mask, output_width, output_height)
+
+            seg_labels = np.zeros((output_height, output_width, n_classes))
+            for c in range(n_classes):
+                seg_labels[:, :, c] = (mask == c).astype(int)
+            seg_labels = np.reshape(seg_labels, (output_width*output_height, n_classes))
+
+            X.append(img)
+            Y.append(seg_labels)
+
+        yield np.array(X), np.array(Y)
 
 
 def testGenerator(test_path, num_image=10, target_size=(400, 400), image_color_mode='rgb'):
