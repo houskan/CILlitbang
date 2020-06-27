@@ -1,3 +1,7 @@
+from keras.preprocessing.image import ImageDataGenerator
+import skimage.io as io
+import skimage.transform as trans
+
 def adjustData(img, mask):
     if (np.max(img) > 1.0):
         img = img / 255.0

@@ -4,10 +4,6 @@ import cv2
 import itertools
 import os
 
-from keras.preprocessing.image import ImageDataGenerator
-import skimage.io as io
-import skimage.transform as trans
-
 
 def get_path_pairs(train_path, image_folder, mask_folder):
     images = []
