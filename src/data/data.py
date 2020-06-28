@@ -50,8 +50,8 @@ def getResnetGenerators(train_path, image_folder, mask_folder,
     random.shuffle(path_pairs)
 
     global training_pairs, validation_pairs
-    training_pairs = [path_pairs[i] for i in range(int(100*validation_split), len(path_pairs))]
-    validation_pairs = [path_pairs[i] for i in range(int(100*validation_split))]
+    training_pairs = [path_pairs[i] for i in range(int(len(path_pairs)*validation_split), len(path_pairs))]
+    validation_pairs = [path_pairs[i] for i in range(int(len(path_pairs)*validation_split))]
 
     return (trainResnetGenerator(input_height, input_width, output_height, output_width, n_classes, batch_size), 
         validationResnetGenerator(input_height, input_width, output_height, output_width, n_classes, batch_size))
