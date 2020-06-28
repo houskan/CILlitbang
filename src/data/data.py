@@ -4,6 +4,7 @@ import cv2
 import itertools
 import os
 
+validation_pairs = []
 
 def get_path_pairs(train_path, image_folder, mask_folder):
     images = []
