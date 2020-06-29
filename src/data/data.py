@@ -6,6 +6,8 @@ import os
 import tensorflow as tf
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+useAugmentation = True
 validation_pairs = []
 
 def get_path_pairs(train_path, image_folder, mask_folder):
@@ -45,6 +47,15 @@ def adjustResnetMask(mask, output_width, output_height):
 
     return mask
 
+
+
+def image_augmentation(img, mask, batch_size, datagen_img, datagen_mask):
+    # fits the model on batches with real-time data augmentation:
+    img = datagen_img.flow(img, batch_size=batch_size, seed=1).next()
+    mask = datagen_mask.flow(mask, batch_size=batch_size, seed=1).next()
+    return (img, mask)
+
+
 def getResnetGenerators(train_path, image_folder, mask_folder, 
                         input_height, input_width, output_height, output_width, n_classes, batch_size, validation_split):
 
@@ -63,6 +74,19 @@ def trainResnetGenerator(input_height, input_width, output_height, output_width,
     global training_pairs
     cycle = itertools.cycle(training_pairs)
 
+    aug_dict = dict(rotation_range=30.0,
+                    width_shift_range=0.1,
+                    height_shift_range=0.1,
+                    shear_range=0.05,
+                    zoom_range=0.1,
+                    horizontal_flip=True,
+                    vertical_flip=True,
+                    brightness_range=[0.9, 1.1],
+                    fill_mode='reflect')
+
+    datagen_img = ImageDataGenerator(**aug_dict)
+    datagen_mask = ImageDataGenerator(**aug_dict)
+
     while(True):
         X = []
         Y = []
@@ -71,6 +95,21 @@ def trainResnetGenerator(input_height, input_width, output_height, output_width,
 
             img = cv2.imread(img_path, 1)
             mask = cv2.imread(mask_path, 1)
+
+            if useAugmentation:
+                img = np.reshape(img, (1,) + img.shape)
+                mask = np.reshape(mask, (1,) + mask.shape)
+
+                # Using data generators to augment image and mask
+                # TODO: (Sebastian) Clean this up!!!
+                img, mask = image_augmentation(img, mask, batch_size=1, datagen_img=datagen_img, datagen_mask=datagen_mask)
+
+                # For debugging
+                #cv2.imwrite('../data/test_img1.png', img[0])
+                #cv2.imwrite('../data/test_mask1.png', mask[0])
+
+                img = img[0]
+                mask = mask[0]
 
             img = adjustResnetImg(img, input_width, input_height)
             mask = adjustResnetMask(mask, output_width, output_height)
