@@ -1,7 +1,7 @@
-import keras
-from keras.models import *
-from keras.layers import *
-from keras import layers
+from tensorflow import keras
+from tensorflow.keras.models import *
+from tensorflow.keras.layers import *
+from tensorflow.keras import layers
 
 IMAGE_ORDERING = 'channels_last'
 

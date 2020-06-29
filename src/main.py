@@ -1,6 +1,11 @@
 import numpy as np
+
 import tensorflow as tf
-from keras.callbacks import TensorBoard
+from tensorflow import keras
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
+#from keras.callbacks import TensorBoard
+import cv2
+
 import datetime
 
 import data.data
@@ -10,6 +15,11 @@ from data.tensorboardimage import *
 
 epochs = 20
 steps_per_epoch = 100
+tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
+
+print("Keras Version:", keras.__version__)
+print("Tensorflow Version:", tf.__version__)
+
 train_path = '../data/training/'
 test_path = '../data/test/'
 

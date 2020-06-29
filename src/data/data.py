@@ -3,7 +3,9 @@ import random
 import cv2
 import itertools
 import os
+import tensorflow as tf
 
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 validation_pairs = []
 
 def get_path_pairs(train_path, image_folder, mask_folder):
