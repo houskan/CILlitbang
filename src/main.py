@@ -10,14 +10,14 @@ from src.data.data import *
 
 train_path = '../data/training/'
 test_path = '../data/test/'
-data_gen_args = dict(rotation_range=90,
+data_gen_args = dict(rotation_range=45,
                      width_shift_range=0.05,
                      height_shift_range=0.05,
                      shear_range=0.05,
                      zoom_range=0.05,
                      horizontal_flip=True,
                      vertical_flip=True,
-                     fill_mode='nearest',
+                     fill_mode='reflect',
                      validation_split=0.2)
 
 trainGen, validationGenerator = getTrainGenerators(data_gen_args, train_path, test_path, batch_size=4)
