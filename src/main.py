@@ -15,7 +15,8 @@ from data.tensorboardimage import *
 
 epochs = 20
 steps_per_epoch = 100
-tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
+for device in tf.config.experimental.list_physical_devices('GPU)'):
+    tf.config.experimental.set_memory_growth(device, True)
 
 print("Keras Version:", keras.__version__)
 print("Tensorflow Version:", tf.__version__)

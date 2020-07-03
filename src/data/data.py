@@ -4,6 +4,7 @@ import cv2
 import itertools
 import os
 import tensorflow as tf
+from data.mask_to_submission import *
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
@@ -179,3 +180,116 @@ def saveResnetResult(test_path, images, results, output_height, output_width, n_
 
         img = cv2.resize(seg_img, (608, 608))
         cv2.imwrite(resultNames[i], img)
+
+
+def getPatchGenerators(train_path, image_folder, mask_folder,
+                        input_height, input_width, output_height, output_width, n_classes, batch_size, validation_split, patch_size=(32,32)):
+
+    path_pairs = get_path_pairs(train_path, image_folder, mask_folder)
+    random.shuffle(path_pairs)
+
+    global training_pairs, validation_pairs
+    training_pairs = [path_pairs[i] for i in range(int(len(path_pairs)*validation_split), len(path_pairs))]
+    validation_pairs = [path_pairs[i] for i in range(int(len(path_pairs)*validation_split))]
+
+    return (trainPatchGenerator(input_height=input_height, input_width=input_width, output_height=output_height, output_width=output_width,
+                                patch_size=patch_size, n_classes=n_classes, batch_size=batch_size),
+            trainPatchGenerator(input_height=input_height, input_width=input_width, output_height=output_height,
+                                output_width=output_width,
+                                patch_size=patch_size, n_classes=n_classes, batch_size=batch_size))
+
+
+def trainPatchGenerator(*, input_height, input_width, output_height, output_width,
+                        patch_size = (32,32), n_classes=2, batch_size=1):
+    global training_pairs
+    cycle = itertools.cycle(training_pairs)
+
+    patch_x, patch_y = patch_size
+    while (True):
+        X = []
+        Y = []
+
+        img_path, mask_path = next(cycle)
+        img = cv2.imread(img_path, 1)
+        mask = cv2.imread(mask_path, 1)
+
+        img = adjustResnetImg(img, input_width, input_height)
+        mask = adjustResnetMask(mask, output_width, output_height)
+
+        seg_labels = np.zeros((output_height, output_width, n_classes))
+        for c in range(n_classes):
+            seg_labels[:, :, c] = (mask == c).astype(int)
+
+        patches_X = img.reshape(img.shape[0] // patch_x, patch_x, img.shape[1] // patch_y, patch_y, 3).swapaxes(1, 2)
+        patches_Y = seg_labels.reshape(seg_labels.shape[0] // (patch_x // 2), patch_x // 2, seg_labels.shape[1] // (patch_y // 2), patch_y // 2, n_classes).swapaxes(1, 2)
+
+        I = patches_X.shape[0]
+        J = patches_Y.shape[1]
+
+        for _ in range(batch_size):
+            i = random.randint(0, I-1)
+            j = random.randint(0, J-1)
+
+
+            while(np.mean(patches_Y[i][j]) < 0.1 and random.random() < 0.6):
+                i = random.randint(0, I - 1)
+                j = random.randint(0, J - 1)
+
+            X.append(patches_X[i][j])
+            y = np.reshape(patches_Y[i][j], ((patch_x // 2) * (patch_y // 2), n_classes))
+            Y.append(y)
+        yield np.array(X), np.array(Y)
+
+
+def validationPatchGenerator(*, input_height, input_width, output_height, output_width,
+                        patch_size=(32, 32), n_classes=2, batch_size=1):
+    global validation_pairs
+    cycle = itertools.cycle(validation_pairs)
+
+    patch_x, patch_y = patch_size
+    while (True):
+        X = []
+        Y = []
+
+        img_path, mask_path = next(cycle)
+        img = cv2.imread(img_path, 1)
+        mask = cv2.imread(mask_path, 1)
+
+        img = adjustResnetImg(img, input_width, input_height)
+        mask = adjustResnetMask(mask, output_width, output_height)
+
+        seg_labels = np.zeros((output_height, output_width, n_classes))
+        for c in range(n_classes):
+            seg_labels[:, :, c] = (mask == c).astype(int)
+
+        patches_X = img.reshape(img.shape[0] // patch_x, patch_x, img.shape[1] // patch_y, patch_y, 3).swapaxes(1, 2)
+        patches_Y = seg_labels.reshape(seg_labels.shape[0] // (patch_x // 2), patch_x // 2, seg_labels.shape[1] // (patch_y // 2), patch_y // 2, n_classes).swapaxes(1, 2)
+
+        I = patches_X.shape[0]
+        J = patches_Y.shape[1]
+
+        for _ in range(batch_size):
+            i = random.randint(0, I-1)
+            j = random.randint(0, J-1)
+
+            X.append(patches_X[i][j])
+            y = np.reshape(patches_Y[i][j], ((patch_x // 2) * (patch_y // 2), n_classes))
+            Y.append(y)
+        yield np.array(X), np.array(Y)
+
+
+def testPatchGenerator(test_path, image_folder, input_height, input_width, patch_size=(32, 32)):
+
+    folder = os.path.join(test_path, image_folder)
+    patch_x, patch_y = patch_size
+    for file in os.listdir(folder):
+        img = cv2.imread(os.path.join(folder, file))
+        img = adjustResnetImg(img, input_width, input_height)
+
+        patches = img.reshape(img.shape[0] // patch_x, patch_x, img.shape[1] // patch_y, patch_y, 3).swapaxes(1, 2)
+        for i in range(patches.shape[0]):
+            for j in range(patches.shape[1]):
+                X = []
+                patch = patches[i][j]
+                X.append(patch)
+                yield np.array(X)
