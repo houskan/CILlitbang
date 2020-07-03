@@ -31,11 +31,11 @@ def get_path_pairs(train_path, image_folder, mask_folder):
 def adjustResnetImg(img, input_width, input_height):
     img = cv2.resize(img, (input_width, input_height))
     img = img.astype(np.float32)
-    #Subtracting mean from color channels. Values are from keras-segmentation, can maybe be improved (or might not be necessary at all - not tested yet)
+    """"#Subtracting mean from color channels. Values are from keras-segmentation, can maybe be improved (or might not be necessary at all - not tested yet)
     img[:, :, 0] -= 103.939
     img[:, :, 1] -= 116.779
     img[:, :, 2] -= 123.68
-    img = img[:, :, ::-1]
+    img = img[:, :, ::-1]"""
 
     return img
 
@@ -194,7 +194,7 @@ def getPatchGenerators(train_path, image_folder, mask_folder,
 
     return (trainPatchGenerator(input_height=input_height, input_width=input_width, output_height=output_height, output_width=output_width,
                                 patch_size=patch_size, n_classes=n_classes, batch_size=batch_size),
-            trainPatchGenerator(input_height=input_height, input_width=input_width, output_height=output_height,
+            validationPatchGenerator(input_height=input_height, input_width=input_width, output_height=output_height,
                                 output_width=output_width,
                                 patch_size=patch_size, n_classes=n_classes, batch_size=batch_size))
 
@@ -231,10 +231,10 @@ def trainPatchGenerator(*, input_height, input_width, output_height, output_widt
             j = random.randint(0, J-1)
 
 
-            while(np.mean(patches_Y[i][j]) < 0.1 and random.random() < 0.6):
+            """while(np.mean(patches_Y[i][j]) < 0.05 and random.random() < 0.8):
                 i = random.randint(0, I - 1)
                 j = random.randint(0, J - 1)
-
+            """
             X.append(patches_X[i][j])
             y = np.reshape(patches_Y[i][j], ((patch_x // 2) * (patch_y // 2), n_classes))
             Y.append(y)

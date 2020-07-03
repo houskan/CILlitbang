@@ -15,8 +15,8 @@ from data.tensorboardimage import *
 
 epochs = 50
 steps_per_epoch = 100
-patch_size = (32, 32)
-batch_size = 16 #here how many patches per image will be extracted
+patch_size = (64, 64)
+batch_size = 12 #here how many patches per image will be extracted
 validation_split = 0.1
 
 for device in tf.config.experimental.list_physical_devices('GPU)'):
@@ -31,10 +31,10 @@ test_path = '../data/test/'
 model = resnet50_unet(n_classes=2, input_height=patch_size[0], input_width=patch_size[1])
 
 n_classes = model.n_classes
-input_height = 416
-input_width = 416
-output_height = 208
-output_width = 208
+input_height = 448
+input_width = 448
+output_height = 224
+output_width = 224
 
 model.summary()
 
@@ -51,7 +51,7 @@ trainGen, valGen = getPatchGenerators(train_path=train_path, image_folder='image
                                        output_width=output_width, batch_size=batch_size, patch_size=patch_size,
                                        n_classes=n_classes,  validation_split=validation_split)
 
-testGen = testPatchGenerator(test_path=test_path, image_folder='images', input_height=608, input_width=608,
+testGen = testPatchGenerator(test_path=test_path, image_folder='images', input_height=640, input_width=640,
                              patch_size=patch_size)
 
 # tensorboard image initialization
@@ -68,12 +68,12 @@ images = os.listdir(os.path.join(test_path, 'images'))
 #model.predict returns all patches vectorized. the reshapes reconstruct each image from 19*19 patches
 #TODO: generalize
 
-results = model.predict(testGen, steps=len(images)*19*19, verbose=1)
-results = np.reshape(results, (len(images), 361, 16, 16, n_classes))
-results = np.reshape(results, (len(images), 19, 19, 16, 16, n_classes))
+results = model.predict(testGen, steps=len(images)*100, verbose=1)
+results = np.reshape(results, (len(images), 100, 32, 32, n_classes))
+results = np.reshape(results, (len(images), 10, 10, 32, 32, n_classes))
 results = np.swapaxes(results, 2, 3)
-results = np.reshape(results, (len(images), 304, 304, n_classes))
-results = np.reshape(results, (len(images), 304*304, n_classes))
-saveResnetResult(test_path=test_path, images=images, results=results, output_height=304, output_width=304, n_classes=n_classes)
+results = np.reshape(results, (len(images), 320, 320, n_classes))
+results = np.reshape(results, (len(images), 320*320, n_classes))
+saveResnetResult(test_path=test_path, images=images, results=results, output_height=320, output_width=320, n_classes=n_classes)
 
 
