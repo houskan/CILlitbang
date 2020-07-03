@@ -15,6 +15,7 @@ from data.tensorboardimage import *
 
 epochs = 20
 steps_per_epoch = 100
+
 for device in tf.config.experimental.list_physical_devices('GPU)'):
     tf.config.experimental.set_memory_growth(device, True)
 
