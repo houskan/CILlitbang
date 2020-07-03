@@ -31,11 +31,11 @@ def get_path_pairs(train_path, image_folder, mask_folder):
 def adjustResnetImg(img, input_width, input_height):
     img = cv2.resize(img, (input_width, input_height))
     img = img.astype(np.float32)
-    """"#Subtracting mean from color channels. Values are from keras-segmentation, can maybe be improved (or might not be necessary at all - not tested yet)
+    #Subtracting mean from color channels. Values are from keras-segmentation, can maybe be improved (or might not be necessary at all - not tested yet)
     img[:, :, 0] -= 103.939
     img[:, :, 1] -= 116.779
     img[:, :, 2] -= 123.68
-    img = img[:, :, ::-1]"""
+    img = img[:, :, ::-1]
 
     return img
 
