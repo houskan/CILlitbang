@@ -1,14 +1,61 @@
 import numpy as np
-
-import os
-
+from tensorflow import keras
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+import cv2
+
 import skimage.io as io
 import skimage.transform as trans
 
+import random
+import os
+import shutil
+
+
+tmp_train_dir = '../tmp/train/'
+tmp_validation_dir = '../tmp/validation/'
+
+train_pairs = []
+validation_pairs = []
+
+def get_path_pairs(train_path, image_folder, mask_folder):
+    images = []
+    masks = []
+
+    images_path = os.path.join(train_path, image_folder)
+    mask_path = os.path.join(train_path, mask_folder)
+    for file in os.listdir(images_path):
+        images.append(os.path.join(images_path, file))
+    for file in os.listdir(mask_path):
+        masks.append(os.path.join(mask_path, file))
+
+    result = []
+    for pair in zip(images, masks):
+        result.append(pair)
+
+    return result
+
+def copy_path_pairs(pairs, path):
+
+    # removing all previous files in path
+    if os.path.exists(path):
+        shutil.rmtree(path)
+
+    os.mkdir(path)
+
+    tmp_img_dir = os.path.join(path, 'images')
+    tmp_mask_dir = os.path.join(path, 'groundtruth')
+
+    os.mkdir(tmp_img_dir)
+    os.mkdir(tmp_mask_dir)
+
+    for img_path, mask_path in pairs:
+        shutil.copy2(img_path, tmp_img_dir)
+        shutil.copy2(mask_path, tmp_mask_dir)
+
 
 def adjustData(img, mask):
-    if (np.max(img) > 1.0):
+    if np.max(img) > 1.0:
         img = img / 255.0
         mask = mask / 255.0
         mask[mask > 0.5] = 1.0
@@ -16,53 +63,56 @@ def adjustData(img, mask):
     return (img, mask)
 
 
-def getTrainGenerators(aug_dict, train_path, test_path, batch_size=4, image_color_mode='rgb',
-                       mask_color_mode='grayscale', target_size=(400, 400), seed=1):
+def getTrainGenerators(aug_dict, train_path, image_folder, mask_folder, target_size, batch_size, validation_split, seed):
+
+    path_pairs = get_path_pairs(train_path, image_folder, mask_folder)
+    random.shuffle(path_pairs)
+
+    global train_pairs, validation_pairs
+    train_pairs = [path_pairs[i] for i in range(int(len(path_pairs)*validation_split), len(path_pairs))]
+    validation_pairs = [path_pairs[i] for i in range(int(len(path_pairs)*validation_split))]
+
+    copy_path_pairs(train_pairs, tmp_train_dir)
+    copy_path_pairs(validation_pairs, tmp_validation_dir)
+
+    train_img_generator = ImageDataGenerator(**aug_dict).flow_from_directory(
+        tmp_train_dir,
+        classes=['images'],
+        class_mode=None,
+        color_mode='rgb',
+        target_size=target_size,
+        batch_size=batch_size,
+        seed=seed)
+    train_mask_generator = ImageDataGenerator(**aug_dict).flow_from_directory(
+        tmp_train_dir,
+        classes=['groundtruth'],
+        class_mode=None,
+        color_mode='grayscale',
+        target_size=target_size,
+        batch_size=batch_size,
+        seed=seed)
+    validation_img_generator = ImageDataGenerator().flow_from_directory(
+        tmp_validation_dir,
+        classes=['images'],
+        class_mode=None,
+        color_mode='rgb',
+        target_size=target_size,
+        batch_size=batch_size,
+        seed=seed)
+    validation_mask_generator = ImageDataGenerator().flow_from_directory(
+        tmp_validation_dir,
+        classes=['groundtruth'],
+        class_mode=None,
+        color_mode='grayscale',
+        target_size=target_size,
+        batch_size=batch_size,
+        seed=seed)
+
     global train_generator, validation_generator
+    train_generator = zip(train_img_generator, train_mask_generator)
+    validation_generator = zip(validation_img_generator, validation_mask_generator)
 
-    image_datagen = ImageDataGenerator(**aug_dict)
-    mask_datagen = ImageDataGenerator(**aug_dict)
-    image_generator = image_datagen.flow_from_directory(
-        train_path,
-        classes=['images'],
-        class_mode=None,
-        color_mode=image_color_mode,
-        target_size=target_size,
-        batch_size=batch_size,
-        seed=seed,
-        subset='training')
-    mask_generator = mask_datagen.flow_from_directory(
-        train_path,
-        classes=['groundtruth'],
-        class_mode=None,
-        color_mode=mask_color_mode,
-        target_size=target_size,
-        batch_size=batch_size,
-        seed=seed,
-        subset='training')
-    v_image_generator = image_datagen.flow_from_directory(
-        train_path,
-        classes=['images'],
-        class_mode=None,
-        color_mode=image_color_mode,
-        target_size=target_size,
-        batch_size=batch_size,
-        seed=seed,
-        subset='validation')
-    v_mask_generator = mask_datagen.flow_from_directory(
-        train_path,
-        classes=['groundtruth'],
-        class_mode=None,
-        color_mode=mask_color_mode,
-        target_size=target_size,
-        batch_size=batch_size,
-        seed=seed,
-        subset='validation')
-
-    train_generator = zip(image_generator, mask_generator)
-    validation_generator = zip(v_image_generator, v_mask_generator)
     return trainGenerator(), validationGenerator()
-
 
 def trainGenerator():
     global train_generator
@@ -78,19 +128,45 @@ def validationGenerator():
         yield (img, mask)
 
 
-def testGenerator(test_path, num_image=10, target_size=(400, 400), image_color_mode='rgb'):
-    test_path = os.path.join(test_path, 'images')
-    dirs = os.listdir(test_path)
-    for i, file in zip(range(num_image), dirs):
-        img = io.imread(os.path.join(test_path, file), as_gray=(False if image_color_mode == 'rgb' else True))
+def testGenerator(test_path, image_folder, target_size):
+    folder = os.path.join(test_path, image_folder)
+    for file in os.listdir(folder):
+        # For some reason cv2 does not work here and we have to use skimage io here
+        #img = cv2.imread(os.path.join(folder, file))
+        #img = img.astype(np.float32)
+        #img = cv2.resize(img, target_size, interpolation=cv2.INTER_NEAREST)
+
+        # Loading image as rgb from file, normalizing it to range [0, 1],
+        # (interpolate) resizing it to target size and reshaping it
+        img = io.imread(os.path.join(folder, file), as_gray=False)
         img = img / 255.0
         img = trans.resize(img, target_size)
-        # img = np.reshape(img,img.shape+(1,))
         img = np.reshape(img, (1,) + img.shape)
         yield img
 
+def saveResult(test_path, images, results):
 
-def saveResult(save_path, npyfile):
-    for i, item in enumerate(npyfile):
-        img = item[:, :, 0]
-        io.imsave(os.path.join(save_path, "%d_predict.png" % i), img)
+    # Initializing two list for test image mask result file path names (first discrete, second continuous)
+    resultNames = list(map(lambda x: os.path.join(test_path, 'results', x), images))
+    resultNamesCont = list(map(lambda x: os.path.join(test_path, 'results', '{0}_cont.{1}'.format(*x.rsplit('.', 1))), images))
+
+    # Iterating through all result masks
+    for i, item in enumerate(results):
+
+        # Initializing new mask image and discretizing it with threshold=0.5 to either 0 or 1
+        mask = item.copy()
+        mask[mask > 0.5] = 1.0
+        mask[mask <= 0.5] = 0.0
+
+        # Resizing discrete mask back to original image size (608, 608),
+        # converting back to uint8 range [0, 255] and saving it to result file
+        mask = cv2.resize(mask, (608, 608), interpolation=cv2.INTER_NEAREST)
+        mask = (mask * 255.0).astype('uint8')
+        cv2.imwrite(resultNames[i], mask)
+
+        # Copying raw unet output, resizing this continuous mask back to original image size (608, 608),
+        # converting back to uint8 range [0, 255] and saving it to result file
+        mask_cont = item.copy()
+        mask_cont = cv2.resize(mask_cont, (608, 608), interpolation=cv2.INTER_NEAREST)
+        mask_cont = (mask_cont * 255.0).astype('uint8')
+        cv2.imwrite(resultNamesCont[i], mask_cont)

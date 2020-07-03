@@ -1,15 +1,23 @@
 import numpy as np
 import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.callbacks import TensorBoard
 
-if tf.test.gpu_device_name():
-    tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
-    # print('Default GPU Device: {}'.format(tf.test.gpu_device_name()))
+import datetime
 
-from src.models.model import *
-from src.data.data import *
+tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
+
+import data.data
+from models.model import *
+from data.data import *
+from data.tensorboard_image import *
+
+predict_best = True
 
 train_path = '../data/training/'
 test_path = '../data/test/'
+
+# Augmentation parameters for training generator (not validation!)
 data_gen_args = dict(rotation_range=45,
                      width_shift_range=0.05,
                      height_shift_range=0.05,
@@ -17,19 +25,48 @@ data_gen_args = dict(rotation_range=45,
                      zoom_range=0.05,
                      horizontal_flip=True,
                      vertical_flip=True,
-                     fill_mode='reflect',
-                     validation_split=0.2)
+                     fill_mode='reflect')
 
-trainGen, validationGenerator = getTrainGenerators(data_gen_args, train_path, test_path, batch_size=4)
+# Initializing training and validation generators
+trainGen, valGen = getTrainGenerators(data_gen_args, train_path=train_path,
+                                      image_folder='images', mask_folder='groundtruth',
+                                      target_size=(400, 400), batch_size=4, validation_split=0.1, seed=1)
 
+# Initializing and compiling unet model
 model = unet()
 
-# To save the model
-# model_checkpoint = ModelCheckpoint('unet_roadseg.hdf5', monitor='loss', verbose=1, save_best_only=True)
-# model.fit(trainGen, steps_per_epoch=300, epochs=3, callbacks=[model_checkpoint], verbose=1)
+# initializing callbacks for training
+callbacks = []
 
-model.fit(trainGen, validation_data=validationGenerator, steps_per_epoch=100, validation_steps=10, epochs=10, verbose=1)
+# Tensorboard initialization
+log_dir = "../logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir, write_graph=True)
+callbacks.append(tensorboard_callback)
 
-testGen = testGenerator(test_path, num_image=90)
-results = model.predict(testGen, steps=30, verbose=1)
-saveResult(os.path.join(test_path, 'results'), results)
+# Tensorboard image initialization
+tensorboard_image = TensorBoardImage(log_dir=log_dir, validation_pairs=data.data.validation_pairs)
+callbacks.append(tensorboard_image)
+
+# Checkpoint initialization to store best model
+model_path = "../tmp/model.h5"
+checkpoint_callback = ModelCheckpoint(model_path, monitor="val_loss", mode="min", save_best_only=True, verbose=1)
+callbacks.append(checkpoint_callback)
+
+# Training unet model
+model.fit(trainGen, steps_per_epoch=100, epochs=50, validation_data=valGen, validation_steps=10, callbacks=callbacks, verbose=1)
+
+# Initializing test generator
+testGen = testGenerator(test_path=test_path, image_folder='images', target_size=(400, 400))
+
+# Checking if model weights for best val_loss should be picked for prediction
+if predict_best:
+    # Loading best result
+    model.load_weights(model_path)
+
+# Predicting results on test images
+images = os.listdir(os.path.join(test_path, 'images'))
+results = model.predict(testGen, steps=len(images), verbose=1)
+
+# Saving result masks of test images
+saveResult(test_path=test_path, images=images, results=results)
+
