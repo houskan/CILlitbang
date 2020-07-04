@@ -101,9 +101,9 @@ Function returning the LG-Seg-Net in https://arxiv.org/pdf/1607.05620.pdf.
 arg: input/output heights 
 return: Model
 '''
-def lg_seg_model(input_height=256, input_width=256, output_height=16, output_width=16):
-   inp_vgg = Input(shape=(64, 64, 3)) 
-   inp_alex = Input(shape=(256, 256, 3)) 
+def lg_seg_model(input_height_vgg=256, input_width_vgg=256, input_height_alex=256, input_width_alex=256, output_height=16, output_width=16):
+   inp_vgg = Input(shape=(input_height_vgg, input_width_vgg, 3)) 
+   inp_alex = Input(shape=(input_height_alex, input_width_alex, 3)) 
 
    o1 = _vgg_net(inp_vgg, output_height, output_width)
    o1 = Flatten()(o1)
