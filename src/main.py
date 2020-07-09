@@ -1,4 +1,5 @@
 import numpy as np
+
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.callbacks import TensorBoard
@@ -30,6 +31,9 @@ data_gen_args = dict(rotation_range=45,
                      horizontal_flip=True,
                      vertical_flip=True,
                      fill_mode='reflect')
+
+print("Keras Version:", keras.__version__)
+print("Tensorflow Version:", tf.__version__)
 
 # Initializing training and validation generators
 trainGen, valGen = getTrainGenerators(data_gen_args, train_path=train_path,
