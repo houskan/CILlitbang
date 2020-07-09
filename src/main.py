@@ -15,7 +15,7 @@ from data.tensorboard_image import *
 from data.post_processing import *
 
 predict_best = True
-train = True
+train_model = True
 combined_prediction = True
 
 train_path = '../data/training/'
@@ -43,7 +43,7 @@ print('Tensorflow Version:', tf.__version__)
 # Initializing and compiling unet model
 model = unet()
 
-if train:
+if train_model:
     # initializing callbacks for training
     callbacks = []
 
