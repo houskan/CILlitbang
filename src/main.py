@@ -8,7 +8,7 @@ import datetime
 tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
 
 import data.data
-from models.model import *
+from models.unet import *
 from data.data import *
 from data.tensorboard_image import *
 from data.post_processing import *
