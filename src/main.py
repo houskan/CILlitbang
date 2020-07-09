@@ -20,7 +20,7 @@ combined_prediction = True
 
 train_path = '../data/training/'
 test_path = '../data/test/'
-model_path = "../tmp/model.h5"
+model_path = '../tmp/model.h5'
 
 # Augmentation parameters for training generator (not validation!)
 data_gen_args = dict(rotation_range=45,
@@ -32,13 +32,13 @@ data_gen_args = dict(rotation_range=45,
                      vertical_flip=True,
                      fill_mode='reflect')
 
-print("Keras Version:", keras.__version__)
-print("Tensorflow Version:", tf.__version__)
-
 # Initializing training and validation generators
 trainGen, valGen = getTrainGenerators(data_gen_args, train_path=train_path,
                                       image_folder='images', mask_folder='groundtruth',
                                       target_size=(400, 400), batch_size=4, validation_split=0.1, seed=1)
+
+print('Keras Version:', keras.__version__)
+print('Tensorflow Version:', tf.__version__)
 
 # Initializing and compiling unet model
 model = unet()
@@ -48,7 +48,7 @@ if train:
     callbacks = []
 
     # Initializing tensorboard callback for plots, graph, etc.
-    log_dir = "../logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = '../logs/fit/' + datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
     tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir, write_graph=True)
     callbacks.append(tensorboard_callback)
 
@@ -57,7 +57,7 @@ if train:
     callbacks.append(tensorboard_image_callback)
 
     # Initialization model checkpoint to store model with best validation loss
-    model_checkpoint_callback = ModelCheckpoint(model_path, monitor="val_loss", mode="min", save_best_only=True, verbose=1)
+    model_checkpoint_callback = ModelCheckpoint(model_path, monitor='val_loss', mode='min', save_best_only=True, verbose=1)
     callbacks.append(model_checkpoint_callback)
 
     # Training unet model
