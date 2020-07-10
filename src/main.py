@@ -22,6 +22,9 @@ train_path = '../data/training/'
 test_path = '../data/test/'
 model_path = '../tmp/model.h5'
 
+STEPS_PER_EPOCH = 100
+EPOCHS = 50
+
 # Augmentation parameters for training generator (not validation!)
 data_gen_args = dict(rotation_range=45,
                      width_shift_range=0.05,
@@ -61,7 +64,7 @@ if train_model:
     callbacks.append(model_checkpoint_callback)
 
     # Training unet model
-    model.fit(trainGen, steps_per_epoch=100, epochs=50, validation_data=valGen, validation_steps=10, callbacks=callbacks, verbose=1)
+    model.fit(trainGen, steps_per_epoch=STEPS_PER_EPOCH, epochs=EPOCHS, validation_data=valGen, validation_steps=10, callbacks=callbacks, verbose=1)
 
 # Checking if model weights for best val_loss should be picked for prediction
 if predict_best:
