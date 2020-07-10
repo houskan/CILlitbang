@@ -19,8 +19,8 @@ TODO: This code assume that test_image_size // groundtruth_patch_size == 0.
 If necessary, this can be generalized
 """
 
-EPOCHS = 50
-STEPS_PER_EPOCH = 243
+EPOCHS = 60
+STEPS_PER_EPOCH = 529
 BATCH_SIZE = 16
 VALIDATION_SPLIT = 0.1
 
@@ -29,6 +29,9 @@ CONTEXT_PATCH_SIZE = 64
 
 TRAIN_IMAGE_SIZE=400
 TRAIN_IMAGE_SIZE_ADJUSTED=416
+
+TRAIN_IMAGES_FOLDER = "images_augmented_2"
+TRAIN_GROUNDTRUTH_FOLDER = "groundtruth_augmented_2"
 
 TEST_IMAGE_SIZE = 608
 
@@ -63,7 +66,7 @@ tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir, write_graph=
 callbacks.append(tensorboard_callback)"""
 
 
-train_gen, validation_gen = get_patch_generators(train_path=train_path, image_folder='images_augmented', mask_folder='groundtruth_augmented',
+train_gen, validation_gen = get_patch_generators(train_path=train_path, image_folder=TRAIN_IMAGES_FOLDER, mask_folder=TRAIN_GROUNDTRUTH_FOLDER,
                                                              groundtruth_patch_size=GROUNDTRUTH_PATCH_SIZE, context_patch_size=CONTEXT_PATCH_SIZE,
                                                              image_size=TRAIN_IMAGE_SIZE_ADJUSTED, batch_size=BATCH_SIZE, validation_split=VALIDATION_SPLIT)
 
@@ -74,7 +77,7 @@ test_gen = test_generator(test_path=test_path, image_folder='images', groundtrut
 tensorboard_image = TensorBoardImage(log_dir=log_dir, validation_pairs=data.data.validation_pairs)
 callbacks.append(tensorboard_image)"""
 
-model.fit(train_gen, steps_per_epoch=STEPS_PER_EPOCH, epochs=EPOCHS, validation_data=validation_gen, validation_steps=26, verbose=1)
+model.fit(train_gen, steps_per_epoch=STEPS_PER_EPOCH, epochs=EPOCHS, validation_data=validation_gen, validation_steps=50, verbose=1)
 
 
 images = os.listdir(os.path.join(test_path, 'images'))
@@ -88,7 +91,5 @@ results = np.reshape(results, (images_to_classify, dim, dim, GROUNDTRUTH_PATCH_S
 results = np.swapaxes(results, 2, 3)
 results = np.reshape(results, (images_to_classify, TEST_IMAGE_SIZE_ADJUSTED, TEST_IMAGE_SIZE_ADJUSTED))
 
-for i, item in enumerate(results):
-    img = cv2.resize(item, (TEST_IMAGE_SIZE, TEST_IMAGE_SIZE), interpolation=cv2.INTER_NEAREST)
-    img = (img * 255.0).astype('uint8')
-    cv2.imwrite(resultNames[i], img)
+saveResult(test_path=test_path, images=images, results=results)
+
