@@ -8,7 +8,7 @@ from data.data import *
 train_path = '../data/training/'
 test_path = '../data/test/'
 
-DEFAULT_STEP_SIZE = 32
+DEFAULT_STEP_SIZE = 24
 
 #paramters for train generator
 PROBABILITY_TO_IGNORE_NON_ROAD_PATCH = 0.5

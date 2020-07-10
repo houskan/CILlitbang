@@ -8,7 +8,7 @@ from tensorflow.keras.optimizers import *
 import cv2
 
 
-from models.unet import *
+from models.unet_patch import *
 from data.data import *
 from data.tensorboard_image_resnet import *
 from patch_generator import *
@@ -19,13 +19,13 @@ TODO: This code assume that test_image_size // groundtruth_patch_size == 0.
 If necessary, this can be generalized
 """
 
-EPOCHS = 60
-STEPS_PER_EPOCH = 529
+EPOCHS = 80
+STEPS_PER_EPOCH = 530
 BATCH_SIZE = 16
 VALIDATION_SPLIT = 0.1
 
-GROUNDTRUTH_PATCH_SIZE= 64
-CONTEXT_PATCH_SIZE = 64
+GROUNDTRUTH_PATCH_SIZE= 32
+CONTEXT_PATCH_SIZE = 128
 
 TRAIN_IMAGE_SIZE=400
 TRAIN_IMAGE_SIZE_ADJUSTED=416
@@ -77,7 +77,7 @@ test_gen = test_generator(test_path=test_path, image_folder='images', groundtrut
 tensorboard_image = TensorBoardImage(log_dir=log_dir, validation_pairs=data.data.validation_pairs)
 callbacks.append(tensorboard_image)"""
 
-model.fit(train_gen, steps_per_epoch=STEPS_PER_EPOCH, epochs=EPOCHS, validation_data=validation_gen, validation_steps=50, verbose=1)
+model.fit(train_gen, steps_per_epoch=STEPS_PER_EPOCH, epochs=EPOCHS, validation_data=validation_gen, validation_steps=59, verbose=1)
 
 
 images = os.listdir(os.path.join(test_path, 'images'))
