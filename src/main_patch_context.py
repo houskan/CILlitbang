@@ -8,7 +8,7 @@ from tensorflow.keras.optimizers import *
 import cv2
 
 
-from models.model2 import *
+from models.unet import *
 from data.data import *
 from data.tensorboard_image_resnet import *
 from patch_generator import *
@@ -19,16 +19,27 @@ TODO: This code assume that test_image_size // groundtruth_patch_size == 0.
 If necessary, this can be generalized
 """
 
-epochs = 1
-steps_per_epoch = 100
-batch_size = 16
-validation_split = 0.1
+EPOCHS = 50
+STEPS_PER_EPOCH = 243
+BATCH_SIZE = 16
+VALIDATION_SPLIT = 0.1
 
+GROUNDTRUTH_PATCH_SIZE= 64
+CONTEXT_PATCH_SIZE = 64
 
-test_image_size = 608
-groundtruth_patch_size= 16
-local_patch_size = 64
-global_patch_size = 256
+TRAIN_IMAGE_SIZE=400
+TRAIN_IMAGE_SIZE_ADJUSTED=416
+
+TEST_IMAGE_SIZE = 608
+
+if TEST_IMAGE_SIZE % GROUNDTRUTH_PATCH_SIZE != 0:
+    TEST_IMAGE_SIZE_ADJUSTED = ((TEST_IMAGE_SIZE // GROUNDTRUTH_PATCH_SIZE) + 1) * GROUNDTRUTH_PATCH_SIZE
+else:
+    TEST_IMAGE_SIZE_ADJUSTED=TEST_IMAGE_SIZE
+
+assert TEST_IMAGE_SIZE_ADJUSTED % GROUNDTRUTH_PATCH_SIZE == 0
+
+dim = TEST_IMAGE_SIZE_ADJUSTED // GROUNDTRUTH_PATCH_SIZE
 
 
 for device in tf.config.experimental.list_physical_devices('GPU)'):
@@ -40,9 +51,7 @@ print("Tensorflow Version:", tf.__version__)
 train_path = '../data/training/'
 test_path = '../data/test/'
 
-model = lg_seg_model()
-opt = Adam(learning_rate=0.0001)
-model.compile(optimizer=opt, loss = 'binary_crossentropy', metrics = ['accuracy'])
+model = unet(input_size=(CONTEXT_PATCH_SIZE, CONTEXT_PATCH_SIZE, 3))
 
 model.summary()
 
@@ -54,30 +63,32 @@ tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir, write_graph=
 callbacks.append(tensorboard_callback)"""
 
 
-trainGen, valGen = getGenerators(train_path=train_path, image_folder='images', mask_folder='groundtruth',
-                                 groundtruth_patch_size=groundtruth_patch_size, local_patch_size=local_patch_size, global_patch_size=global_patch_size,
-                                    batch_size=batch_size, validation_split=validation_split)
+train_gen, validation_gen = get_patch_generators(train_path=train_path, image_folder='images_augmented', mask_folder='groundtruth_augmented',
+                                                             groundtruth_patch_size=GROUNDTRUTH_PATCH_SIZE, context_patch_size=CONTEXT_PATCH_SIZE,
+                                                             image_size=TRAIN_IMAGE_SIZE_ADJUSTED, batch_size=BATCH_SIZE, validation_split=VALIDATION_SPLIT)
 
-testGen = testGenerator(test_path=test_path, image_folder='images', groundtruth_patch_size=groundtruth_patch_size, local_patch_size=local_patch_size, global_patch_size=global_patch_size)
+test_gen = test_generator(test_path=test_path, image_folder='images', groundtruth_patch_size=GROUNDTRUTH_PATCH_SIZE,
+                                context_patch_size=CONTEXT_PATCH_SIZE, image_size=TEST_IMAGE_SIZE_ADJUSTED)
 
 """# tensorboard image initialization
 tensorboard_image = TensorBoardImage(log_dir=log_dir, validation_pairs=data.data.validation_pairs)
 callbacks.append(tensorboard_image)"""
 
-model.fit(trainGen, steps_per_epoch=steps_per_epoch, epochs=epochs, validation_data=valGen, validation_steps=10, verbose=1)
+model.fit(train_gen, steps_per_epoch=STEPS_PER_EPOCH, epochs=EPOCHS, validation_data=validation_gen, validation_steps=26, verbose=1)
 
 
 images = os.listdir(os.path.join(test_path, 'images'))
 resultNames = list(map(lambda x: os.path.join(test_path, 'results', x), images))
 
-dim = test_image_size // groundtruth_patch_size
+images_to_classify = len(images)
 
-results = model.predict(testGen, steps=len(images)*dim*dim, verbose=1)
-results = np.reshape(results, (len(images), dim * dim, groundtruth_patch_size, groundtruth_patch_size))
-results = np.reshape(results, (len(images), dim, dim, groundtruth_patch_size, groundtruth_patch_size))
+results = model.predict(test_gen, steps=images_to_classify * dim * dim, verbose=1)
+results = np.reshape(results, (images_to_classify, dim * dim, GROUNDTRUTH_PATCH_SIZE, GROUNDTRUTH_PATCH_SIZE))
+results = np.reshape(results, (images_to_classify, dim, dim, GROUNDTRUTH_PATCH_SIZE, GROUNDTRUTH_PATCH_SIZE))
 results = np.swapaxes(results, 2, 3)
-results = np.reshape(results, (len(images), test_image_size, test_image_size))
+results = np.reshape(results, (images_to_classify, TEST_IMAGE_SIZE_ADJUSTED, TEST_IMAGE_SIZE_ADJUSTED))
 
 for i, item in enumerate(results):
-    img = cv2.resize(item, (test_image_size, test_image_size))
+    img = cv2.resize(item, (TEST_IMAGE_SIZE, TEST_IMAGE_SIZE), interpolation=cv2.INTER_NEAREST)
+    img = (img * 255.0).astype('uint8')
     cv2.imwrite(resultNames[i], img)
