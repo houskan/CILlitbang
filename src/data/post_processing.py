@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import skimage.io as io
 import skimage.transform as trans
+from skimage import img_as_ubyte
 
 import os
 
@@ -29,24 +30,18 @@ def predict_combined(model, target_size, file_name, img_folder, mask_folder, com
     img7 = np.rot90(np.fliplr(img), 3)
 
     # Predicting results for eight rotated and flipped input images
-    result0 = model.predict(np.array([img0]))[0]
-    result1 = model.predict(np.array([img1]))[0]
-    result2 = model.predict(np.array([img2]))[0]
-    result3 = model.predict(np.array([img3]))[0]
-    result4 = model.predict(np.array([img4]))[0]
-    result5 = model.predict(np.array([img5]))[0]
-    result6 = model.predict(np.array([img6]))[0]
-    result7 = model.predict(np.array([img7]))[0]
+    results = model.predict(np.array([img0, img1, img2, img3, img4, img5, img6, img7]), batch_size=8, verbose=1)
 
     # Reversing rotation and flipping (mirroring) of resulting continuous output masks
-    #result0 = result0
-    result1 = np.rot90(result1, 3)
-    result2 = np.rot90(result2, 2)
-    result3 = np.rot90(result3, 1)
-    result4 = np.fliplr(result4)
-    result5 = np.fliplr(np.rot90(result5, 3))
-    result6 = np.fliplr(np.rot90(result6, 2))
-    result7 = np.fliplr(np.rot90(result7, 1))
+    result0 = results[0]
+    result1 = np.rot90(results[1], 3)
+    result2 = np.rot90(results[2], 2)
+    result3 = np.rot90(results[3], 1)
+    result4 = np.fliplr(results[4])
+    result5 = np.fliplr(np.rot90(results[5], 3))
+    result6 = np.fliplr(np.rot90(results[6], 2))
+    result7 = np.fliplr(np.rot90(results[7], 1))
+
 
     # Resizing resulting output masks to original size
     result0 = trans.resize(result0, original_size)
@@ -70,42 +65,43 @@ def predict_combined(model, target_size, file_name, img_folder, mask_folder, com
 
     # Checking if combined folder valid and saving intermediate continuous output masks
     if not (combined_folder is None):
-        io.imsave(os.path.join(combined_folder, img_name + '_comb0_cont.png'), result0)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb1_cont.png'), result1)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb2_cont.png'), result2)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb3_cont.png'), result3)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb4_cont.png'), result4)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb5_cont.png'), result5)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb6_cont.png'), result6)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb7_cont.png'), result7)
+        io.imsave(os.path.join(combined_folder, img_name + '_comb0_cont.png'), img_as_ubyte(result0))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb1_cont.png'), img_as_ubyte(result1))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb2_cont.png'), img_as_ubyte(result2))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb3_cont.png'), img_as_ubyte(result3))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb4_cont.png'), img_as_ubyte(result4))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb5_cont.png'), img_as_ubyte(result5))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb6_cont.png'), img_as_ubyte(result6))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb7_cont.png'), img_as_ubyte(result7))
 
     # Checking if combined folder valid and saving intermediate discrete output masks
     if not (combined_folder is None):
-        io.imsave(os.path.join(combined_folder, img_name + '_comb0.png'), result0_disc)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb1.png'), result1_disc)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb2.png'), result2_disc)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb3.png'), result3_disc)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb4.png'), result4_disc)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb5.png'), result5_disc)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb6.png'), result6_disc)
-        io.imsave(os.path.join(combined_folder, img_name + '_comb7.png'), result7_disc)
+        io.imsave(os.path.join(combined_folder, img_name + '_comb0.png'), img_as_ubyte(result0_disc))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb1.png'), img_as_ubyte(result1_disc))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb2.png'), img_as_ubyte(result2_disc))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb3.png'), img_as_ubyte(result3_disc))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb4.png'), img_as_ubyte(result4_disc))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb5.png'), img_as_ubyte(result5_disc))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb6.png'), img_as_ubyte(result6_disc))
+        io.imsave(os.path.join(combined_folder, img_name + '_comb7.png'), img_as_ubyte(result7_disc))
 
     # Checking which mode of combining should be used
     if mode == 'avg':
         result_avg = (1.0 / 8.0) * (result0 + result1 + result2 + result3 + result4 + result5 + result6 + result7)
         result_avg = trans.resize(result_avg, original_size)
-        io.imsave(os.path.join(mask_folder, img_name + '_cont.png'), result_avg)
+        io.imsave(os.path.join(mask_folder, img_name + '_cont.png'), img_as_ubyte(result_avg))
         result_avg_disc = discretize(result_avg)
-        io.imsave(os.path.join(mask_folder, img_name + '.png'), result_avg_disc)
+        io.imsave(os.path.join(mask_folder, img_name + '.png'), img_as_ubyte(result_avg_disc))
         return result_avg_disc
     elif mode == 'vote':
         thresh = 5
         result_vote_sum = (result0_disc + result1_disc + result2_disc + result3_disc + result4_disc + result5_disc + result6_disc + result7_disc)
-        io.imsave(os.path.join(mask_folder, img_name + '_cont.png'), (1.0 / 8.0) * result_vote_sum)
+        result_vote_avg = (1.0 / 8.0) * result_vote_sum
+        io.imsave(os.path.join(mask_folder, img_name + '_cont.png'), img_as_ubyte(result_vote_avg))
         result_vote_disc = result_vote_sum.copy()
         result_vote_disc[result_vote_disc < thresh] = 0.0
         result_vote_disc[result_vote_disc >= thresh] = 1.0
-        io.imsave(os.path.join(mask_folder, img_name + '.png'), result_vote_disc)
+        io.imsave(os.path.join(mask_folder, img_name + '.png'), img_as_ubyte(result_vote_disc))
         return result_vote_disc
 
     return None
