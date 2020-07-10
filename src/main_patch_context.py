@@ -10,7 +10,7 @@ import cv2
 
 from models.model2 import *
 from data.data import *
-from data.tensorboardimage import *
+from data.tensorboard_image_resnet import *
 from patch_generator import *
 
 

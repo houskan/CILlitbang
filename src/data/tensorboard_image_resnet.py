@@ -4,7 +4,7 @@ from tensorflow import keras
 import cv2
 import numpy as np
 
-class TensorBoardImage(keras.callbacks.Callback):
+class TensorBoardImageResnet(keras.callbacks.Callback):
     def __init__(self, log_dir, validation_pairs):
         super().__init__()
         self.log_dir = log_dir

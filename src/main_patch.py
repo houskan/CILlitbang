@@ -11,7 +11,7 @@ import datetime
 import data.data
 from models.model import *
 from data.data import *
-from data.tensorboardimage import *
+from data.tensorboard_image_resnet import *
 
 epochs = 50
 steps_per_epoch = 100
@@ -55,7 +55,7 @@ testGen = testPatchGenerator(test_path=test_path, image_folder='images', input_h
                              patch_size=patch_size)
 
 # tensorboard image initialization
-tensorboard_image = TensorBoardImage(log_dir=log_dir, validation_pairs=data.data.validation_pairs)
+tensorboard_image = TensorBoardImageResnet(log_dir=log_dir, validation_pairs=data.data.validation_pairs)
 callbacks.append(tensorboard_image)
 
 model.fit(trainGen, steps_per_epoch=steps_per_epoch, epochs=epochs, validation_data=valGen, validation_steps=10,
