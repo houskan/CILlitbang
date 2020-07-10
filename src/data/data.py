@@ -35,6 +35,11 @@ def get_path_pairs(train_path, image_folder, mask_folder):
 
     return result
 
+def delete_old_files(*dirs):
+    for dir in dirs:
+        for file in dir:
+            if os.path.isfile(file): os.remove(file)
+
 def copy_path_pairs(pairs, path):
 
     # removing all previous files in path
@@ -48,6 +53,8 @@ def copy_path_pairs(pairs, path):
 
     os.mkdir(tmp_img_dir)
     os.mkdir(tmp_mask_dir)
+
+    delete_old_files(tmp_img_dir, tmp_mask_dir)
 
     for img_path, mask_path in pairs:
         shutil.copy2(img_path, tmp_img_dir)
