@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import skimage.io as io
 import skimage.transform as trans
+from skimage import img_as_ubyte
 
 import os
 
@@ -29,24 +30,18 @@ def predict_combined(model, target_size, file_name, img_folder, mask_folder, com
     img7 = np.rot90(np.fliplr(img), 3)
 
     # Predicting results for eight rotated and flipped input images
-    result0 = model.predict(np.array([img0]))[0]
-    result1 = model.predict(np.array([img1]))[0]
-    result2 = model.predict(np.array([img2]))[0]
-    result3 = model.predict(np.array([img3]))[0]
-    result4 = model.predict(np.array([img4]))[0]
-    result5 = model.predict(np.array([img5]))[0]
-    result6 = model.predict(np.array([img6]))[0]
-    result7 = model.predict(np.array([img7]))[0]
+    results = model.predict(np.array([img0, img1, img2, img3, img4, img5, img6, img7]), batch_size=8, verbose=1)
 
     # Reversing rotation and flipping (mirroring) of resulting continuous output masks
-    #result0 = result0
-    result1 = np.rot90(result1, 3)
-    result2 = np.rot90(result2, 2)
-    result3 = np.rot90(result3, 1)
-    result4 = np.fliplr(result4)
-    result5 = np.fliplr(np.rot90(result5, 3))
-    result6 = np.fliplr(np.rot90(result6, 2))
-    result7 = np.fliplr(np.rot90(result7, 1))
+    result0 = results[0]
+    result1 = np.rot90(results[1], 3)
+    result2 = np.rot90(results[2], 2)
+    result3 = np.rot90(results[3], 1)
+    result4 = np.fliplr(results[4])
+    result5 = np.fliplr(np.rot90(results[5], 3))
+    result6 = np.fliplr(np.rot90(results[6], 2))
+    result7 = np.fliplr(np.rot90(results[7], 1))
+
 
     # Resizing resulting output masks to original size
     result0 = trans.resize(result0, original_size)
