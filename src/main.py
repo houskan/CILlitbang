@@ -36,9 +36,9 @@ data_gen_args = dict(rotation_range=45,
                      fill_mode='reflect')
 
 # Initializing training and validation generators
-trainGen, valGen = getTrainGenerators(data_gen_args, train_path=train_path,
-                                      image_folder='images', mask_folder='groundtruth',
-                                      target_size=(400, 400), batch_size=4, validation_split=0.1, seed=1)
+train_gen, val_gen = getTrainGenerators(data_gen_args, train_path=train_path,
+                                        image_folder='images', mask_folder='groundtruth',
+                                        target_size=(400, 400), batch_size=4, validation_split=0.1, seed=2)
 
 print('Keras Version:', keras.__version__)
 print('Tensorflow Version:', tf.__version__)
@@ -50,8 +50,13 @@ if train_model:
     # initializing callbacks for training
     callbacks = []
 
+    tensorflow_dir = datetime.datetime.now().strftime('%Y%m%d-%H%M%S') + '-e{}-s{}'.format(EPOCHS, STEPS_PER_EPOCH)
+
+    # Initializing logs directory for tensorboard
+    log_dir = '../logs/fit/' + tensorflow_dir
+    os.mkdir(log_dir)
+
     # Initializing tensorboard callback for plots, graph, etc.
-    log_dir = '../logs/fit/' + datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
     tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir, write_graph=True)
     callbacks.append(tensorboard_callback)
 
@@ -64,7 +69,7 @@ if train_model:
     callbacks.append(model_checkpoint_callback)
 
     # Training unet model
-    model.fit(trainGen, steps_per_epoch=STEPS_PER_EPOCH, epochs=EPOCHS, validation_data=valGen, validation_steps=10, callbacks=callbacks, verbose=1)
+    model.fit(train_gen, steps_per_epoch=STEPS_PER_EPOCH, epochs=EPOCHS, validation_data=val_gen, validation_steps=10, callbacks=callbacks, verbose=1)
 
 # Checking if model weights for best val_loss should be picked for prediction
 if predict_best:
@@ -76,9 +81,9 @@ if combined_prediction:
     saveCombinedResult(model=model, test_path=test_path, image_folder='images')
 else:
     # Initializing test generator
-    testGen = testGenerator(test_path=test_path, image_folder='images', target_size=(400, 400))
+    test_gen = testGenerator(test_path=test_path, image_folder='images', target_size=(400, 400))
     # Predicting results on test images
     images = os.listdir(os.path.join(test_path, 'images'))
-    results = model.predict(testGen, steps=len(images), verbose=1)
+    results = model.predict(test_gen, steps=len(images), verbose=1)
     # Saving result masks of test images
     saveResult(test_path=test_path, images=images, results=results)

@@ -10,6 +10,7 @@ import cv2
 
 from models.unet_patch import *
 from data.data import *
+from data.post_processing import *
 from data.tensorboard_image_resnet import *
 from patch_generator import *
 
@@ -38,7 +39,7 @@ TEST_IMAGE_SIZE = 608
 if TEST_IMAGE_SIZE % GROUNDTRUTH_PATCH_SIZE != 0:
     TEST_IMAGE_SIZE_ADJUSTED = ((TEST_IMAGE_SIZE // GROUNDTRUTH_PATCH_SIZE) + 1) * GROUNDTRUTH_PATCH_SIZE
 else:
-    TEST_IMAGE_SIZE_ADJUSTED=TEST_IMAGE_SIZE
+    TEST_IMAGE_SIZE_ADJUSTED = TEST_IMAGE_SIZE
 
 assert TEST_IMAGE_SIZE_ADJUSTED % GROUNDTRUTH_PATCH_SIZE == 0
 

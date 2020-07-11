@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 import skimage.io as io
 #import skimage.transform as trans
+import os
 
 class TensorBoardImage(keras.callbacks.Callback):
     def __init__(self, log_dir, validation_pairs, target_size=(400, 400)):
@@ -55,7 +56,7 @@ class TensorBoardImage(keras.callbacks.Callback):
             original_img = np.reshape(original_img, (1,) + original_img.shape)
 
             # Creating tensorflow summary file writer at log directory to save images
-            file_writer = tf.summary.create_file_writer(self.log_dir)
+            file_writer = tf.summary.create_file_writer(os.path.join(self.log_dir, 'images'))
 
             with file_writer.as_default():
                 # Adding mask prediction (discrete and continuous) for current epoch to mask prediction slider

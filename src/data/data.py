@@ -125,14 +125,14 @@ def trainGenerator():
     global train_generator
     for (img, mask) in train_generator:
         img, mask = adjustData(img, mask)
-        yield (img, mask)
+        yield img, mask
 
 
 def validationGenerator():
     global validation_generator
     for (img, mask) in validation_generator:
         img, mask = adjustData(img, mask)
-        yield (img, mask)
+        yield img, mask
 
 
 def testGenerator(test_path, image_folder, target_size):
@@ -150,30 +150,3 @@ def testGenerator(test_path, image_folder, target_size):
         img = trans.resize(img, target_size)
         img = np.reshape(img, (1,) + img.shape)
         yield img
-
-def saveResult(test_path, images, results):
-
-    # Initializing two list for test image mask result file path names (first discrete, second continuous)
-    resultNames = list(map(lambda x: os.path.join(test_path, 'results', x), images))
-    resultNamesCont = list(map(lambda x: os.path.join(test_path, 'results', '{0}_cont.{1}'.format(*x.rsplit('.', 1))), images))
-
-    # Iterating through all result masks
-    for i, item in enumerate(results):
-
-        # Initializing new mask image and discretizing it with threshold=0.5 to either 0 or 1
-        mask = item.copy()
-        mask[mask > 0.5] = 1.0
-        mask[mask <= 0.5] = 0.0
-
-        # Resizing discrete mask back to original image size (608, 608),
-        # converting back to uint8 range [0, 255] and saving it to result file
-        mask = cv2.resize(mask, (608, 608), interpolation=cv2.INTER_NEAREST)
-        mask = (mask * 255.0).astype('uint8')
-        cv2.imwrite(resultNames[i], mask)
-
-        # Copying raw unet output, resizing this continuous mask back to original image size (608, 608),
-        # converting back to uint8 range [0, 255] and saving it to result file
-        mask_cont = item.copy()
-        mask_cont = cv2.resize(mask_cont, (608, 608), interpolation=cv2.INTER_NEAREST)
-        mask_cont = (mask_cont * 255.0).astype('uint8')
-        cv2.imwrite(resultNamesCont[i], mask_cont)

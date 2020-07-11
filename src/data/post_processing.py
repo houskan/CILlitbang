@@ -42,7 +42,6 @@ def predict_combined(model, target_size, file_name, img_folder, mask_folder, com
     result6 = np.fliplr(np.rot90(results[6], 2))
     result7 = np.fliplr(np.rot90(results[7], 1))
 
-
     # Resizing resulting output masks to original size
     result0 = trans.resize(result0, original_size)
     result1 = trans.resize(result1, original_size)
@@ -124,3 +123,27 @@ def saveCombinedResult(model, test_path, image_folder):
                          combined_folder=os.path.join(test_path, 'results', 'combined'),
                          #combined_folder=None,
                          mode='avg')
+
+def saveResult(test_path, images, results):
+
+    # Initializing two list for test image mask result file path names (first discrete, second continuous)
+    resultNames = list(map(lambda x: os.path.join(test_path, 'results', x), images))
+    resultNamesCont = list(map(lambda x: os.path.join(test_path, 'results', '{0}_cont.{1}'.format(*x.rsplit('.', 1))), images))
+
+    # Iterating through all result masks
+    for i, item in enumerate(results):
+
+        # Initializing new mask image and discretizing it with threshold=0.5 to either 0 or 1
+        mask = item.copy()
+        mask[mask > 0.5] = 1.0
+        mask[mask <= 0.5] = 0.0
+
+        # Resizing discrete mask back to original image size (608, 608) and saving it to result file
+        mask = trans.resize(mask, (608, 608))
+        io.imsave(resultNames[i], img_as_ubyte(mask))
+
+        # Copying raw unet output, resizing this continuous mask back to original image size (608, 608),
+        # and saving it to result file
+        mask_cont = item.copy()
+        mask_cont = trans.resize(mask_cont, (608, 608))
+        cv2.imwrite(resultNamesCont[i], img_as_ubyte(mask_cont))

@@ -13,11 +13,11 @@ from models.model import *
 from data.data import *
 from data.tensorboard_image_resnet import *
 
-epochs = 50
-steps_per_epoch = 100
-patch_size = (64, 64)
-batch_size = 12 #here how many patches per image will be extracted
-validation_split = 0.1
+EPOCHS = 50
+STEPS_PER_EPOCH = 100
+PATCH_SIZE = (64, 64)
+BATCH_SIZE = 12 #here how many patches per image will be extracted
+VALIDATION_SPLIT = 0.1
 
 for device in tf.config.experimental.list_physical_devices('GPU)'):
     tf.config.experimental.set_memory_growth(device, True)
@@ -28,7 +28,7 @@ print("Tensorflow Version:", tf.__version__)
 train_path = '../data/training/'
 test_path = '../data/test/'
 
-model = resnet50_unet(n_classes=2, input_height=patch_size[0], input_width=patch_size[1])
+model = resnet50_unet(n_classes=2, input_height=PATCH_SIZE[0], input_width=PATCH_SIZE[1])
 
 n_classes = model.n_classes
 input_height = 448
@@ -47,18 +47,18 @@ callbacks.append(tensorboard_callback)
 
 
 trainGen, valGen = getPatchGenerators(train_path=train_path, image_folder='images', mask_folder='groundtruth',
-                                       input_height=input_height, input_width=input_width, output_height=output_height,
-                                       output_width=output_width, batch_size=batch_size, patch_size=patch_size,
-                                       n_classes=n_classes,  validation_split=validation_split)
+                                      input_height=input_height, input_width=input_width, output_height=output_height,
+                                      output_width=output_width, batch_size=BATCH_SIZE, patch_size=PATCH_SIZE,
+                                      n_classes=n_classes, validation_split=VALIDATION_SPLIT)
 
 testGen = testPatchGenerator(test_path=test_path, image_folder='images', input_height=640, input_width=640,
-                             patch_size=patch_size)
+                             patch_size=PATCH_SIZE)
 
 # tensorboard image initialization
 tensorboard_image = TensorBoardImageResnet(log_dir=log_dir, validation_pairs=data.data.validation_pairs)
 callbacks.append(tensorboard_image)
 
-model.fit(trainGen, steps_per_epoch=steps_per_epoch, epochs=epochs, validation_data=valGen, validation_steps=10,
+model.fit(trainGen, steps_per_epoch=STEPS_PER_EPOCH, epochs=EPOCHS, validation_data=valGen, validation_steps=10,
           callbacks=callbacks, verbose=1)
 
 
