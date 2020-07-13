@@ -8,6 +8,8 @@ from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras import backend as keras
 from tensorflow.keras import Model
 
+from models.loss_functions import *
+
 def unet(pretrained_weights=None, input_size=(400, 400, 3)):
 
     inputs = Input(input_size)

@@ -4,8 +4,6 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.callbacks import TensorBoard
 
-import datetime
-
 tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
 
 import data.data
