@@ -14,6 +14,8 @@ from data.data import *
 from data.tensorboard_image import *
 from data.post_processing import *
 
+import datetime
+
 predict_best = True
 train_model = True
 combined_prediction = True
@@ -47,13 +49,13 @@ print('Tensorflow Version:', tf.__version__)
 model = unet()
 
 if train_model:
-    # initializing callbacks for training
+    # Initializing callbacks for training
     callbacks = []
 
     tensorflow_dir = datetime.datetime.now().strftime('%Y%m%d-%H%M%S') + '-e{}-s{}'.format(EPOCHS, STEPS_PER_EPOCH)
 
     # Initializing logs directory for tensorboard
-    log_dir = '../logs/fit/' + tensorflow_dir
+    log_dir = os.path.join('../logs/fit', tensorflow_dir)
     os.mkdir(log_dir)
 
     # Initializing tensorboard callback for plots, graph, etc.
