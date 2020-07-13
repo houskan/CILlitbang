@@ -26,7 +26,7 @@ STEPS_PER_EPOCH = 100
 EPOCHS = 50
 
 # Augmentation parameters for training generator (not validation!)
-data_gen_args = dict(rotation_range=45,
+data_gen_args = dict(rotation_range=360,
                      width_shift_range=0.05,
                      height_shift_range=0.05,
                      shear_range=0.05,
