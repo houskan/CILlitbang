@@ -19,6 +19,7 @@ train_model = True
 combined_prediction = True
 
 train_path = '../data/training/'
+validation_path = '../data/validation/'
 test_path = '../data/test/'
 model_path = '../tmp/model.h5'
 
@@ -36,9 +37,10 @@ data_gen_args = dict(rotation_range=45,
                      fill_mode='reflect')
 
 # Initializing training and validation generators
-train_gen, val_gen = getTrainGenerators(data_gen_args, train_path=train_path,
+train_gen, val_gen = getTrainGenerators(data_gen_args,
+                                        train_path=train_path, validation_path=validation_path,
                                         image_folder='images', mask_folder='groundtruth',
-                                        target_size=(400, 400), batch_size=4, validation_split=0.1, seed=2)
+                                        target_size=(400, 400), batch_size=4, seed=1)
 
 print('Keras Version:', keras.__version__)
 print('Tensorflow Version:', tf.__version__)
