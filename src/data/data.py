@@ -24,9 +24,13 @@ def get_path_pairs(train_path, image_folder, mask_folder):
 
     images_path = os.path.join(train_path, image_folder)
     mask_path = os.path.join(train_path, mask_folder)
-    for file in os.listdir(images_path):
+    image_files = os.listdir(images_path)
+    image_files.sort()
+    mask_files = os.listdir(mask_path)
+    mask_files.sort()
+    for file in image_files:
         images.append(os.path.join(images_path, file))
-    for file in os.listdir(mask_path):
+    for file in mask_files:
         masks.append(os.path.join(mask_path, file))
 
     result = []
