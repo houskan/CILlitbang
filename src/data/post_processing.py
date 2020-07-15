@@ -1,5 +1,4 @@
 import numpy as np
-import cv2
 import skimage.io as io
 import skimage.transform as trans
 from skimage import img_as_ubyte
@@ -115,7 +114,7 @@ def discretize(result_cont):
 def saveCombinedResult(model, test_path, image_folder):
 
     folder = os.path.join(test_path, image_folder)
-    for i, file in enumerate(os.listdir(folder)):
+    for file in os.listdir(folder):
         predict_combined(model=model, target_size=(400, 400),
                          file_name=file,
                          img_folder=folder,
@@ -146,4 +145,4 @@ def saveResult(test_path, images, results):
         # and saving it to result file
         mask_cont = item.copy()
         mask_cont = trans.resize(mask_cont, (608, 608))
-        cv2.imwrite(resultNamesCont[i], img_as_ubyte(mask_cont))
+        io.imsave(resultNamesCont[i], img_as_ubyte(mask_cont))

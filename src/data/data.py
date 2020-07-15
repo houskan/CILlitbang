@@ -14,8 +14,8 @@ def get_path_pairs(path, image_folder, mask_folder):
     images = []
     masks = []
 
-    images_path = os.path.join(train_path, image_folder)
-    mask_path = os.path.join(train_path, mask_folder)
+    images_path = os.path.join(path, image_folder)
+    mask_path = os.path.join(path, mask_folder)
     image_files = os.listdir(images_path)
     image_files.sort()
     mask_files = os.listdir(mask_path)
