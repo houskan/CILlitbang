@@ -13,18 +13,10 @@ from data.tensorboard_image import *
 from data.post_processing import *
 
 import datetime
+import argparser
 
-predict_best = True
-train_model = True
-combined_prediction = True
-
-train_path = '../data/training/'
-validation_path = '../data/validation/'
-test_path = '../data/test/'
-model_path = '../tmp/model.h5'
-
-STEPS_PER_EPOCH = 100
-EPOCHS = 50
+parser = argparser.get_parser()
+args = parser.parse_args()
 
 # Augmentation parameters for training generator (not validation!)
 data_gen_args = dict(rotation_range=360,
@@ -38,7 +30,7 @@ data_gen_args = dict(rotation_range=360,
 
 # Initializing training and validation generators
 train_gen, val_gen = getTrainGenerators(data_gen_args,
-                                        train_path=train_path, validation_path=validation_path,
+                                        train_path=args.train_path, validation_path=args.val_path,
                                         image_folder='images', mask_folder='groundtruth',
                                         target_size=(400, 400), batch_size=4, seed=1)
 
@@ -46,13 +38,13 @@ print('Keras Version:', keras.__version__)
 print('Tensorflow Version:', tf.__version__)
 
 # Initializing and compiling unet model
-model = unet()
+model = unet_dilated2()
 
-if train_model:
+if args.train_model:
     # Initializing callbacks for training
     callbacks = []
 
-    tensorflow_dir = datetime.datetime.now().strftime('%Y%m%d-%H%M%S') + '-e{}-s{}'.format(EPOCHS, STEPS_PER_EPOCH)
+    tensorflow_dir = datetime.datetime.now().strftime('%Y%m%d-%H%M%S') + '-e{}-s{}'.format(args.epochs, args.steps)
 
     # Initializing logs directory for tensorboard
     log_dir = os.path.join('../logs/fit', tensorflow_dir)
@@ -67,25 +59,25 @@ if train_model:
     callbacks.append(tensorboard_image_callback)
 
     # Initialization model checkpoint to store model with best validation loss
-    model_checkpoint_callback = ModelCheckpoint(model_path, monitor='val_loss', mode='min', save_best_only=True, verbose=1)
+    model_checkpoint_callback = ModelCheckpoint(args.model_path, monitor='val_loss', mode='min', save_best_only=True, verbose=1)
     callbacks.append(model_checkpoint_callback)
 
     # Training unet model
-    model.fit(train_gen, steps_per_epoch=STEPS_PER_EPOCH, epochs=EPOCHS, validation_data=val_gen, validation_steps=10, callbacks=callbacks, verbose=1)
+    model.fit(train_gen, steps_per_epoch=args.steps, epochs=args.epochs, validation_data=val_gen, validation_steps=10, callbacks=callbacks, verbose=1)
 
 # Checking if model weights for best val_loss should be picked for prediction
-if predict_best:
+if args.predict_best:
     # Loading best result
     model.load_weights(model_path)
 
-if combined_prediction:
+if args.comb_pred:
     # Saving result masks of test images
     saveCombinedResult(model=model, test_path=test_path, image_folder='images')
 else:
     # Initializing test generator
-    test_gen = testGenerator(test_path=test_path, image_folder='images', target_size=(400, 400))
+    test_gen = testGenerator(test_path=args.test_path, image_folder='images', target_size=(400, 400))
     # Predicting results on test images
     images = os.listdir(os.path.join(test_path, 'images'))
     results = model.predict(test_gen, steps=len(images), verbose=1)
     # Saving result masks of test images
-    saveResult(test_path=test_path, images=images, results=results)
+    saveResult(test_path=args.test_path, images=images, results=results)
