@@ -68,16 +68,16 @@ if args.train_model:
 # Checking if model weights for best val_loss should be picked for prediction
 if args.predict_best:
     # Loading best result
-    model.load_weights(model_path)
+    model.load_weights(args.model_path)
 
 if args.comb_pred:
     # Saving result masks of test images
-    saveCombinedResult(model=model, test_path=test_path, image_folder='images')
+    saveCombinedResult(model=model, test_path=args.test_path, image_folder='images')
 else:
     # Initializing test generator
     test_gen = testGenerator(test_path=args.test_path, image_folder='images', target_size=(400, 400))
     # Predicting results on test images
-    images = os.listdir(os.path.join(test_path, 'images'))
+    images = os.listdir(os.path.join(args.test_path, 'images'))
     results = model.predict(test_gen, steps=len(images), verbose=1)
     # Saving result masks of test images
     saveResult(test_path=args.test_path, images=images, results=results)
