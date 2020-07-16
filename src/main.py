@@ -19,26 +19,31 @@ parser = argparser.get_parser()
 args = parser.parse_args()
 
 # Augmentation parameters for training generator (not validation!)
-data_gen_args = dict(rotation_range=360,
-                     width_shift_range=0.05,
-                     height_shift_range=0.05,
-                     shear_range=0.05,
-                     zoom_range=0.05,
-                     horizontal_flip=True,
-                     vertical_flip=True,
-                     fill_mode='reflect')
+data_gen_args = dict(rotation_range=args.rotation_range,
+                     width_shift_range=args.width_shift_range,
+                     height_shift_range=args.height_shift_range,
+                     shear_range=args.shear_range,
+                     zoom_range=args.zoom_range,
+                     horizontal_flip=args.horizontal_flip,
+                     vertical_flip=args.vertical_flip,
+                     fill_mode=args.fill_mode)
 
 # Initializing training and validation generators
 train_gen, val_gen = getTrainGenerators(data_gen_args,
                                         train_path=args.train_path, validation_path=args.val_path,
                                         image_folder='images', mask_folder='groundtruth',
-                                        target_size=(400, 400), batch_size=4, seed=1)
+                                        target_size=(400, 400), batch_size=args.batch_size, seed=1)
 
 print('Keras Version:', keras.__version__)
 print('Tensorflow Version:', tf.__version__)
 
 # Initializing and compiling unet model
-model = unet_dilated2()
+if args.model == 'unet':
+    model = unet(learning_rate=args.adam_lr)
+elif args.model == 'unet_dilated1':
+    model = unet_dilated1(learning_rate=args.adam_lr)
+elif args.model == 'unet_dilated2':
+    model = unet_dilated2(learning_rate=args.adam_lr)
 
 if args.train_model:
     # Initializing callbacks for training
@@ -63,7 +68,7 @@ if args.train_model:
     callbacks.append(model_checkpoint_callback)
 
     # Training unet model
-    model.fit(train_gen, steps_per_epoch=args.steps, epochs=args.epochs, validation_data=val_gen, validation_steps=10, callbacks=callbacks, verbose=1)
+    model.fit(train_gen, steps_per_epoch=args.steps, epochs=args.epochs, validation_data=val_gen, validation_steps=args.val_steps, callbacks=callbacks, verbose=1)
 
 # Checking if model weights for best val_loss should be picked for prediction
 if args.predict_best:

@@ -10,7 +10,7 @@ from tensorflow.keras import Model
 
 from models.loss_functions import *
 
-def unet(pretrained_weights=None, input_size=(400, 400, 3)):
+def unet(pretrained_weights=None, input_size=(400, 400, 3), learning_rate=1e-4):
 
     inputs = Input(input_size)
 
@@ -56,7 +56,7 @@ def unet(pretrained_weights=None, input_size=(400, 400, 3)):
 
     model = Model(inputs=inputs, outputs=conv10)
 
-    opt = Adam(learning_rate=1e-4)
+    opt = Adam(learning_rate=learning_rate)
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy'])
 
     model.summary()
@@ -67,7 +67,7 @@ def unet(pretrained_weights=None, input_size=(400, 400, 3)):
     return model
 
 #Scored 89.6% on kaggle
-def unet_dilated1(pretrained_weights=None, input_size=(400, 400, 3)):
+def unet_dilated1(pretrained_weights=None, input_size=(400, 400, 3), learning_rate=1e-4, loss_func='binary_crossentropy'):
 
     inputs = Input(input_size)
 
@@ -116,7 +116,7 @@ def unet_dilated1(pretrained_weights=None, input_size=(400, 400, 3)):
 
     model = Model(inputs=inputs, outputs=conv10)
 
-    opt = Adam(learning_rate=1e-4)
+    opt = Adam(learning_rate=learning_rate)
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy'])
 
     model.summary()
@@ -127,7 +127,7 @@ def unet_dilated1(pretrained_weights=None, input_size=(400, 400, 3)):
     return model
 
 #Scored 88.9% on kaggle with normal threshold but 90.0% with threshold=0.5
-def unet_dilated2(pretrained_weights=None, input_size=(400, 400, 3)):
+def unet_dilated2(pretrained_weights=None, input_size=(400, 400, 3), learning_rate=1e-4):
 
     inputs = Input(input_size)
 
@@ -177,7 +177,7 @@ def unet_dilated2(pretrained_weights=None, input_size=(400, 400, 3)):
 
     model = Model(inputs=inputs, outputs=conv10)
 
-    opt = Adam(learning_rate=1e-4)
+    opt = Adam(learning_rate=learning_rate)
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy'])
 
     model.summary()
