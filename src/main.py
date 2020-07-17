@@ -7,16 +7,21 @@ from tensorflow.keras.callbacks import TensorBoard
 tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
 
 import data.data
+import argparser
 from models.unet import *
 from data.data import *
 from data.tensorboard_image import *
 from data.post_processing import *
 
 import datetime
-import argparser
+import numpy.random
 
 parser = argparser.get_parser()
 args = parser.parse_args()
+
+# Setting random seeds for tensorflow, numpy and keras
+tf.random.set_seed(args.seed)
+numpy.random.seed(args.seed)
 
 # Augmentation parameters for training generator (not validation!)
 data_gen_args = dict(rotation_range=args.rotation_range,

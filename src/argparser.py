@@ -14,6 +14,8 @@ def get_parser():
                help='number of validation steps after each epoch')
     parser.add('--batch-size', type=int, default=4,
                help='batch size for training')
+    parser.add('--seed', type=int, default=1,
+               help='random seed for training (necessary for reproducibility)')
 
     parser.add('--predict-best', type=bool, default=True,
                help='predict with best model weights')
