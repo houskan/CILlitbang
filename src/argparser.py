@@ -1,6 +1,16 @@
 from configargparse import ArgumentParser
 import argparse
 
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 def get_parser():
     parser = ArgumentParser(description='Road Segmentation CILlitbang',
                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -17,11 +27,11 @@ def get_parser():
     parser.add('--seed', type=int, default=1,
                help='random seed for training (necessary for reproducibility)')
 
-    parser.add('--predict-best', type=bool, default=True,
+    parser.add('--predict-best', type=str2bool, default=True,
                help='predict with best model weights')
-    parser.add('--train-model', type=bool, default=True,
+    parser.add('--train-model', type=str2bool, default=True,
                help='perform training on the model')
-    parser.add('--comb-pred', type=bool, default=True,
+    parser.add('--comb-pred', type=str2bool, default=True,
                help='combine different rotated and flipped predictions into one')
 
     parser.add('--train-path', type=str, default='../data/training/',
@@ -43,9 +53,9 @@ def get_parser():
                help='shear range for augmentation dictionary')
     parser.add('--zoom-range', type=float, default=0.05,
                help='zoom range for augmentation dictionary')
-    parser.add('--horizontal-flip', type=bool, default=True,
+    parser.add('--horizontal-flip', type=str2bool, default=True,
                help='lets ImageDataGenerator flip images horizontally')
-    parser.add('--vertical-flip', type=bool, default=True,
+    parser.add('--vertical-flip', type=str2bool, default=True,
                help='lets ImageDataGenerator flip images vertically')
     parser.add('--fill-mode', type=str, default='reflect',
                help='fill mode when shifting images')
