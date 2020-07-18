@@ -30,6 +30,7 @@ data_gen_args = dict(rotation_range=args.rotation_range,
                      height_shift_range=args.height_shift_range,
                      shear_range=args.shear_range,
                      zoom_range=args.zoom_range,
+                     brightness_range=args.brightness_range,
                      horizontal_flip=args.horizontal_flip,
                      vertical_flip=args.vertical_flip,
                      fill_mode=args.fill_mode)
