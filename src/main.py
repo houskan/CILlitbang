@@ -11,6 +11,7 @@ import argparser
 from models.unet import *
 from data.data import *
 from data.tensorboard_image import *
+from data.combined_prediction import *
 from data.post_processing import *
 
 import datetime
@@ -81,9 +82,13 @@ if args.predict_best:
     model.load_weights(args.model_path)
 
 if args.comb_pred:
-    # Saving result masks of test images
-    saveCombinedResult(model=model, test_path=args.test_path, image_folder='images')
+    print("Combined prediction")
+
+    predict_combined_results(model, test_path=args.test_path, image_dir='images', result_dir='results',
+                             scale_mode=args.scale_mode, gather_mode=args.gather_mode)
 else:
+    print("Simple prediction")
+
     # Initializing test generator
     test_gen = testGenerator(test_path=args.test_path, image_folder='images', target_size=(400, 400))
     # Predicting results on test images
