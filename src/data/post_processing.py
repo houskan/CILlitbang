@@ -85,7 +85,7 @@ def hough_pipeline(mask, kernel, hough_thresh=100, min_line_length=1,
     """
 
     disc_mask = discretize(mask)
-    hough_lines = get_hough_lines(mask, threshold=hough_thresh, min_line_length=min_line_length,
+    hough_lines = get_hough_lines(disc_mask, threshold=hough_thresh, min_line_length=min_line_length,
                     max_line_gap=max_line_gap)
     updated_mask = hough_update_mask(mask, hough_lines, kernel, thresh=pixel_up_thresh, eps=eps)
     return updated_mask
