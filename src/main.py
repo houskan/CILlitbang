@@ -39,7 +39,7 @@ data_gen_args = dict(rotation_range=args.rotation_range,
 train_gen, val_gen = getTrainGenerators(data_gen_args,
                                         train_path=args.train_path, validation_path=args.val_path,
                                         image_folder='images', mask_folder='groundtruth',
-                                        target_size=(400, 400), batch_size=args.batch_size, seed=1)
+                                        target_size=(400, 400), batch_size=args.batch_size, seed=args.seed)
 
 print('Keras Version:', keras.__version__)
 print('Tensorflow Version:', tf.__version__)
