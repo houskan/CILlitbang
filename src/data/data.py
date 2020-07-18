@@ -36,6 +36,7 @@ def get_path_pairs(path, image_folder, mask_folder):
 def adjustData(img, mask):
     if np.max(img) > 1.0:
         img = img / 255.0
+    if np.max(mask) > 1.0:
         mask = mask / 255.0
         mask[mask > 0.5] = 1.0
         mask[mask <= 0.5] = 0.0
@@ -108,7 +109,8 @@ def testGenerator(test_path, image_folder, target_size):
         # Loading image as rgb from file, normalizing it to range [0, 1],
         # (interpolate) resizing it to target size and reshaping it
         img = io.imread(os.path.join(folder, file), as_gray=False)
-        img = img / 255.0
+        if np.max(img) > 1.0:
+            img = img / 255.0
         img = trans.resize(img, target_size)
         img = np.reshape(img, (1,) + img.shape)
         yield img
