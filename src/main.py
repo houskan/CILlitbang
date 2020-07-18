@@ -2,13 +2,17 @@ import numpy as np
 
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
 
 tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
 
 import data.data
 import argparser
+
 from models.unet import *
+from models.unet_dilated_v1 import *
+from models.unet_dilated_v2 import *
+
 from data.data import *
 from data.tensorboard_image import *
 from data.combined_prediction import *
@@ -48,9 +52,9 @@ print('Tensorflow Version:', tf.__version__)
 if args.model == 'unet':
     model = unet(learning_rate=args.adam_lr)
 elif args.model == 'unet_dilated1':
-    model = unet_dilated1(learning_rate=args.adam_lr)
+    model = unet_dilated_v1(learning_rate=args.adam_lr)
 elif args.model == 'unet_dilated2':
-    model = unet_dilated2(learning_rate=args.adam_lr)
+    model = unet_dilated_v2(learning_rate=args.adam_lr)
 
 if args.train_model:
     # Initializing callbacks for training

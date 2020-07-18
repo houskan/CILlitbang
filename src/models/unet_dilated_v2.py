@@ -7,7 +7,8 @@ from tensorflow.keras.optimizers import *
 from models.loss_functions import *
 
 
-def unet(pretrained_weights=None, input_size=(400, 400, 3), learning_rate=1e-4):
+# Scored 88.9% on kaggle with normal threshold but 90.0% with threshold=0.5
+def unet_dilated_v2(pretrained_weights=None, input_size=(400, 400, 3), learning_rate=1e-4):
     inputs = Input(input_size)
 
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
@@ -24,7 +25,11 @@ def unet(pretrained_weights=None, input_size=(400, 400, 3), learning_rate=1e-4):
     drop4 = Dropout(0.5)(conv4)
     pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
 
+    # Parallel dilated convolution module
     conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool4)
+    conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal', dilation_rate=2)(conv5)
+    conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal', dilation_rate=4)(conv5)
+    conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal', dilation_rate=2)(conv5)
     conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv5)
     drop5 = Dropout(0.5)(conv5)
 
