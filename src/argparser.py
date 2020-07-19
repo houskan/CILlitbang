@@ -20,11 +20,11 @@ def get_parser():
                help='number of training epochs')
     parser.add('--steps', type=int, default=100,
                help='number of steps per epoch')
-    parser.add('--val-steps', type=int, default=10,
+    parser.add('--val-steps', type=int, default=22,
                help='number of validation steps after each epoch')
     parser.add('--batch-size', type=int, default=4,
                help='batch size for training')
-    parser.add('--seed', type=int, default=1,
+    parser.add('--seed', type=int, default=0,
                help='random seed for training (necessary for reproducibility)')
 
     parser.add('--predict-best', type=str2bool, default=True,
@@ -33,6 +33,12 @@ def get_parser():
                help='perform training on the model')
     parser.add('--comb-pred', type=str2bool, default=True,
                help='combine different rotated and flipped predictions into one')
+
+    parser.add('--gather-mode', type=str, default='avg',
+               help='take average of combined results or discrete voting with voting threshold')
+
+    parser.add('--scale-mode', type=str, default='resize',
+               help='resize test images or predict sub-images in sliding window')
 
     parser.add('--train-path', type=str, default='../data/training/',
                help='path containing training images & groundtruth')
@@ -51,8 +57,10 @@ def get_parser():
                help='range for height shift in augmentation dictionary')
     parser.add('--shear-range', type=float, default=0.05,
                help='shear range for augmentation dictionary')
-    parser.add('--zoom-range', type=float, default=0.05,
+    parser.add('--zoom-range', type=list, default=[0.95, 1.05],
                help='zoom range for augmentation dictionary')
+    parser.add('--brightness-range', type=list, default=[1.0, 1.2],
+               help='brightness range for augmentation dictionary')
     parser.add('--horizontal-flip', type=str2bool, default=True,
                help='lets ImageDataGenerator flip images horizontally')
     parser.add('--vertical-flip', type=str2bool, default=True,

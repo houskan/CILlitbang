@@ -7,6 +7,8 @@ import skimage.io as io
 #import skimage.transform as trans
 import os
 
+from data.helper import *
+
 class TensorBoardImage(keras.callbacks.Callback):
     def __init__(self, log_dir, validation_pairs, target_size=(400, 400)):
         super().__init__()
@@ -29,7 +31,8 @@ class TensorBoardImage(keras.callbacks.Callback):
             # Reading original image with skimage io
             # (for some reason cv2 does not work???)
             input_img = io.imread(img_path, as_gray=False)
-            input_img = input_img / 255.0
+            if np.max(input_img) > 1.0:
+                input_img = input_img / 255.0
             #input_img = original_img.copy()
 
             # Predicting mask of test image with model

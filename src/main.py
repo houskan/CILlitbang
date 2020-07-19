@@ -2,15 +2,20 @@ import numpy as np
 
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
 
 tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
 
 import data.data
 import argparser
+
 from models.unet import *
+from models.unet_dilated_v1 import *
+from models.unet_dilated_v2 import *
+
 from data.data import *
 from data.tensorboard_image import *
+from data.combined_prediction import *
 from data.post_processing import *
 
 import datetime
@@ -29,6 +34,7 @@ data_gen_args = dict(rotation_range=args.rotation_range,
                      height_shift_range=args.height_shift_range,
                      shear_range=args.shear_range,
                      zoom_range=args.zoom_range,
+                     brightness_range=args.brightness_range,
                      horizontal_flip=args.horizontal_flip,
                      vertical_flip=args.vertical_flip,
                      fill_mode=args.fill_mode)
@@ -37,7 +43,7 @@ data_gen_args = dict(rotation_range=args.rotation_range,
 train_gen, val_gen = getTrainGenerators(data_gen_args,
                                         train_path=args.train_path, validation_path=args.val_path,
                                         image_folder='images', mask_folder='groundtruth',
-                                        target_size=(400, 400), batch_size=args.batch_size, seed=1)
+                                        target_size=(400, 400), batch_size=args.batch_size, seed=args.seed)
 
 print('Keras Version:', keras.__version__)
 print('Tensorflow Version:', tf.__version__)
@@ -46,9 +52,9 @@ print('Tensorflow Version:', tf.__version__)
 if args.model == 'unet':
     model = unet(learning_rate=args.adam_lr)
 elif args.model == 'unet_dilated1':
-    model = unet_dilated1(learning_rate=args.adam_lr)
+    model = unet_dilated_v1(learning_rate=args.adam_lr)
 elif args.model == 'unet_dilated2':
-    model = unet_dilated2(learning_rate=args.adam_lr)
+    model = unet_dilated_v2(learning_rate=args.adam_lr)
 
 if args.train_model:
     # Initializing callbacks for training
@@ -81,9 +87,13 @@ if args.predict_best:
     model.load_weights(args.model_path)
 
 if args.comb_pred:
-    # Saving result masks of test images
-    saveCombinedResult(model=model, test_path=args.test_path, image_folder='images')
+    print("Combined prediction")
+
+    predict_combined_results(model, test_path=args.test_path, image_dir='images', result_dir='results',
+                             scale_mode=args.scale_mode, gather_mode=args.gather_mode)
 else:
+    print("Simple prediction")
+
     # Initializing test generator
     test_gen = testGenerator(test_path=args.test_path, image_folder='images', target_size=(400, 400))
     # Predicting results on test images
