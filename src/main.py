@@ -10,6 +10,7 @@ from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
 from models.unet import *
 from models.unet_dilated_v1 import *
 from models.unet_dilated_v2 import *
+from models.unet_dilated_v3 import *
 
 from data.data import *
 from data.tensorboard_image import *
@@ -33,6 +34,8 @@ elif args.model == 'unet_dilated1':
     model = unet_dilated_v1(learning_rate=args.adam_lr)
 elif args.model == 'unet_dilated2':
     model = unet_dilated_v2(learning_rate=args.adam_lr)
+elif args.model == 'unet_dilated3':
+    model = unet_dilated_v3(learning_rate=args.adam_lr)
 
 if args.train_model:
     # Initializing callbacks for training
