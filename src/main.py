@@ -11,7 +11,6 @@ from models.unet import *
 from models.unet_dilated_v1 import *
 from models.unet_dilated_v2 import *
 
-import data.data
 from data.data import *
 from data.tensorboard_image import *
 from data.combined_prediction import *
@@ -46,11 +45,11 @@ if args.train_model:
     os.mkdir(log_dir)
 
     # Initializing tensorboard callback for plots, graph, etc.
-    tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir, write_graph=True)
+    tensorboard_callback = TensorBoard(log_dir=log_dir, write_graph=True)
     callbacks.append(tensorboard_callback)
 
     # Initializing tensorboard image callback for visualizing validation images each epoch
-    tensorboard_image_callback = TensorBoardImage(log_dir=log_dir, validation_pairs=data.data.validation_pairs)
+    tensorboard_image_callback = TensorBoardImage(log_dir=log_dir, validation_path=args.val_path)
     callbacks.append(tensorboard_image_callback)
 
     # Initialization model checkpoint to store model with best validation loss

@@ -9,29 +9,6 @@ import os
 
 from data.helper import *
 
-train_pairs = []
-validation_pairs = []
-
-def get_path_pairs(path, image_folder, mask_folder):
-    images = []
-    masks = []
-
-    images_path = os.path.join(path, image_folder)
-    mask_path = os.path.join(path, mask_folder)
-    image_files = os.listdir(images_path)
-    image_files.sort()
-    mask_files = os.listdir(mask_path)
-    mask_files.sort()
-    for file in image_files:
-        images.append(os.path.join(images_path, file))
-    for file in mask_files:
-        masks.append(os.path.join(mask_path, file))
-
-    result = []
-    for pair in zip(images, masks):
-        result.append(pair)
-
-    return result
 
 def adjustData(img, mask):
     if np.max(img) > 1.0:
@@ -44,11 +21,6 @@ def adjustData(img, mask):
 
 
 def getTrainGenerators(aug_dict, train_path, validation_path, image_folder, mask_folder, target_size, batch_size, seed):
-
-    global train_pairs, validation_pairs
-
-    train_pairs = get_path_pairs(train_path, image_folder, mask_folder)
-    validation_pairs = get_path_pairs(validation_path, image_folder, mask_folder)
 
     train_img_generator = ImageDataGenerator(**aug_dict).flow_from_directory(
         train_path,
