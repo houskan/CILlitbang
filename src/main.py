@@ -22,6 +22,8 @@ tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_de
 # Load arguments from parser
 parser = argparser.get_parser()
 args = parser.parse_args()
+if args.arg_log:
+    argparser.write_config_file(args)
 
 # Setting random seeds for tensorflow, numpy and keras
 tf.random.set_seed(args.seed)
