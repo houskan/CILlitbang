@@ -1,12 +1,11 @@
 import numpy as np
-import skimage.io as io
-import skimage.transform as trans
-from skimage import img_as_ubyte, measure
+from skimage import measure, filters
 import cv2
+import scipy
+import maxflow
+import skimage
 
 from data.helper import *
-
-import os
 
 def remove_small_regions(mask, no_pixels=256):
     """Cleans up a discrete prediction by removing small regions
@@ -91,3 +90,146 @@ def hough_pipeline(mask, kernel, hough_thresh=100, min_line_length=1,
                     max_line_gap=max_line_gap)
     updated_mask = hough_update_mask(mask, hough_lines, kernel, thresh=pixel_up_thresh, eps=eps)
     return updated_mask
+
+
+def adjust_data_for_graphcut(img):
+    """
+    Some possible way to preprocess the colored test image for graph cut
+    """
+    img = skimage.color.rgb2lab(img)
+    img = filters.gaussian(img, sigma=1, multichannel=True)
+    img = img / 255.0
+    return img
+
+
+def graph_cut(prediction, img, lambda_=1, sigma=3):
+    """
+    This method requires The PyMaxflow library. It takes the continuous prediction plus the original image to
+    determine pixel assignment to either background or road. This is done by minimizing an energy function by finding a
+    min cut (e.g. max flow)
+    :param prediction: continuous prediction (grey scale image)
+    :param img: original colored test image (ATTENTION: normalize channel values to [0, 1])
+    :return: discretized mask
+    """
+
+    g = maxflow.Graph[float]()
+    nodeids = g.add_grid_nodes(prediction.shape)
+
+    structure = np.array( [[0, 0, 0],
+                           [0, 0, 1],
+                           [0, 0, 0]])
+
+    img_right = np.roll(img, 1, axis=2)
+    weights = img - img_right
+    weights = np.multiply(weights, weights)
+    weights = weights[:,:,0] + weights[:,:,1] + weights[:,:,2]
+
+    weights = weights / (2 * sigma * sigma)
+    weights = np.exp(-weights)
+
+    g.add_grid_edges(nodeids, weights=lambda_ * weights, structure=structure, symmetric=True)
+
+    structure = np.array([[0, 0, 0],
+                          [0, 0, 0],
+                          [0, 1, 0]])
+
+    img_down = np.rot90(img)
+    img_down = np.roll(img_down, 1, axis=2)
+    img_down = np.rot90(img_down, k=-1)
+    weights = img - img_down
+    weights = np.multiply(weights, weights)
+    weights = weights[:, :, 0] + weights[:, :, 1] + weights[:, :, 2]
+
+    weights = weights / (2 * sigma * sigma)
+    weights = np.exp(-weights)
+
+    g.add_grid_edges(nodeids, weights=lambda_ * weights, structure=structure, symmetric=True)
+
+    g.add_grid_tedges(nodeids, prediction, 1 - prediction)
+
+    g.maxflow()
+    sgm = g.get_grid_segments(nodeids)
+    result = np.int_(np.logical_not(sgm))
+    result *= 255
+    return result
+
+
+def line_smoothing(prediction, R=20, r=3, threshold=0.25):
+    """
+    This method implements simple line smoothing
+    :param prediction: continuous mask
+    :param R: how far up an down is looked to find maximum value to assign to current pixel
+    :param r: how far up and down there needs to be at least 1 pixel value higher than threshold
+    :param threshold:
+    :return: continuous mask with certain pixel probabilities increased
+    """
+    footprint_0 = np.zeros((2 * R + 1, 2 * R + 1))
+    footprint_0[R, R:2 * R + 1] = 1
+    footprint_45 = np.zeros((2 * R + 1, 2 * R + 1))
+    for i in range(R+1):
+        footprint_45[i,i] = 1
+
+    footprint_90 = np.rot90(footprint_0)
+    footprint_135 = np.rot90(footprint_45)
+    footprint_180 = np.rot90(footprint_90)
+    footprint_225 = np.rot90(footprint_135)
+    footprint_270 = np.rot90(footprint_180)
+    footprint_315 = np.rot90(footprint_225)
+
+    footprints_R = []
+    footprints_R.append(footprint_0)
+    footprints_R.append(footprint_45)
+    footprints_R.append(footprint_90)
+    footprints_R.append(footprint_135)
+    footprints_R.append(footprint_180)
+    footprints_R.append(footprint_225)
+    footprints_R.append(footprint_270)
+    footprints_R.append(footprint_315)
+
+    footprint_0 = np.zeros((2 * r + 1, 2 * r + 1))
+    footprint_0[r, r:2 * r + 1] = 1
+
+    footprint_45 = np.zeros((2 * r + 1, 2 * r + 1))
+    for i in range(r + 1):
+        footprint_45[i, i] = 1
+
+    footprint_90 = np.rot90(footprint_0)
+    footprint_135 = np.rot90(footprint_45)
+    footprint_180 = np.rot90(footprint_90)
+    footprint_225 = np.rot90(footprint_135)
+    footprint_270 = np.rot90(footprint_180)
+    footprint_315 = np.rot90(footprint_225)
+
+    footprints_r = []
+    footprints_r.append(footprint_0)
+    footprints_r.append(footprint_45)
+    footprints_r.append(footprint_90)
+    footprints_r.append(footprint_135)
+    footprints_r.append(footprint_180)
+    footprints_r.append(footprint_225)
+    footprints_r.append(footprint_270)
+    footprints_r.append(footprint_315)
+
+    results = []
+    for i in range(4):
+        S_up_filter = footprints_R[i]
+        S_down_filter = footprints_R[i+4]
+        T_up_filter = footprints_r[i]
+        T_down_filter = footprints_r[i+4]
+
+        S_up = scipy.ndimage.maximum_filter(prediction, footprint=S_up_filter)
+        S_down = scipy.ndimage.maximum_filter(prediction, footprint=S_down_filter)
+        T_up = scipy.ndimage.maximum_filter(prediction, footprint=T_up_filter)
+        T_down = scipy.ndimage.maximum_filter(prediction, footprint=T_down_filter)
+
+        T_up = T_up > threshold
+        T_down = T_down > threshold
+        s_up = np.multiply(S_up, T_up)
+        s_down = np.multiply(S_down, T_down)
+
+        result = np.maximum(prediction, np.minimum(s_up, s_down))
+        results.append(result)
+
+
+    smoothed = np.maximum(results[0], results[1], np.maximum(results[2], results[3]))
+    return smoothed
