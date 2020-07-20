@@ -6,10 +6,7 @@ from tensorflow.keras.optimizers import *
 
 from models.loss_functions import *
 
-
-# Scored 89.6% on kaggle
-def unet_dilated_v1(pretrained_weights=None, input_size=(400, 400, 3), learning_rate=1e-4,
-                    loss_func='binary_crossentropy'):
+def unet_dilated_v1(input_size=(400, 400, 3), learning_rate=1e-4):
     inputs = Input(input_size)
 
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
@@ -62,12 +59,8 @@ def unet_dilated_v1(pretrained_weights=None, input_size=(400, 400, 3), learning_
     model = Model(inputs=inputs, outputs=conv10)
 
     opt = Adam(learning_rate=learning_rate)
-    # model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy'])
-    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy', patch_f1_score, iou_coef])
+    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy'])
 
     model.summary()
-
-    if pretrained_weights:
-        model.load_weights(pretrained_weights)
 
     return model
