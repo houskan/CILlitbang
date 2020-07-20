@@ -2,11 +2,10 @@ import numpy as np
 
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
-
 tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
 
-import data.data
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
+
 import argparser
 
 from models.unet import *
@@ -67,11 +66,11 @@ if args.train_model:
     os.mkdir(log_dir)
 
     # Initializing tensorboard callback for plots, graph, etc.
-    tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir, write_graph=True)
+    tensorboard_callback = TensorBoard(log_dir=log_dir, write_graph=True)
     callbacks.append(tensorboard_callback)
 
     # Initializing tensorboard image callback for visualizing validation images each epoch
-    tensorboard_image_callback = TensorBoardImage(log_dir=log_dir, validation_pairs=data.data.validation_pairs)
+    tensorboard_image_callback = TensorBoardImage(log_dir=log_dir, validation_path=args.val_path)
     callbacks.append(tensorboard_image_callback)
 
     # Initialization model checkpoint to store model with best validation loss
