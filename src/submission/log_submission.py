@@ -6,15 +6,10 @@ from submission.mask_to_submission import masks_to_submission
 
 
 def log_submission(submission_identifier, args):
-    # Initializing out directory and submission output path
-    out_dir = os.path.join('..', 'out')
-    if not os.path.exists(out_dir):
-        os.mkdir(out_dir)
-
     # Initializing submission path where submission will be logged
-    submission_path = os.path.join(out_dir, submission_identifier)
+    submission_path = os.path.join('..', 'out', submission_identifier)
     if not os.path.exists(submission_path):
-        os.mkdir(submission_path)
+        os.makedirs(submission_path)
     print('Logging submission: ' + submission_path)
 
     # Copying model weights

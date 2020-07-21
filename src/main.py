@@ -52,7 +52,7 @@ if args.train_model:
     # Initializing logs directory for tensorboard
     log_dir = os.path.join('..', 'logs', 'fit', submission_identifier)
     if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
+        os.makedirs(log_dir)
 
     # Initializing tensorboard callback for plots, graph, etc.
     tensorboard_callback = TensorBoard(log_dir=log_dir, write_graph=True)
