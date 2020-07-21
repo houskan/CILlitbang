@@ -82,6 +82,17 @@ def get_parser():
     parser.add('--adam-lr', type=float, default=1e-4,
                help='learning rate of adam to use during training')
 
+    parser.add('--line-smoothing-mode', type=str, default='both', choices=['beforeHough', 'afterHough', 'both', 'None'],
+               help='Apply line smoothin before(beforeHough, after (afterHough) or both(both) or not at all (None)')
+    parser.add('--apply-hough', type=str2bool, default=True,
+               help='Should Hough Transform postprocessing be applied')
+    parser.add('--hough-discretize-mode', type=str, default='graphcut', choices=['discretize', 'graphcut'],
+               help='Which discretization function should be applied during Hough transform')
+    parser.add('--discretize-mode', type=str, default='graphcut', choices=['discretize', 'graphcut'],
+               help='Which discretization function should be applied for the final submission')
+    parser.add('--region-removal', type=bool, default=True,
+               help='Should small regions be removed')
+
     return parser
 
 

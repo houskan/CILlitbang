@@ -102,7 +102,9 @@ if args.predict_best and args.train_model:
 # Predicting results with specific generator, gathering results and saving them depending on
 # scale mode, combined prediction boolean, as well as gathering mode
 predict_results(model=model, test_path=args.test_path, image_dir='images', result_dir='results',
-                scale_mode=args.scale_mode, comb_pred=args.comb_pred, gather_mode=args.gather_mode)
+                scale_mode=args.scale_mode, comb_pred=args.comb_pred, gather_mode=args.gather_mode,
+                line_smoothing_mode=args.line_smoothing_mode, apply_hough=args.apply_hough,
+                hough_discretize_mode=args.hough_discretize_mode, discretize_mode=args.discretize_mode, region_removal=args.region_removal)
 
 # Checking if submission should be logged and saving all relevant data in unique out submission directory
 if args.sub_log:

@@ -7,6 +7,39 @@ import skimage
 
 from data.helper import *
 
+def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode, region_removal):
+        if line_smoothing_mode == 'beforeHough' or line_smoothing_mode == 'both':
+            mask_cont = line_smoothing(mask_cont, R=20, r=3, threshold=0.25) 
+
+        # Apply Hough Transform
+        if apply_hough:
+            # Apply Hough dependent on discretize functio
+            if hough_discretize_mode == 'discretize':
+                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), discretize)
+            elif hough_discretize_mode == 'graphcut':
+                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), lambda x: graph_cut(x, img))
+            else:
+                raise Exception('Unknown discretize mode for Hough postprocessing: ' + hough_discretize_mode)
+                
+        # Smooth Lines after Hough post-processing
+        if line_smoothing_mode == 'afterHough' or line_smoothing_mode == 'both':
+            mask_cont = line_smoothing(mask_cont, R=20, r=3, threshold=0.25)
+
+        # Discretize the probability map
+        if hough_discretize_mode == 'discretize':
+            discretize_function = discretize
+        elif hough_discretize_mode == 'graphcut':
+            discretize_function = lambda x: graph_cut(x, img)
+        else:
+            raise Exception('Unknown discretize mode for final discretization: ' + discretize_mode)
+        mask_disc = discretize_function(mask_cont)
+
+        # Remove Small Regions
+        if region_removal:
+            mask_disc = remove_small_regions(mask_disc, no_pixels=32*32)
+
+        return mask_cont, mask_disc
+
 def remove_small_regions(mask, no_pixels=256):
     """Cleans up a discrete prediction by removing small regions
     from the discrete mask
@@ -88,7 +121,7 @@ def hough_pipeline(mask, kernel, discretize_func, hough_thresh=100, min_line_len
     hough_lines = get_hough_lines(disc_mask, threshold=hough_thresh, min_line_length=min_line_length,
                     max_line_gap=max_line_gap)
     updated_mask = hough_update_mask(mask, hough_lines, kernel, thresh=pixel_up_thresh, eps=eps)
-    return updated_mask
+    return np.clip(updated_mask, a_min=0.0, a_max=1.0)
 
 
 def adjust_data_for_graphcut(img):
