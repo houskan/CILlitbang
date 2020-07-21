@@ -32,7 +32,7 @@ def remove_small_regions(mask, no_pixels=256):
 
 def get_hough_lines(mask, threshold=100, min_line_length=1, max_line_gap=500):
     """Returns numpy array containing the number of hough lines passing through it.
-    mask -- discret mask
+    mask -- discret mask (x,x). Two dimesnions only
     threshold -- see cv2.HoughLinesP
     min_line_length -- see cv2.HoughLinesP
     max_line_gap -- see cv2.HoughLinesP
@@ -45,7 +45,7 @@ def get_hough_lines(mask, threshold=100, min_line_length=1, max_line_gap=500):
     if not lines is None:
         for x in range(0, len(lines)):
             for x1,y1,x2,y2 in lines[x]:
-                one_hough = np.zeros(gray.shape[0:2])
+                one_hough = np.zeros(gray.shape)
                 cv2.line(one_hough,(x1,y1),(x2,y2), 1., 1)
                 hough_lines = hough_lines + one_hough
 
@@ -69,7 +69,7 @@ def hough_update_mask(mask, hough_lines, kernel, thresh=1, eps=0.2):
     updated_mask = updated_mask + eps * (hough_lines_c >= thresh)
     return updated_mask
 
-def hough_pipeline(mask, kernel, hough_thresh=100, min_line_length=1,
+def hough_pipeline(mask, kernel, discretize_func, hough_thresh=100, min_line_length=1,
                     max_line_gap=500, pixel_up_thresh=1, eps=0.2):
     """This method performs the complete update of probability
     maps using the hough transform to detect road segments
@@ -84,8 +84,7 @@ def hough_pipeline(mask, kernel, hough_thresh=100, min_line_length=1,
     thresh -- How many lines need to pass through a pixel at least
     eps -- Which constant factor should be added to chosen pixels
     """
-
-    disc_mask = discretize(mask)
+    disc_mask = discretize_func(mask)
     hough_lines = get_hough_lines(disc_mask, threshold=hough_thresh, min_line_length=min_line_length,
                     max_line_gap=max_line_gap)
     updated_mask = hough_update_mask(mask, hough_lines, kernel, thresh=pixel_up_thresh, eps=eps)
