@@ -18,6 +18,8 @@ def log_submission(submission_identifier, args):
     # Copying results directories
     shutil.copytree(os.path.join(args.test_path, 'results', 'discrete'), os.path.join(submission_path, 'discrete'))
     shutil.copytree(os.path.join(args.test_path, 'results', 'continuous'), os.path.join(submission_path, 'continuous'))
+    shutil.copytree(os.path.join(args.test_path, 'results', 'discrete_postprocessed'), os.path.join(submission_path, 'discrete_postprocessed'))
+    shutil.copytree(os.path.join(args.test_path, 'results', 'continuous_postprocessed'), os.path.join(submission_path, 'continuous_postprocessed'))
     #shutil.copytree(os.path.join(args.test_path, 'results', 'post_processing'), os.path.join(submission_path, 'post_processing'))
 
     # Copying tensorboard log files

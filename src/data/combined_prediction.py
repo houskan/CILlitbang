@@ -168,6 +168,9 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
         print('Saving discrete and continuous mask of image: ' + file)
 
         # Initializing and possibly also creating directories for discrete and continuous results
+        result_path = os.path.join(test_path, result_dir)
+        if not os.path.exists(os.path.join(test_path, result_dir)):
+            os.mkdir(result_path)
         disc_path = os.path.join(test_path, result_dir, 'discrete')
         if not os.path.exists(disc_path):
             os.mkdir(disc_path)
@@ -183,8 +186,14 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
                                            line_smoothing_R, line_smoothing_r, line_smoothing_threshold, hough_thresh, hough_min_line_length,
                                            hough_max_line_gap, hough_pixel_up_thresh, hough_eps, region_removal_size)
         # Save post processed
-        io.imsave(os.path.join(test_path, result_dir, img_name + 'disc_post.png'), img_as_ubyte(mask_disc))
-        io.imsave(os.path.join(test_path, result_dir, img_name + 'cont_post.png'), img_as_ubyte(mask_cont))
+        disc_path = os.path.join(test_path, result_dir, 'discrete_postprocessed')
+        if not os.path.exists(disc_path):
+            os.mkdir(disc_path)
+        cont_path = os.path.join(test_path, result_dir, 'continuous_postprocessed')
+        if not os.path.exists(cont_path):
+            os.mkdir(cont_path)
+        io.imsave(os.path.join(disc_path, img_name + '.png'), img_as_ubyte(mask_disc))
+        io.imsave(os.path.join(cont_path, img_name + '.png'), img_as_ubyte(mask_cont))
 
 
 def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 400),
