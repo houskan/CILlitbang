@@ -19,11 +19,11 @@ def get_parser():
     parser.add('--arg-log', type=str2bool, default=True,
                help='save arguments to config file')
 
-    parser.add('--epochs', type=int, default=50,
+    parser.add('--epochs', type=int, default=250,
                help='number of training epochs')
     parser.add('--steps', type=int, default=100,
                help='number of steps per epoch')
-    parser.add('--val-steps', type=int, default=22,
+    parser.add('--val-steps', type=int, default=10,
                help='number of validation steps after each epoch')
     parser.add('--batch-size', type=int, default=4,
                help='batch size for training')
@@ -35,16 +35,16 @@ def get_parser():
     parser.add('--train-model', type=str2bool, default=True,
                help='perform training on the model')
 
-    parser.add('--comb-pred', type=str2bool, default=True,
-               help='combine different rotated and flipped predictions into one')
-    parser.add('--gather-mode', type=str, default='avg',
-               help='take average of combined results or discrete voting with voting threshold')
+    parser.add('--gather-mode', type=str, default='None', choices=['avg', 'vote', 'None'],
+               help='combined average of results, combined discrete voting with threshold or no combined prediction')
+    parser.add('--vote-thresh', type=int, default=5,
+               help='threshold of discrete votes needed to be considered a road (\'vote\' gather mode only)')
     parser.add('--scale-mode', type=str, default='resize',
                help='resize test images or predict sub-images in sliding window way')
 
-    parser.add('--train-path', type=str, default='../data/training/',
+    parser.add('--train-path', type=str, default='../data/training_original/',
                help='path containing training images & groundtruth')
-    parser.add('--val-path', type=str, default='../data/validation/',
+    parser.add('--val-path', type=str, default='../data/validation_original/',
                help='path containing validation images & groundtruth')
     parser.add('--test-path', type=str, default='../data/test/',
                help='path containing test images to predict')
@@ -77,7 +77,7 @@ def get_parser():
     parser.add('--fill-mode', type=str, default='reflect',
                help='fill mode when shifting images')
 
-    parser.add('--model', choices=['unet', 'unet_dilated1', 'unet_dilated2', 'unet_dilated3'], default='unet_dilated2',
+    parser.add('--model', type=str, default='unet_dilated2', choices=['unet', 'unet_dilated1', 'unet_dilated2', 'unet_dilated3'],
                help='which model to use for training')
     parser.add('--adam-lr', type=float, default=1e-4,
                help='learning rate of adam to use during training')
@@ -87,11 +87,11 @@ def get_parser():
     parser.add('--apply-hough', type=str2bool, default=True,
                help='Should Hough Transform postprocessing be applied')
     parser.add('--hough-discretize-mode', type=str, default='graphcut', choices=['discretize', 'graphcut'],
-               help='Which discretization function should be applied during Hough transform')
+               help='which discretization function should be applied during Hough transform')
     parser.add('--discretize-mode', type=str, default='graphcut', choices=['discretize', 'graphcut'],
-               help='Which discretization function should be applied for the final submission')
+               help='which discretization function should be applied for the final submission')
     parser.add('--region-removal', type=bool, default=True,
-               help='Should small regions be removed')
+               help='should small regions be removed')
 
     parser.add('--line-smoothing-R', type=int, default=20,
                help='TODO NIK')
@@ -101,17 +101,17 @@ def get_parser():
                help='TODO NIK')
 
     parser.add('--hough-thresh', type=int, default=100,
-               help='Threshold for HoughTransformP')
+               help='threshold for HoughTransformP')
     parser.add('--hough-min-line-length', type=int, default=1,
-               help='Minimum length of a Hough Line')
+               help='minimum length of a Hough Line')
     parser.add('--hough-max-line-gap', type=int, default=500,
-               help='Maximum gap between two pixel getting connected by Hough Lines')
+               help='maximum gap between two pixel getting connected by Hough Lines')
     parser.add('--hough-pixel-up-thresh', type=int, default=1,
-               help='Number of Hough Lines that need to pass through pixel s.t. its probability gets increased')
+               help='number of Hough Lines that need to pass through pixel s.t. its probability gets increased')
     parser.add('--hough-eps', type=float, default=0.2,
-               help='Epsilon value added to the probability map when hough lines pass through a pixel')
+               help='epsilon value added to the probability map when hough lines pass through a pixel')
     parser.add('--region-removal-size', type=int, default=1024,
-               help='Defines regions too small to be considered as road')
+               help='defines regions too small to be considered as road')
 
     return parser
 

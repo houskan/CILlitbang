@@ -59,7 +59,7 @@ def gather_combined(results, mode, thresh):
 
 
 def test_generator(test_path, image_dir='images', target_size=(400, 400),
-                   scale_mode='resize', window_stride=(208, 208), comb_pred=True):
+                   scale_mode='resize', window_stride=(208, 208), gather_mode='avg'):
     # Iterating through all images in test set
     for file in os.listdir(os.path.join(test_path, image_dir)):
         # Reading input test image image and normalizing it to range [0, 1],
@@ -75,7 +75,7 @@ def test_generator(test_path, image_dir='images', target_size=(400, 400),
             # Resizing image to target size
             img = trans.resize(img, target_size + (3,))
             # Checking combined prediction should yielding all eight transforms or only single image
-            if comb_pred:
+            if gather_mode == 'avg' or gather_mode == 'vote':
                 yield apply_transforms(images=np.broadcast_to(img, (8,) + img.shape))
             else:
                 img = np.reshape(img, (1,) + img.shape)
@@ -87,7 +87,7 @@ def test_generator(test_path, image_dir='images', target_size=(400, 400),
                     # Getting window image with target size
                     img_window = img[i:i+target_size[0], j:j+target_size[1], :]
                     # Checking combined prediction should yielding all eight transforms or only single image
-                    if comb_pred:
+                    if gather_mode == 'avg' or gather_mode == 'vote':
                         yield apply_transforms(images=np.broadcast_to(img_window, (8,) + img_window.shape))
                     else:
                         img = np.reshape(img, (1,) + img.shape)
@@ -97,13 +97,13 @@ def test_generator(test_path, image_dir='images', target_size=(400, 400),
 
 
 def save_results(results, test_path, image_dir, result_dir, target_size=(400, 400),
-                 scale_mode='resize', window_stride=(208, 208), comb_pred=True,  gather_mode='avg', vote_thresh=5,
+                 scale_mode='resize', window_stride=(208, 208),  gather_mode='avg', vote_thresh=5,
                  line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut', region_removal=True,
                  line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
                  hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, region_removal_size=1024):
     # Initializing index to keep track of where we are in results tensor abd batch size stride
     index = 0
-    batch_size = 8 if comb_pred else 1
+    batch_size = 8 if (gather_mode == 'avg' or gather_mode == 'vote') else 1
 
     # Iterating through all images in test set
     for file in os.listdir(os.path.join(test_path, image_dir)):
@@ -118,7 +118,7 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
         # Checking which scale mode should be used (resizing image to fit target size or sliding window)
         if scale_mode == 'resize':
             # Checking if combined prediction should be applied
-            if comb_pred:
+            if gather_mode == 'avg' or gather_mode == 'vote':
                 # Reversing transformations of results
                 res = reverse_transforms(results=results[index:index + 8])
                 # Resizing resulting output masks to original size
@@ -142,7 +142,7 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
             for i in range(0, original_size[0] - target_size[0] + 1, window_stride[0]):
                 for j in range(0, original_size[1] - target_size[1] + 1, window_stride[1]):
                     # Checking if combined prediction should be applied
-                    if comb_pred:
+                    if gather_mode == 'avg' or gather_mode == 'vote':
                         # Reversing transformations of results
                         res = reverse_transforms(results=results[index:index+8])
                         # Gathering results back to one continuous and discrete window with specific mode
@@ -186,28 +186,29 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
                                            line_smoothing_R, line_smoothing_r, line_smoothing_threshold, hough_thresh, hough_min_line_length,
                                            hough_max_line_gap, hough_pixel_up_thresh, hough_eps, region_removal_size)
         # Save post processed
-        disc_path = os.path.join(test_path, result_dir, 'discrete_postprocessed')
+        disc_path = os.path.join(test_path, result_dir, 'discrete_post_processed')
         if not os.path.exists(disc_path):
             os.mkdir(disc_path)
-        cont_path = os.path.join(test_path, result_dir, 'continuous_postprocessed')
+        cont_path = os.path.join(test_path, result_dir, 'continuous_post_processed')
         if not os.path.exists(cont_path):
             os.mkdir(cont_path)
+
         io.imsave(os.path.join(disc_path, img_name + '.png'), img_as_ubyte(mask_disc))
         io.imsave(os.path.join(cont_path, img_name + '.png'), img_as_ubyte(mask_cont))
 
 
 def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 400),
-                    scale_mode='resize', window_stride=(208, 208), comb_pred=True, gather_mode='avg', vote_thresh=5,
+                    scale_mode='resize', window_stride=(208, 208), gather_mode='avg', vote_thresh=5,
                     line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut', region_removal=True,
                     line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
                     hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, region_removal_size=1024):
 
     # Initializing combined test generator (different number of input images depending on scale mode and window stride)
     test_gen = test_generator(test_path=test_path, image_dir=image_dir, target_size=target_size,
-                              scale_mode=scale_mode, window_stride=window_stride, comb_pred=comb_pred)
+                              scale_mode=scale_mode, window_stride=window_stride, gather_mode=gather_mode)
 
     # Setting batch and validation steps for prediction with generator
-    batch_size = 8 if comb_pred else 1
+    batch_size = 8 if (gather_mode == 'avg' or gather_mode == 'vote') else 1
     val_steps = len(os.listdir(os.path.join(test_path, image_dir)))
     if scale_mode == 'window':
         # Adding multiplier factor for window images per input test image
@@ -218,7 +219,7 @@ def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 4
 
     # Gathering raw results (in case of sliding window) and saving results
     save_results(results=results, test_path=test_path, image_dir=image_dir, result_dir=result_dir,
-                 target_size=(400, 400), scale_mode=scale_mode, window_stride=(208, 208), comb_pred=comb_pred,
+                 target_size=(400, 400), scale_mode=scale_mode, window_stride=(208, 208),
                  gather_mode=gather_mode, vote_thresh=vote_thresh,
                  line_smoothing_mode=line_smoothing_mode, apply_hough=apply_hough,
                  hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode, region_removal=region_removal,
