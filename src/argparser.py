@@ -39,7 +39,7 @@ def get_parser():
                help='combined average of results, combined discrete voting with threshold or no combined prediction')
     parser.add('--vote-thresh', type=int, default=5,
                help='threshold of discrete votes needed to be considered a road (\'vote\' gather mode only)')
-    parser.add('--scale-mode', type=str, default='resize',
+    parser.add('--scale-mode', type=str, default='resize', choices=['resize', 'window'],
                help='resize test images or predict sub-images in sliding window way')
 
     parser.add('--train-path', type=str, default='../data/training_original/',
@@ -66,9 +66,9 @@ def get_parser():
                help='range for height shift in augmentation dictionary')
     parser.add('--shear-range', type=float, default=0.05,
                help='shear range for augmentation dictionary')
-    parser.add('--zoom-range', type=list, default=[0.95, 1.05],
+    parser.add('--zoom-range', nargs=2, type=float, default=[0.95, 1.05],
                help='zoom range for augmentation dictionary')
-    parser.add('--brightness-range', type=list, default=[1.0, 1.2],
+    parser.add('--brightness-range', nargs=2, type=float, default=[1.0, 1.2],
                help='brightness range for augmentation dictionary')
     parser.add('--horizontal-flip', type=str2bool, default=True,
                help='lets ImageDataGenerator flip images horizontally')
