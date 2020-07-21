@@ -18,8 +18,6 @@ from data.combined_prediction import *
 from data.post_processing import *
 from submission.log_submission import *
 
-tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
-
 # Load arguments from parser and saving it if requested
 parser = argparser.get_parser()
 args = parser.parse_args()
