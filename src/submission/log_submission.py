@@ -26,7 +26,7 @@ def log_submission(submission_identifier, args):
         shutil.copytree(os.path.join('..', 'logs', 'fit', submission_identifier), os.path.join(submission_path, 'tensorboard'))
 
     # Saving argument config file
-    argparser.write_config_file(args, path=os.path.join(submission_path, 'config.conf'))
+    argparser.write_config_file(args, path=os.path.join(submission_path, 'config.cfg'))
 
     # Masking result to kaggle submission format and saving file it as csv file
     result_path = os.path.join(submission_path, 'discrete')
