@@ -54,6 +54,8 @@ elif args.model == 'unet_dilated1':
     model = unet_dilated_v1(learning_rate=args.adam_lr)
 elif args.model == 'unet_dilated2':
     model = unet_dilated_v2(learning_rate=args.adam_lr)
+else:
+    raise Exception('Unknown model: ' + args.model)
 
 if args.train_model:
     # Initializing callbacks for training
@@ -62,7 +64,7 @@ if args.train_model:
     tensorflow_dir = datetime.datetime.now().strftime('%Y%m%d-%H%M%S') + '-e{}-s{}'.format(args.epochs, args.steps)
 
     # Initializing logs directory for tensorboard
-    log_dir = os.path.join('../logs/fit', tensorflow_dir)
+    log_dir = os.path.join('..', 'logs', 'fit', tensorflow_dir)
     os.mkdir(log_dir)
 
     # Initializing tensorboard callback for plots, graph, etc.
@@ -85,18 +87,8 @@ if args.predict_best:
     # Loading best result
     model.load_weights(args.model_path)
 
-if args.comb_pred:
-    print("Combined prediction")
+# Predicting results with specific generator, gathering results and saving them depending on
+# scale mode, combined prediction boolean, as well as gathering mode
+predict_results(model=model, test_path=args.test_path, image_dir='images', result_dir='results',
+                scale_mode=args.scale_mode, comb_pred=args.comb_pred, gather_mode=args.gather_mode)
 
-    predict_combined_results(model, test_path=args.test_path, image_dir='images', result_dir='results',
-                             scale_mode=args.scale_mode, gather_mode=args.gather_mode)
-else:
-    print("Simple prediction")
-
-    # Initializing test generator
-    test_gen = testGenerator(test_path=args.test_path, image_folder='images', target_size=(400, 400))
-    # Predicting results on test images
-    images = os.listdir(os.path.join(args.test_path, 'images'))
-    results = model.predict(test_gen, steps=len(images), verbose=1)
-    # Saving result masks of test images
-    saveResult(test_path=args.test_path, images=images, results=results)

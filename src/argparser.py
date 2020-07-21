@@ -31,14 +31,13 @@ def get_parser():
                help='predict with best model weights')
     parser.add('--train-model', type=str2bool, default=True,
                help='perform training on the model')
+
     parser.add('--comb-pred', type=str2bool, default=True,
                help='combine different rotated and flipped predictions into one')
-
     parser.add('--gather-mode', type=str, default='avg',
                help='take average of combined results or discrete voting with voting threshold')
-
     parser.add('--scale-mode', type=str, default='resize',
-               help='resize test images or predict sub-images in sliding window')
+               help='resize test images or predict sub-images in sliding window way')
 
     parser.add('--train-path', type=str, default='../data/training/',
                help='path containing training images & groundtruth')

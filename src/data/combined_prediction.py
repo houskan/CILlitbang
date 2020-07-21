@@ -6,6 +6,7 @@ import os
 
 from data.helper import *
 
+
 def apply_transforms(images):
     # Applying rotation and flipping (mirroring) to input images array
     trans_images = np.zeros(images.shape)
@@ -18,6 +19,7 @@ def apply_transforms(images):
     trans_images[6] = np.rot90(np.fliplr(images[6]), 2)
     trans_images[7] = np.rot90(np.fliplr(images[7]), 3)
     return trans_images
+
 
 def reverse_transforms(results):
     # Reversing rotation and flipping (mirroring) to output results array
@@ -32,6 +34,166 @@ def reverse_transforms(results):
     rev_results[7] = np.fliplr(np.rot90(results[7], 1))
     return rev_results
 
+
+def gather_combined(results, mode, thresh):
+    # Checking which gather mode should be used (averaging continuous masks or threshold voting discrete masks)
+    if mode == 'avg':
+        # Computing average continuous mask and discretizing this averaged result
+        result_avg_cont = (1.0 / 8.0) * np.sum(results, axis=0)
+        result_avg_disc = discretize(result_avg_cont)
+        return result_avg_cont, result_avg_disc
+    elif mode == 'vote':
+        # Discretizing each of the stacked continuous output results and summing up these discrete masks
+        results_disc = discretize(results)
+        result_vote_sum = np.sum(results_disc, axis=0)
+        # Creating pseudo continuous mask by normalizing/averaging this summed up result
+        result_vote_avg = (1.0 / 8.0) * result_vote_sum
+        # Threshold voting discrete mask with everything < thresh being no road and everything >= thresh being a road
+        result_vote_disc = result_vote_sum.copy()
+        result_vote_disc[result_vote_disc < thresh] = 0.0
+        result_vote_disc[result_vote_disc >= thresh] = 1.0
+        return result_vote_avg, result_vote_disc
+    else:
+        raise Exception('Unknown gathering mode: ' + mode)
+
+
+def test_generator(test_path, image_dir='images', target_size=(400, 400),
+                   scale_mode='resize', window_stride=(208, 208), comb_pred=True):
+    # Iterating through all images in test set
+    for file in os.listdir(os.path.join(test_path, image_dir)):
+        # Reading input test image image and normalizing it to range [0, 1],
+        img = io.imread(os.path.join(test_path, image_dir, file), as_gray=False)
+        if np.max(img) > 1.0:
+            img = img / 255.0
+
+        # Getting original size of input test image
+        original_size = img.shape[0:2]
+
+        # Checking which scale mode should be used (resizing image to fit target size or sliding window)
+        if scale_mode == 'resize':
+            # Resizing image to target size
+            img = trans.resize(img, target_size + (3,))
+            # Checking combined prediction should yielding all eight transforms or only single image
+            if comb_pred:
+                yield apply_transforms(images=np.broadcast_to(img, (8,) + img.shape))
+            else:
+                img = np.reshape(img, (1,) + img.shape)
+                yield img
+        elif scale_mode == 'window':
+            # Iterating through input image with window stride in x and y direction (sliding window)
+            for i in range(0, original_size[0] - target_size[0] + 1, window_stride[0]):
+                for j in range(0, original_size[1] - target_size[1] + 1, window_stride[1]):
+                    # Getting window image with target size
+                    img_window = img[i:i+target_size[0], j:j+target_size[1], :]
+                    # Checking combined prediction should yielding all eight transforms or only single image
+                    if comb_pred:
+                        yield apply_transforms(images=np.broadcast_to(img_window, (8,) + img_window.shape))
+                    else:
+                        img = np.reshape(img, (1,) + img.shape)
+                        yield img
+        else:
+            raise Exception('Unknown scale mode: ' + scale_mode)
+
+
+def save_results(results, test_path, image_dir, result_dir, target_size=(400, 400),
+                 scale_mode='resize', window_stride=(208, 208), comb_pred=True,  gather_mode='avg', vote_thresh=5):
+    # Initializing index to keep track of where we are in results tensor abd batch size stride
+    index = 0
+    batch_size = 8 if comb_pred else 1
+
+    # Iterating through all images in test set
+    for file in os.listdir(os.path.join(test_path, image_dir)):
+
+        # Reading input test image and getting size of it
+        img = io.imread(os.path.join(test_path, image_dir, file), as_gray=False)
+        original_size = img.shape[0:2]
+
+        # Getting image name (without extension)
+        img_name = file.split('.')[-2]
+
+        # Checking which scale mode should be used (resizing image to fit target size or sliding window)
+        if scale_mode == 'resize':
+            # Checking if combined prediction should be applied
+            if comb_pred:
+                # Reversing transformations of results
+                res = reverse_transforms(results=results[index:index + 8])
+                # Resizing resulting output masks to original size
+                resized_results = np.zeros((8,) + original_size + (1,))
+                for i in range(8):
+                    resized_results[i] = trans.resize(res[i], original_size + (1,))
+                mask_cont, mask_disc = gather_combined(results=resized_results, mode=gather_mode, thresh=vote_thresh)
+            else:
+                # Resizing resulting output mask to original size
+                resized_result = trans.resize(results[index], original_size + (1,))
+                mask_cont = resized_result
+                mask_disc = discretize(mask_cont)
+            # Updating results index by adding batch size
+            index += batch_size
+        elif scale_mode == 'window':
+            # Initializing bookkeeping 2d arrays for access counts, as well as continuous and discrete accumulators
+            counts = np.zeros(img.shape)
+            mask_cont = np.zeros(img.shape)
+            mask_disc = np.zeros(img.shape)
+            # Iterating through input image with window stride in x and y direction (sliding window)
+            for i in range(0, original_size[0] - target_size[0] + 1, window_stride[0]):
+                for j in range(0, original_size[1] - target_size[1] + 1, window_stride[1]):
+                    # Checking if combined prediction should be applied
+                    if comb_pred:
+                        # Reversing transformations of results
+                        res = reverse_transforms(results=results[index:index+8])
+                        # Gathering results back to one continuous and discrete window with specific mode
+                        mask_window_cont, mask_window_disc = gather_combined(results=res, mode=gather_mode, thresh=vote_thresh)
+                    else:
+                        mask_window_cont = results[index]
+                        mask_window_disc = discretize(mask_window_cont)
+                    # Updating results index by adding batch size
+                    index += batch_size
+                    # Bookkeeping of elements accessed (counts), as well as original sized continuous and discrete masks
+                    counts[i:i+target_size[0], j:j+target_size[1], :] += 1.0
+                    mask_cont[i:i+target_size[0], j:j+target_size[1], :] += mask_window_cont
+                    mask_disc[i:i+target_size[0], j:j+target_size[1], :] += mask_window_disc
+            # Averaging of continuous mask and discretizing it
+            mask_cont = mask_cont / counts
+            mask_disc = discretize(mask_cont)
+        else:
+            raise Exception('Unknown scale mode: ' + scale_mode)
+
+        print('Saving discrete and continuous mask of image: ' + file)
+
+        # Saving discrete and continuous masks in respective folders in result directory
+        io.imsave(os.path.join(test_path, result_dir, 'discrete', img_name + '.png'), img_as_ubyte(mask_disc))
+        io.imsave(os.path.join(test_path, result_dir, 'continuous', img_name + '.png'), img_as_ubyte(mask_cont))
+
+        # Also saving discrete and continuous masks in results directory (for easier comparison)
+        io.imsave(os.path.join(test_path, result_dir, img_name + '_disc.png'), img_as_ubyte(mask_disc))
+        io.imsave(os.path.join(test_path, result_dir, img_name + '_cont.png'), img_as_ubyte(mask_cont))
+
+
+def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 400),
+                    scale_mode='resize', window_stride=(208, 208), comb_pred=True, gather_mode='avg', vote_thresh=5):
+
+    # Initializing combined test generator (different number of input images depending on scale mode and window stride)
+    test_gen = test_generator(test_path=test_path, image_dir=image_dir, target_size=target_size,
+                              scale_mode=scale_mode, window_stride=window_stride, comb_pred=comb_pred)
+
+    # Setting batch and validation steps for prediction with generator
+    batch_size = 8 if comb_pred else 1
+    val_steps = len(os.listdir(os.path.join(test_path, image_dir)))
+    if scale_mode == 'window':
+        # Adding multiplier factor for window images per input test image
+        val_steps *= ((608 - target_size[0]) // window_stride[0] + 1) * ((608 - target_size[1]) // window_stride[1] + 1)
+
+    # Predicting results with combined test generator for all test images and with batch size one
+    results = model.predict(test_gen, steps=val_steps, batch_size=batch_size, verbose=1)
+
+    # Gathering raw results (in case of sliding window) and saving results
+    save_results(results=results, test_path=test_path, image_dir=image_dir, result_dir=result_dir,
+                 target_size=(400, 400), scale_mode=scale_mode, window_stride=(208, 208), comb_pred=comb_pred,
+                 gather_mode=gather_mode, vote_thresh=vote_thresh)
+
+
+'''
+
 def predict_combined(model, img):
 
     # Constructing all eight rotated and flipped input images
@@ -44,32 +206,6 @@ def predict_combined(model, img):
     results = reverse_transforms(results=results)
 
     return results
-
-
-def gather_combined(results, mode, thresh):
-
-    if mode == 'avg':
-
-        result_avg_cont = (1.0 / 8.0) * np.sum(results, axis=0)
-        result_avg_disc = discretize(result_avg_cont)
-
-        return result_avg_cont, result_avg_disc
-
-    elif mode == 'vote':
-
-        # Converting continuous output results to discrete masks with zero and one values
-        results_disc = discretize(results)
-
-        result_vote_sum = np.sum(results_disc, axis=0)
-        result_vote_avg = (1.0 / 8.0) * result_vote_sum
-        result_vote_disc = result_vote_sum.copy()
-        result_vote_disc[result_vote_disc < thresh] = 0.0
-        result_vote_disc[result_vote_disc >= thresh] = 1.0
-
-        return result_vote_avg, result_vote_disc
-
-    else:
-        raise Exception('Unknown gathering mode: ' + mode)
 
 
 def predict_window(model, img, target_size, window_stride, gather_mode, vote_thresh):
@@ -99,12 +235,14 @@ def predict_window(model, img, target_size, window_stride, gather_mode, vote_thr
 
     return mask_cont, mask_disc
 
+
 def predict_resize(model, img, target_size, gather_mode, vote_thresh):
 
     # Saving original size of input (without number of channels)
     original_size = img.shape[:-1]
 
     img = trans.resize(img, target_size)
+    img = combineColorSpaces(img)
 
     results = predict_combined(model=model, img=img)
 
@@ -116,7 +254,8 @@ def predict_resize(model, img, target_size, gather_mode, vote_thresh):
     mask_cont, mask_disc = gather_combined(results=resized_results, mode=gather_mode, thresh=vote_thresh)
 
     return mask_cont, mask_disc
-
+    
+    
 def predict_combined_results(model, test_path, image_dir, result_dir, scale_mode='resize', gather_mode='avg'):
 
     for file in os.listdir(os.path.join(test_path, image_dir)):
@@ -145,29 +284,5 @@ def predict_combined_results(model, test_path, image_dir, result_dir, scale_mode
         # Also saving discrete and continuous masks in results directory (for easier comparison)
         io.imsave(os.path.join(test_path, result_dir, img_name + '_disc.png'), img_as_ubyte(mask_disc))
         io.imsave(os.path.join(test_path, result_dir, img_name + '_cont.png'), img_as_ubyte(mask_cont))
-
-
-def saveResult(test_path, images, results):
-
-    # Initializing two list for test image mask result file path names (first discrete, second continuous)
-    #resultNames = list(map(lambda x: os.path.join(test_path, 'results', x), images))
-    resultNames = list(map(lambda x: os.path.join(test_path, 'results', '{0}_discS.{1}'.format(*x.rsplit('.', 1))), images))
-    resultNamesCont = list(map(lambda x: os.path.join(test_path, 'results', '{0}_contS.{1}'.format(*x.rsplit('.', 1))), images))
-
-    # Iterating through all result masks
-    for i, item in enumerate(results):
-
-        # Initializing new mask image and discretizing it with threshold=0.5 to either 0 or 1
-        mask = item.copy()
-        mask[mask > 0.5] = 1.0
-        mask[mask <= 0.5] = 0.0
-
-        # Resizing discrete mask back to original image size (608, 608) and saving it to result file
-        mask = trans.resize(mask, (608, 608))
-        io.imsave(resultNames[i], img_as_ubyte(mask))
-
-        # Copying raw unet output, resizing this continuous mask back to original image size (608, 608),
-        # and saving it to result file
-        mask_cont = item.copy()
-        mask_cont = trans.resize(mask_cont, (608, 608))
-        io.imsave(resultNamesCont[i], img_as_ubyte(mask_cont))
+    
+'''
