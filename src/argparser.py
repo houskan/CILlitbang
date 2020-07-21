@@ -116,7 +116,7 @@ def get_parser():
     return parser
 
 
-def write_config_file(args, path='config.conf'):
+def write_config_file(args, path='config.cfg'):
     with open(path, 'w') as f:
         for k in sorted(args.__dict__):
             print(k.replace('_', '-'), '=', args.__dict__[k], file=f)
