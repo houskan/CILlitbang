@@ -113,6 +113,9 @@ def get_parser():
     parser.add('--region-removal-size', type=int, default=1024,
                help='defines regions too small to be considered as road')
 
+    parser.add('--patch-size', type=int, default=32,
+               help='patch size to be classified, context size is patch_size * 4')
+
     return parser
 
 
