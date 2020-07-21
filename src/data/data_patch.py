@@ -8,16 +8,17 @@ import os
 
 from data.helper import *
 
+
 def add_image_padding(image, padding):
     if len(image.shape) < 3:
         return np.lib.pad(image, ((padding, padding), (padding, padding)), 'reflect')
     elif len(image.shape) == 3:
         return np.lib.pad(image, ((padding, padding), (padding, padding), (0, 0)), 'reflect')
     else:
-        assert False, "Expected an image for addImagePadding"
+        raise Exception("Expected an image for add_image_padding")
 
 
-def adjustData(img, mask):
+def adjust_data(img, mask):
     if np.max(img) > 1.0:
         img = img / 255.0
     if np.max(mask) > 1.0:
@@ -62,35 +63,34 @@ def getTrainGeneratorsPatch(aug_dict, train_path, validation_path, image_folder,
         batch_size=1,
         seed=seed)
 
-    global train_generator, validation_generator
-    train_generator = zip(train_img_generator, train_mask_generator)
-    validation_generator = zip(validation_img_generator, validation_mask_generator)
+    global train_gen, validation_gen
+    train_gen = zip(train_img_generator, train_mask_generator)
+    validation_gen = zip(validation_img_generator, validation_mask_generator)
 
-    return trainGeneratorPatch(patch_size), validationGeneratorPatch(patch_size)
+    return train_generator_patch(patch_size), validation_generator_patch(patch_size)
 
 
-def trainGeneratorPatch(patch_size):
-    global train_generator
-    for (img, mask) in train_generator:
-        img, mask = adjustData(img, mask)
+def train_generator_patch(patch_size):
+    global train_gen
+    for (img, mask) in train_gen:
+        img, mask = adjust_data(img, mask)
         img, mask = extract_random_patch_and_context(img, mask, patch_size)
         yield img, mask
 
 
-def validationGeneratorPatch(patch_size):
-    global validation_generator
-    for (img, mask) in validation_generator:
-        img, mask = adjustData(img, mask)
+def validation_generator_patch(patch_size):
+    global validation_gen
+    for (img, mask) in validation_gen:
+        img, mask = adjust_data(img, mask)
         img, mask = extract_random_patch_and_context(img, mask, patch_size)
         yield img, mask
 
 
-def testGeneratorPatch(test_path, image_folder, target_size, patch_size):
-    folder = os.path.join(test_path, image_folder)
-    for file in os.listdir(folder):
+def test_generator_patch(test_path, image_dir, target_size, patch_size):
+    for file in os.listdir(os.path.join(test_path, image_dir)):
         # Loading image as rgb from file, normalizing it to range [0, 1],
         # (interpolate) resizing it to target size and reshaping it
-        img = io.imread(os.path.join(folder, file), as_gray=False)
+        img = io.imread(os.path.join(test_path, image_dir, file), as_gray=False)
         if np.max(img) > 1.0:
             img = img / 255.0
         img = trans.resize(img, target_size)
