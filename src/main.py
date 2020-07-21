@@ -19,6 +19,8 @@ from data.post_processing import *
 
 tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
 
+date_identifier = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+
 # Load arguments from parser
 parser = argparser.get_parser()
 args = parser.parse_args()
@@ -45,7 +47,7 @@ if args.train_model:
     # Initializing callbacks for training
     callbacks = []
 
-    tensorflow_dir = datetime.datetime.now().strftime('%Y%m%d-%H%M%S') + '-e{}-s{}'.format(args.epochs, args.steps)
+    tensorflow_dir = date_identifier + '-e{}-s{}'.format(args.epochs, args.steps)
 
     # Initializing logs directory for tensorboard
     log_dir = os.path.join('..', 'logs', 'fit', tensorflow_dir)
@@ -78,13 +80,15 @@ if args.train_model:
                          fill_mode=args.fill_mode)
 
     # Initializing training and validation generators
-    train_gen, val_gen = getTrainGenerators(data_gen_args,
-                                            train_path=args.train_path, validation_path=args.val_path,
-                                            image_folder='images', mask_folder='groundtruth',
-                                            target_size=(400, 400), batch_size=args.batch_size, seed=args.seed)
+    train_gen, val_gen = train_validation_generators(data_gen_args,
+                                                     train_path=args.train_path, validation_path=args.val_path,
+                                                     image_dir='images', mask_dir='groundtruth',
+                                                     target_size=(400, 400), batch_size=args.batch_size, seed=args.seed)
 
     # Training unet model
-    model.fit(train_gen, steps_per_epoch=args.steps, epochs=args.epochs, validation_data=val_gen, validation_steps=args.val_steps, callbacks=callbacks, verbose=1)
+    model.fit(train_gen, steps_per_epoch=args.steps, epochs=args.epochs,
+              validation_data=val_gen, validation_steps=args.val_steps,
+              callbacks=callbacks, verbose=1)
 
 # Checking if model weights for best val_loss should be picked for prediction
 if args.predict_best:
