@@ -8,5 +8,5 @@ conda activate tf2
 TODO, copy config.cfg to src then
 ```sh
 cd src
-bsub -W 8:30 -R "rusage[ngpus_excl_p=1,mem=8192]" "python main.py < config.cfg"
+bsub -W 8:30 -R "rusage[ngpus_excl_p=1,mem=8192]" "python main.py -c config.cfg"
 ```
