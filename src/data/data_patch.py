@@ -10,12 +10,12 @@ from data.helper import *
 
 
 def add_image_padding(image, padding):
-    if len(image.shape) < 3:
-        return np.lib.pad(image, ((padding, padding), (padding, padding)), 'reflect')
-    elif len(image.shape) == 3:
+    if len(image.shape) == 3:
         return np.lib.pad(image, ((padding, padding), (padding, padding), (0, 0)), 'reflect')
+    elif len(image.shape) == 4:
+        return np.lib.pad(image, ((0,0), (padding, padding), (padding, padding), (0, 0)), 'reflect')
     else:
-        raise Exception("Expected an image for add_image_padding")
+        raise Exception("Expected list of images for add_image_padding")
 
 
 def adjust_data(img, mask):
@@ -104,22 +104,27 @@ def test_generator_patch(test_path, image_dir, target_size, patch_size):
 def extract_random_patch_and_context(image, groundtruth, patch_size):
     context_patch_size = 4 * patch_size
     padding = (context_patch_size - patch_size) // 2
-    w = image.shape[0]
-    h = image.shape[1]
+    num_images = image.shape[0]
+    w = image.shape[1]
+    h = image.shape[2]
 
     image = add_image_padding(image, padding)
+    X = []
+    Y = []
+    for index in range(num_images):
+        i = np.random.randint(low=padding, high=w+padding - patch_size)
+        j = np.random.randint(low=padding, high=h+padding - patch_size)
 
-    i = np.random.randint(low=padding, high=w+padding - patch_size)
-    j = np.random.randint(low=padding, high=h+padding - patch_size)
+        i_ = i - padding
+        j_ = j - padding
+        groundtruth_patch = groundtruth[index, i_:i_ + patch_size, j_:j_ + patch_size]
+        context_shift = (context_patch_size - patch_size) // 2
+        context_patch = image[index, i - context_shift:i + patch_size + context_shift,
+                        j - context_shift:j + patch_size + context_shift, :]
+        X.append(context_patch)
+        Y.append(groundtruth_patch)
 
-    i_ = i - padding
-    j_ = j - padding
-    groundtruth_patch = groundtruth[i_:i_ + patch_size, j_:j_ + patch_size]
-    context_shift = (context_patch_size - patch_size) // 2
-    context_patch = image[i - context_shift:i + patch_size + context_shift,
-                    j - context_shift:j + patch_size + context_shift, :]
-
-    return context_patch, groundtruth_patch
+    return np.array(X), np.array(Y)
 
 
 def extract_patch_and_context_for_testing(image, patch_size):
