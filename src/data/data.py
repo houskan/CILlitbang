@@ -44,7 +44,7 @@ def getTrainGenerators(aug_dict, train_path, validation_path, image_folder, mask
         class_mode=None,
         color_mode='rgb',
         target_size=target_size,
-        batch_size=batch_size,
+        batch_size=1,
         seed=seed)
     validation_mask_generator = ImageDataGenerator().flow_from_directory(
         validation_path,
@@ -52,7 +52,7 @@ def getTrainGenerators(aug_dict, train_path, validation_path, image_folder, mask
         class_mode=None,
         color_mode='grayscale',
         target_size=target_size,
-        batch_size=batch_size,
+        batch_size=1,
         seed=seed)
 
     global train_generator, validation_generator
