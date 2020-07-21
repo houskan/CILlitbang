@@ -1,4 +1,4 @@
-name: tf3
+name: tf2
 channels:
   - anaconda
   - conda-forge
