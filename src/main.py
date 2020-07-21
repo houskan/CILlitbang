@@ -17,8 +17,6 @@ from data.tensorboard_image import *
 from data.combined_prediction import *
 from data.post_processing import *
 
-tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
-
 date_identifier = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 
 # Load arguments from parser
