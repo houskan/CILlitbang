@@ -93,6 +93,26 @@ def get_parser():
     parser.add('--region-removal', type=bool, default=True,
                help='Should small regions be removed')
 
+    parser.add('--line-smoothing-R', type=int, default=20,
+               help='TODO NIK')
+    parser.add('--line-smoothing-r', type=int, default=3,
+               help='TODO NIK')
+    parser.add('--line-smoothing-threshold', type=float, default=0.25,
+               help='TODO NIK')
+
+    parser.add('--hough-thresh', type=int, default=100,
+               help='Threshold for HoughTransformP')
+    parser.add('--hough-min-line-length', type=int, default=1,
+               help='Minimum length of a Hough Line')
+    parser.add('--hough-max-line-gap', type=int, default=500,
+               help='Maximum gap between two pixel getting connected by Hough Lines')
+    parser.add('--hough-pixel-up-thresh', type=int, default=1,
+               help='Number of Hough Lines that need to pass through pixel s.t. its probability gets increased')
+    parser.add('--hough-eps', type=float, default=0.2,
+               help='Epsilon value added to the probability map when hough lines pass through a pixel')
+    parser.add('--region-removal-size', type=int, default=1024,
+               help='Defines regions too small to be considered as road')
+
     return parser
 
 

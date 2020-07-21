@@ -98,7 +98,9 @@ def test_generator(test_path, image_dir='images', target_size=(400, 400),
 
 def save_results(results, test_path, image_dir, result_dir, target_size=(400, 400),
                  scale_mode='resize', window_stride=(208, 208), comb_pred=True,  gather_mode='avg', vote_thresh=5,
-                 line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut', region_removal=True):
+                 line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut', region_removal=True,
+                 line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
+                 hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, region_removal_size=1024):
     # Initializing index to keep track of where we are in results tensor abd batch size stride
     index = 0
     batch_size = 8 if comb_pred else 1
@@ -169,7 +171,9 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
         io.imsave(os.path.join(test_path, result_dir, 'discrete', img_name + '.png'), img_as_ubyte(mask_disc))
         io.imsave(os.path.join(test_path, result_dir, 'continuous', img_name + '.png'), img_as_ubyte(mask_cont))
 
-        mask_cont, mask_disc = postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode, region_removal)
+        mask_cont, mask_disc = postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode, region_removal,
+                                           line_smoothing_R, line_smoothing_r, line_smoothing_threshold, hough_thresh, hough_min_line_length,
+                                           hough_max_line_gap, hough_pixel_up_thresh, hough_eps, region_removal_size)
         # Save post processed
         io.imsave(os.path.join(test_path, result_dir, img_name + 'disc_post.png'), img_as_ubyte(mask_disc))
         io.imsave(os.path.join(test_path, result_dir, img_name + 'cont_post.png'), img_as_ubyte(mask_cont))
@@ -177,7 +181,9 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
 
 def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 400),
                     scale_mode='resize', window_stride=(208, 208), comb_pred=True, gather_mode='avg', vote_thresh=5,
-                    line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut', region_removal=True):
+                    line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut', region_removal=True,
+                    line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
+                    hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, region_removal_size=1024):
 
     # Initializing combined test generator (different number of input images depending on scale mode and window stride)
     test_gen = test_generator(test_path=test_path, image_dir=image_dir, target_size=target_size,
@@ -198,4 +204,7 @@ def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 4
                  target_size=(400, 400), scale_mode=scale_mode, window_stride=(208, 208), comb_pred=comb_pred,
                  gather_mode=gather_mode, vote_thresh=vote_thresh,
                  line_smoothing_mode=line_smoothing_mode, apply_hough=apply_hough,
-                 hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode, region_removal=region_removal)
+                 hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode, region_removal=region_removal,
+                 line_smoothing_R=line_smoothing_R, line_smoothing_r=line_smoothing_r, line_smoothing_threshold=line_smoothing_threshold,
+                 hough_thresh=hough_thresh, hough_min_line_length=hough_min_line_length, hough_max_line_gap=hough_max_line_gap,
+                 hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, region_removal_size=region_removal_size)

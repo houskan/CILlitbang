@@ -7,23 +7,29 @@ import skimage
 
 from data.helper import *
 
-def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode, region_removal):
+def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode, region_removal,
+                line_smoothing_R, line_smoothing_r, line_smoothing_threshold, hough_thresh, hough_min_line_length,
+                hough_max_line_gap, hough_pixel_up_thresh, hough_eps, region_removal_size):
         if line_smoothing_mode == 'beforeHough' or line_smoothing_mode == 'both':
-            mask_cont = line_smoothing(mask_cont, R=20, r=3, threshold=0.25) 
+            mask_cont = line_smoothing(mask_cont, R=line_smoothing_R, r=line_smoothing_r, threshold=line_smoothing_threshold) 
 
         # Apply Hough Transform
         if apply_hough:
             # Apply Hough dependent on discretize functio
             if hough_discretize_mode == 'discretize':
-                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), discretize)
+                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), discretize, hough_thresh=hough_tresh,
+                             min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
+                             pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps)
             elif hough_discretize_mode == 'graphcut':
-                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), lambda x: graph_cut(x, img))
+                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), lambda x: graph_cut(x, img), hough_thresh=hough_thresh,
+                             min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
+                             pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps)
             else:
                 raise Exception('Unknown discretize mode for Hough postprocessing: ' + hough_discretize_mode)
                 
         # Smooth Lines after Hough post-processing
         if line_smoothing_mode == 'afterHough' or line_smoothing_mode == 'both':
-            mask_cont = line_smoothing(mask_cont, R=20, r=3, threshold=0.25)
+            mask_cont = line_smoothing(mask_cont, R=line_smoothing_R, r=line_smoothing_r, threshold=line_smoothing_threshold)
 
         # Discretize the probability map
         if hough_discretize_mode == 'discretize':
@@ -36,7 +42,7 @@ def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hou
 
         # Remove Small Regions
         if region_removal:
-            mask_disc = remove_small_regions(mask_disc, no_pixels=32*32)
+            mask_disc = remove_small_regions(mask_disc, no_pixels=region_removal_size)
 
         return mask_cont, mask_disc
 
