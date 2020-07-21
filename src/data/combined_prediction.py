@@ -167,9 +167,17 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
 
         print('Saving discrete and continuous mask of image: ' + file)
 
+        # Initializing and possibly also creating directories for discrete and continuous results
+        disc_path = os.path.join(test_path, result_dir, 'discrete')
+        if not os.path.exists(disc_path):
+            os.mkdir(disc_path)
+        cont_path = os.path.join(test_path, result_dir, 'continuous')
+        if not os.path.exists(cont_path):
+            os.mkdir(cont_path)
+
         # Saving discrete and continuous masks in respective folders in result directory
-        io.imsave(os.path.join(test_path, result_dir, 'discrete', img_name + '.png'), img_as_ubyte(mask_disc))
-        io.imsave(os.path.join(test_path, result_dir, 'continuous', img_name + '.png'), img_as_ubyte(mask_cont))
+        io.imsave(os.path.join(disc_path, img_name + '.png'), img_as_ubyte(mask_disc))
+        io.imsave(os.path.join(cont_path, img_name + '.png'), img_as_ubyte(mask_cont))
 
         mask_cont, mask_disc = postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode, region_removal,
                                            line_smoothing_R, line_smoothing_r, line_smoothing_threshold, hough_thresh, hough_min_line_length,
