@@ -16,12 +16,11 @@ from data.data import *
 from data.tensorboard_image import *
 from data.combined_prediction import *
 from data.post_processing import *
+from submission.log_submission import *
 
 tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
 
-date_identifier = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
-
-# Load arguments from parser
+# Load arguments from parser and saving it if requested
 parser = argparser.get_parser()
 args = parser.parse_args()
 if args.arg_log:
@@ -30,6 +29,10 @@ if args.arg_log:
 # Setting random seeds for tensorflow, numpy and keras
 tf.random.set_seed(args.seed)
 numpy.random.seed(args.seed)
+
+# Initializing unique submission identifier
+date_identifier = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+submission_identifier = date_identifier + '-E{}-S{} {}'.format(args.epochs, args.steps, args.sub_name)
 
 # Initializing and compiling unet model
 if args.model == 'unet':
@@ -43,14 +46,13 @@ elif args.model == 'unet_dilated3':
 else:
     raise Exception('Unknown model: ' + args.model)
 
+# Checking if model should be trained
 if args.train_model:
     # Initializing callbacks for training
     callbacks = []
 
-    tensorflow_dir = date_identifier + '-e{}-s{}'.format(args.epochs, args.steps)
-
     # Initializing logs directory for tensorboard
-    log_dir = os.path.join('..', 'logs', 'fit', tensorflow_dir)
+    log_dir = os.path.join('..', 'logs', 'fit', submission_identifier)
     os.mkdir(log_dir)
 
     # Initializing tensorboard callback for plots, graph, etc.
@@ -64,7 +66,6 @@ if args.train_model:
     # Initialization model checkpoint to store model with best validation loss
     if not os.path.exists(os.path.dirname(args.model_path)):
         os.mkdir(os.path.dirname(args.model_path))
-
     model_checkpoint_callback = ModelCheckpoint(args.model_path, monitor='val_loss', mode='min', save_best_only=True, verbose=1)
     callbacks.append(model_checkpoint_callback)
 
@@ -95,8 +96,17 @@ if args.predict_best:
     # Loading best result
     model.load_weights(args.model_path)
 
+# Saving images of best prediction model weights in tensorboard by calling callback one more time
+if args.predict_best and args.train_model:
+    tensorboard_image_callback.on_epoch_end(epoch=args.epochs)
+
 # Predicting results with specific generator, gathering results and saving them depending on
 # scale mode, combined prediction boolean, as well as gathering mode
 predict_results(model=model, test_path=args.test_path, image_dir='images', result_dir='results',
                 scale_mode=args.scale_mode, comb_pred=args.comb_pred, gather_mode=args.gather_mode)
+
+# Checking if submission should be logged and saving all relevant data in unique out submission directory
+if args.sub_log:
+    log_submission(submission_identifier=submission_identifier, args=args)
+
 

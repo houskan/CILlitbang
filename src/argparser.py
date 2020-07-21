@@ -3,7 +3,7 @@ import argparse
 
 def str2bool(v):
     if isinstance(v, bool):
-       return v
+        return v
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
         return True
     elif v.lower() in ('no', 'false', 'f', 'n', '0'):
@@ -51,6 +51,13 @@ def get_parser():
     parser.add('--model-path', type=str, default='../tmp/model.h5',
                help='path where the current best model weights will be stored')
 
+    parser.add('--sub-log', type=str2bool, default=True,
+               help='save entire submission in out directory')
+    parser.add('--sub-name', type=str, default='dilated 2 submission',
+               help='descriptive name of submission for folder in out directory')
+    parser.add('--sub-thresh', type=float, default=0.5,
+               help='foreground submission threshold for mask to submission csv conversion')
+
     parser.add('--rotation-range', type=int, default=360,
                help='rotation range to use for augmentation dictionary')
     parser.add('--width-shift-range', type=float, default=0.05,
@@ -77,8 +84,9 @@ def get_parser():
 
     return parser
 
-def write_config_file(args):
-    with open("config.conf", "w") as f:
+
+def write_config_file(args, path='config.conf'):
+    with open(path, 'w') as f:
         for k in sorted(args.__dict__):
-            print(k.replace("_", "-"), "=", args.__dict__[k], file=f)
+            print(k.replace('_', '-'), '=', args.__dict__[k], file=f)
 
