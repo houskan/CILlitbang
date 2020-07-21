@@ -16,6 +16,9 @@ def get_parser():
                             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add('-c', '--config', is_config_file=True, help='config file path')
 
+    parser.add('--arg-log', type=str2bool, default=True,
+               help='save arguments to config file')
+
     parser.add('--epochs', type=int, default=50,
                help='number of training epochs')
     parser.add('--steps', type=int, default=100,
@@ -67,9 +70,15 @@ def get_parser():
     parser.add('--fill-mode', type=str, default='reflect',
                help='fill mode when shifting images')
 
-    parser.add('--model', choices=['unet', 'unet_dilated1', 'unet_dilated2'], default='unet_dilated2',
+    parser.add('--model', choices=['unet', 'unet_dilated1', 'unet_dilated2', 'unet_dilated3'], default='unet_dilated2',
                help='which model to use for training')
     parser.add('--adam-lr', type=float, default=1e-4,
                help='learning rate of adam to use during training')
 
     return parser
+
+def write_config_file(args):
+    with open("config.conf", "w") as f:
+        for k in sorted(args.__dict__):
+            print(k.replace("_", "-"), "=", args.__dict__[k], file=f)
+

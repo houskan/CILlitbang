@@ -9,11 +9,10 @@ from tensorflow.keras import backend as keras
 from tensorflow.keras import Model
 
 """
- This model assume 128x128 patches input and 32x32 output
- If you wanna try other things, you need to generalize the code first
+ This model assumes 128x128 patches input and 32x32 output
 """
 
-def unet(pretrained_weights=None, input_size=(400, 400, 3)):
+def unet(input_size=(400, 400, 3), learning_rate=1e-4):
 
     inputs = Input(input_size)
 
@@ -61,12 +60,9 @@ def unet(pretrained_weights=None, input_size=(400, 400, 3)):
 
     model = Model(inputs=inputs, outputs=conv10)
 
-    opt = Adam(learning_rate=1e-4)
+    opt = Adam(learning_rate=learning_rate)
     model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy'])
 
     model.summary()
-
-    if pretrained_weights:
-        model.load_weights(pretrained_weights)
 
     return model

@@ -6,8 +6,7 @@ from tensorflow.keras.optimizers import *
 
 from models.loss_functions import *
 
-
-def unet(pretrained_weights=None, input_size=(400, 400, 3), learning_rate=1e-4):
+def unet(input_size=(400, 400, 3), learning_rate=1e-4):
     inputs = Input(input_size)
 
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
@@ -57,12 +56,8 @@ def unet(pretrained_weights=None, input_size=(400, 400, 3), learning_rate=1e-4):
     model = Model(inputs=inputs, outputs=conv10)
 
     opt = Adam(learning_rate=learning_rate)
-    # model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy'])
-    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy', patch_f1_score, iou_coef])
+    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy'])
 
     model.summary()
-
-    if pretrained_weights:
-        model.load_weights(pretrained_weights)
 
     return model
