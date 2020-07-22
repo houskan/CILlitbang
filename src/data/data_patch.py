@@ -74,7 +74,7 @@ def train_generator_patch(patch_size):
     global train_gen
     for (img, mask) in train_gen:
         img, mask = adjust_data(img, mask)
-        img, mask = extract_random_patch_and_context(img, mask, patch_size)
+        img, mask = extract_random_patch_and_context(img, mask, patch_size, discard_non_road_prob=0.6)
         yield img, mask
 
 
@@ -82,7 +82,7 @@ def validation_generator_patch(patch_size):
     global validation_gen
     for (img, mask) in validation_gen:
         img, mask = adjust_data(img, mask)
-        img, mask = extract_random_patch_and_context(img, mask, patch_size)
+        img, mask = extract_random_patch_and_context(img, mask, patch_size, discard_non_road_prob=0.0)
         yield img, mask
 
 
@@ -101,7 +101,7 @@ def test_generator_patch(test_path, image_dir, target_size, patch_size):
             yield context
 
 
-def extract_random_patch_and_context(image, groundtruth, patch_size):
+def extract_random_patch_and_context(image, groundtruth, patch_size, discard_non_road_prob):
     context_patch_size = 4 * patch_size
     padding = (context_patch_size - patch_size) // 2
     num_images = image.shape[0]
@@ -112,12 +112,16 @@ def extract_random_patch_and_context(image, groundtruth, patch_size):
     X = []
     Y = []
     for index in range(num_images):
-        i = np.random.randint(low=padding, high=w+padding - patch_size)
-        j = np.random.randint(low=padding, high=h+padding - patch_size)
+        while True:
+            i = np.random.randint(low=padding, high=w + padding - patch_size)
+            j = np.random.randint(low=padding, high=h + padding - patch_size)
 
-        i_ = i - padding
-        j_ = j - padding
-        groundtruth_patch = groundtruth[index, i_:i_ + patch_size, j_:j_ + patch_size]
+            i_ = i - padding
+            j_ = j - padding
+            groundtruth_patch = groundtruth[index, i_:i_ + patch_size, j_:j_ + patch_size]
+            if np.mean(groundtruth_patch) > 0.1 or np.random.random_sample() >= discard_non_road_prob:
+                break
+
         context_shift = (context_patch_size - patch_size) // 2
         context_patch = image[index, i - context_shift:i + patch_size + context_shift,
                         j - context_shift:j + patch_size + context_shift, :]
