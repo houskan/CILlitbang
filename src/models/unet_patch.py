@@ -17,7 +17,7 @@ from tensorflow.keras.optimizers import *
 from models.loss_functions import *
 
 def unet_dilated_v2_patch(input_size=(400, 400, 3), learning_rate=1e-4):
-    context_size = input_size.shape[0]
+    context_size = input_size[0]
     mask_size_half = context_size // 8
     inputs = Input(input_size)
 
@@ -67,7 +67,7 @@ def unet_dilated_v2_patch(input_size=(400, 400, 3), learning_rate=1e-4):
         UpSampling2D(size=(1, 1))(conv8))
 
     mid = context_size // 2 - 1
-    conv1_middle = conv2[:, mid - mask_size_half:mid + mask_size_half, mid - mask_size_half:mid + mask_size_half, :]
+    conv1_middle = conv1[:, mid - mask_size_half:mid + mask_size_half, mid - mask_size_half:mid + mask_size_half, :]
     merge9 = concatenate([conv1_middle, up9], axis=3)
     conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge9)
     conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)

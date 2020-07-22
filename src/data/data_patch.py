@@ -8,16 +8,17 @@ import os
 
 from data.helper import *
 
+
 def add_image_padding(image, padding):
-    if len(image.shape) < 3:
-        return np.lib.pad(image, ((padding, padding), (padding, padding)), 'reflect')
-    elif len(image.shape) == 3:
+    if len(image.shape) == 3:
         return np.lib.pad(image, ((padding, padding), (padding, padding), (0, 0)), 'reflect')
+    elif len(image.shape) == 4:
+        return np.lib.pad(image, ((0,0), (padding, padding), (padding, padding), (0, 0)), 'reflect')
     else:
-        assert False, "Expected an image for addImagePadding"
+        raise Exception("Expected list of images for add_image_padding")
 
 
-def adjustData(img, mask):
+def adjust_data(img, mask):
     if np.max(img) > 1.0:
         img = img / 255.0
     if np.max(mask) > 1.0:
@@ -62,38 +63,37 @@ def getTrainGeneratorsPatch(aug_dict, train_path, validation_path, image_folder,
         batch_size=1,
         seed=seed)
 
-    global train_generator, validation_generator
-    train_generator = zip(train_img_generator, train_mask_generator)
-    validation_generator = zip(validation_img_generator, validation_mask_generator)
+    global train_gen, validation_gen
+    train_gen = zip(train_img_generator, train_mask_generator)
+    validation_gen = zip(validation_img_generator, validation_mask_generator)
 
-    return trainGeneratorPatch(patch_size), validationGeneratorPatch(patch_size)
+    return train_generator_patch(patch_size), validation_generator_patch(patch_size)
 
 
-def trainGeneratorPatch(patch_size):
-    global train_generator
-    for (img, mask) in train_generator:
-        img, mask = adjustData(img, mask)
-        img, mask = extract_random_patch_and_context(img, mask, patch_size)
+def train_generator_patch(patch_size):
+    global train_gen
+    for (img, mask) in train_gen:
+        img, mask = adjust_data(img, mask)
+        img, mask = extract_random_patch_and_context(img, mask, patch_size, discard_non_road_prob=0.6)
         yield img, mask
 
 
-def validationGeneratorPatch(patch_size):
-    global validation_generator
-    for (img, mask) in validation_generator:
-        img, mask = adjustData(img, mask)
-        img, mask = extract_random_patch_and_context(img, mask, patch_size)
+def validation_generator_patch(patch_size):
+    global validation_gen
+    for (img, mask) in validation_gen:
+        img, mask = adjust_data(img, mask)
+        img, mask = extract_random_patch_and_context(img, mask, patch_size, discard_non_road_prob=0.0)
         yield img, mask
 
 
-def testGeneratorPatch(test_path, image_folder, target_size, patch_size):
-    folder = os.path.join(test_path, image_folder)
-    for file in os.listdir(folder):
+def test_generator_patch(test_path, image_dir, target_size, patch_size):
+    for file in os.listdir(os.path.join(test_path, image_dir)):
         # Loading image as rgb from file, normalizing it to range [0, 1],
         # (interpolate) resizing it to target size and reshaping it
-        img = io.imread(os.path.join(folder, file), as_gray=False)
+        img = io.imread(os.path.join(test_path, image_dir, file), as_gray=False)
         if np.max(img) > 1.0:
             img = img / 255.0
-        img = trans.resize(img, target_size)
+        img = trans.resize(img, (target_size, target_size, 3))
 
         patches = extract_patch_and_context_for_testing(img, patch_size)
         for context in patches:
@@ -101,25 +101,34 @@ def testGeneratorPatch(test_path, image_folder, target_size, patch_size):
             yield context
 
 
-def extract_random_patch_and_context(image, groundtruth, patch_size):
+def extract_random_patch_and_context(image, groundtruth, patch_size, discard_non_road_prob):
     context_patch_size = 4 * patch_size
     padding = (context_patch_size - patch_size) // 2
-    w = image.shape[0]
-    h = image.shape[1]
+    num_images = image.shape[0]
+    w = image.shape[1]
+    h = image.shape[2]
 
     image = add_image_padding(image, padding)
+    X = []
+    Y = []
+    for index in range(num_images):
+        while True:
+            i = np.random.randint(low=padding, high=w + padding - patch_size)
+            j = np.random.randint(low=padding, high=h + padding - patch_size)
 
-    i = np.random.randint(low=padding, high=w+padding - patch_size)
-    j = np.random.randint(low=padding, high=h+padding - patch_size)
+            i_ = i - padding
+            j_ = j - padding
+            groundtruth_patch = groundtruth[index, i_:i_ + patch_size, j_:j_ + patch_size]
+            if np.mean(groundtruth_patch) > 0.1 or np.random.random_sample() >= discard_non_road_prob:
+                break
 
-    i_ = i - padding
-    j_ = j - padding
-    groundtruth_patch = groundtruth[i_:i_ + patch_size, j_:j_ + patch_size]
-    context_shift = (context_patch_size - patch_size) // 2
-    context_patch = image[i - context_shift:i + patch_size + context_shift,
-                    j - context_shift:j + patch_size + context_shift, :]
+        context_shift = (context_patch_size - patch_size) // 2
+        context_patch = image[index, i - context_shift:i + patch_size + context_shift,
+                        j - context_shift:j + patch_size + context_shift, :]
+        X.append(context_patch)
+        Y.append(groundtruth_patch)
 
-    return context_patch, groundtruth_patch
+    return np.array(X), np.array(Y)
 
 
 def extract_patch_and_context_for_testing(image, patch_size):

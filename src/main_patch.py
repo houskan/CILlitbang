@@ -12,7 +12,7 @@ from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
 
 from models.unet_patch import *
 
-from data.data import *
+from data.data_patch import *
 from data.helper import *
 from data.post_processing import *
 from data.tensorboard_image import *
@@ -45,7 +45,7 @@ date_identifier = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 submission_identifier = date_identifier + '-E{}-S{} {}'.format(args.epochs, args.steps, args.sub_name)
 
 # Initializing and compiling unet model
-model = unet_patch(input_size=(context_patch_size, context_patch_size) ,learning_rate=args.adam_lr)
+model = unet_dilated_v2_patch(input_size=(context_patch_size, context_patch_size, 3), learning_rate=args.adam_lr)
 
 # Checking if model should be trained
 if args.train_model:
@@ -59,11 +59,11 @@ if args.train_model:
 
     # Initializing tensorboard callback for plots, graph, etc.
     tensorboard_callback = TensorBoard(log_dir=log_dir, write_graph=True)
-    callbacks.append(tensorboard_callback)
+    #callbacks.append(tensorboard_callback)
 
     # Initializing tensorboard image callback for visualizing validation images each epoch
     tensorboard_image_callback = TensorBoardImage(log_dir=log_dir, validation_path=args.val_path)
-    callbacks.append(tensorboard_image_callback)
+    #callbacks.append(tensorboard_image_callback)
 
     # Initialization model checkpoint to store model with best validation loss
     if not os.path.exists(os.path.dirname(args.model_path)):
@@ -101,7 +101,7 @@ if args.predict_best:
 
 # Saving images of best prediction model weights in tensorboard by calling callback one more time
 if args.predict_best and args.train_model:
-    tensorboard_image_callback.on_epoch_end(epoch=args.epochs)
+    pass#tensorboard_image_callback.on_epoch_end(epoch=args.epochs)
 
 # Predicting results with specific generator, gathering results and saving them depending on
 # scale mode, combined prediction boolean, as well as gathering mode
@@ -109,7 +109,7 @@ images = os.listdir(os.path.join(args.test_path, 'images'))
 dim = test_image_size_adjusted // groundtruth_patch_size
 num_patches = len(images) * dim * dim
 
-test_gen = testGeneratorPatch(test_path=args.test_path, image_dir='images', target_size=test_image_size_adjusted,
+test_gen = test_generator_patch(test_path=args.test_path, image_dir='images', target_size=test_image_size_adjusted,
                               patch_size=groundtruth_patch_size)
 
 results = model.predict(test_gen, steps=num_patches, verbose=1)
