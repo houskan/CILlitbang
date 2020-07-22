@@ -10,7 +10,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
 
-from models.unet_patch import *
+from models.unet_dilated_v3_patch import *
 
 from data.data_patch import *
 from data.helper import *
@@ -45,7 +45,7 @@ date_identifier = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 submission_identifier = date_identifier + '-E{}-S{} {}'.format(args.epochs, args.steps, args.sub_name)
 
 # Initializing and compiling unet model
-model = unet_dilated_v2_patch(input_size=(context_patch_size, context_patch_size, 3), learning_rate=args.adam_lr)
+model = unet_dilated_v3_patch(input_size=(context_patch_size, context_patch_size, 3), learning_rate=args.adam_lr)
 
 # Checking if model should be trained
 if args.train_model:
