@@ -1,6 +1,6 @@
 import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
+import itertools
 import skimage.io as io
 import skimage.transform as trans
 
@@ -28,7 +28,7 @@ def adjust_data(img, mask):
     return img, mask
 
 
-def getTrainGeneratorsPatch(aug_dict, train_path, validation_path, image_folder, mask_folder, target_size, batch_size, patch_size, seed):
+def getTrainGeneratorsPatch(aug_dict, train_path, validation_path, image_folder, mask_folder, target_size, batch_size, patch_size, validation_steps, seed):
 
     train_img_generator = ImageDataGenerator(**aug_dict).flow_from_directory(
         train_path,
@@ -67,14 +67,19 @@ def getTrainGeneratorsPatch(aug_dict, train_path, validation_path, image_folder,
     train_gen = zip(train_img_generator, train_mask_generator)
     validation_gen = zip(validation_img_generator, validation_mask_generator)
 
-    return train_generator_patch(patch_size), validation_generator_patch(patch_size)
+    fixed_patches = []
+    for _ in range(validation_steps):
+        img, mask = next(validation_generator_patch(patch_size))
+        fixed_patches.append((img, mask))
+
+    return train_generator_patch(patch_size), predictable_validation_generator_patch(fixed_patches)
 
 
 def train_generator_patch(patch_size):
     global train_gen
     for (img, mask) in train_gen:
         img, mask = adjust_data(img, mask)
-        img, mask = extract_random_patch_and_context(img, mask, patch_size, discard_non_road_prob=0.6)
+        img, mask = extract_random_patch_and_context(img, mask, patch_size, discard_non_road_prob=0.5)
         yield img, mask
 
 
@@ -82,7 +87,14 @@ def validation_generator_patch(patch_size):
     global validation_gen
     for (img, mask) in validation_gen:
         img, mask = adjust_data(img, mask)
-        img, mask = extract_random_patch_and_context(img, mask, patch_size, discard_non_road_prob=0.0)
+        img, mask = extract_random_patch_and_context(img, mask, patch_size, discard_non_road_prob=0.5)
+        yield img, mask
+
+
+def predictable_validation_generator_patch(fixed_patches):
+    cycle = itertools.cycle(fixed_patches)
+    while(True):
+        img, mask = next(cycle)
         yield img, mask
 
 

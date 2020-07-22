@@ -136,7 +136,8 @@ def adjust_data_for_graphcut(img):
     """
     img = skimage.color.rgb2lab(img)
     img = filters.gaussian(img, sigma=1, multichannel=True)
-    img = img / 255.0
+    if np.max(img) > 1.0:
+        img = img / 255.0
     return img
 
 
@@ -146,9 +147,11 @@ def graph_cut(prediction, img, lambda_=1, sigma=3):
     determine pixel assignment to either background or road. This is done by minimizing an energy function by finding a
     min cut (e.g. max flow)
     :param prediction: continuous prediction (grey scale image)
-    :param img: original colored test image (ATTENTION: normalize channel values to [0, 1])
+    :param img: original colored test image
     :return: discretized mask
     """
+
+    img = adjust_data_for_graphcut(img)
 
     g = maxflow.Graph[float]()
     nodeids = g.add_grid_nodes(prediction.shape)
