@@ -93,7 +93,7 @@ def test_generator_patch(test_path, image_dir, target_size, patch_size):
         img = io.imread(os.path.join(test_path, image_dir, file), as_gray=False)
         if np.max(img) > 1.0:
             img = img / 255.0
-        img = trans.resize(img, target_size)
+        img = trans.resize(img, (target_size, target_size, 3))
 
         patches = extract_patch_and_context_for_testing(img, patch_size)
         for context in patches:
