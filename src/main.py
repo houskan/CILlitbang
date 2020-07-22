@@ -11,6 +11,7 @@ from models.unet import *
 from models.unet_dilated_v1 import *
 from models.unet_dilated_v2 import *
 from models.unet_dilated_v3 import *
+from models.unet_dilated_v4 import *
 
 from data.data import *
 from data.tensorboard_image import *
@@ -41,6 +42,8 @@ elif args.model == 'unet_dilated2':
     model = unet_dilated_v2(learning_rate=args.adam_lr)
 elif args.model == 'unet_dilated3':
     model = unet_dilated_v3(learning_rate=args.adam_lr)
+elif args.model == 'unet_dilated4':
+    model = unet_dilated_v4(learning_rate=args.adam_lr)
 else:
     raise Exception('Unknown model: ' + args.model)
 

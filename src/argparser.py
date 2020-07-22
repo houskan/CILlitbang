@@ -77,7 +77,7 @@ def get_parser():
     parser.add('--fill-mode', type=str, default='reflect',
                help='fill mode when shifting images')
 
-    parser.add('--model', type=str, default='unet_dilated2', choices=['unet', 'unet_dilated1', 'unet_dilated2', 'unet_dilated3'],
+    parser.add('--model', type=str, default='unet_dilated2', choices=['unet', 'unet_dilated1', 'unet_dilated2', 'unet_dilated3', 'unet_dilated4'],
                help='which model to use for training')
     parser.add('--adam-lr', type=float, default=1e-4,
                help='learning rate of adam to use during training')
