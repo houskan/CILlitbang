@@ -32,9 +32,9 @@ def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hou
             mask_cont = line_smoothing(mask_cont, R=line_smoothing_R, r=line_smoothing_r, threshold=line_smoothing_threshold)
 
         # Discretize the probability map
-        if hough_discretize_mode == 'discretize':
+        if discretize_mode == 'discretize':
             discretize_function = discretize
-        elif hough_discretize_mode == 'graphcut':
+        elif discretize_mode == 'graphcut':
             discretize_function = lambda x: graph_cut(x, img)
         else:
             raise Exception('Unknown discretize mode for final discretization: ' + discretize_mode)
