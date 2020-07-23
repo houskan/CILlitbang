@@ -1,14 +1,4 @@
 import numpy as np
-import os
-import tensorflow as tf
-from tensorflow.keras.models import *
-from tensorflow.keras.layers import *
-from tensorflow.keras.optimizers import *
-from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from tensorflow.keras import backend as keras
-from tensorflow.keras import Model
-
-import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import *
 from tensorflow.keras.layers import *
@@ -16,7 +6,7 @@ from tensorflow.keras.optimizers import *
 
 from models.loss_functions import *
 
-def unet_dilated_v2_patch(input_size=(400, 400, 3), learning_rate=1e-4):
+def unet_patch(input_size=(128, 128, 3), learning_rate=1e-4):
     context_size = input_size[0]
     mask_size_half = context_size // 8
     inputs = Input(input_size)
@@ -35,11 +25,7 @@ def unet_dilated_v2_patch(input_size=(400, 400, 3), learning_rate=1e-4):
     drop4 = Dropout(0.5)(conv4)
     pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
 
-    # Parallel dilated convolution module
     conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool4)
-    conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal', dilation_rate=2)(conv5)
-    conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal', dilation_rate=4)(conv5)
-    conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal', dilation_rate=2)(conv5)
     conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv5)
     drop5 = Dropout(0.5)(conv5)
 
@@ -65,7 +51,6 @@ def unet_dilated_v2_patch(input_size=(400, 400, 3), learning_rate=1e-4):
 
     up9 = Conv2D(64, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
         UpSampling2D(size=(1, 1))(conv8))
-
     mid = context_size // 2 - 1
     conv1_middle = conv1[:, mid - mask_size_half:mid + mask_size_half, mid - mask_size_half:mid + mask_size_half, :]
     merge9 = concatenate([conv1_middle, up9], axis=3)
@@ -77,7 +62,7 @@ def unet_dilated_v2_patch(input_size=(400, 400, 3), learning_rate=1e-4):
     model = Model(inputs=inputs, outputs=conv10)
 
     opt = Adam(learning_rate=learning_rate)
-    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy', iou_coef])
 
     model.summary()
 
