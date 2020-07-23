@@ -87,7 +87,7 @@ if args.train_model:
                                                  train_path=args.train_path, validation_path=args.val_path,
                                                  image_folder='images', mask_folder='groundtruth',
                                                  target_size=(400, 400), batch_size=args.batch_size,
-                                                 patch_size=groundtruth_patch_size, validatin_steps=args.val_steps, seed=args.seed)
+                                                 patch_size=groundtruth_patch_size, validation_steps=args.val_steps, seed=args.seed)
 
     # Training unet model
     model.fit(train_gen, steps_per_epoch=args.steps, epochs=args.epochs, validation_data=val_gen,
