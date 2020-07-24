@@ -228,4 +228,4 @@ def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 4
                  hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode, region_removal=region_removal,
                  line_smoothing_R=line_smoothing_R, line_smoothing_r=line_smoothing_r, line_smoothing_threshold=line_smoothing_threshold,
                  hough_thresh=hough_thresh, hough_min_line_length=hough_min_line_length, hough_max_line_gap=hough_max_line_gap,
-                 hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, region_removal_size=region_removal_size)
+                 hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, region_removal_size=region_removal_size, hough_discretize_thresh=hough_discretize_thresh)

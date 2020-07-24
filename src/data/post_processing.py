@@ -18,15 +18,13 @@ def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hou
         if apply_hough:
             # Apply Hough dependent on discretize functio
             if hough_discretize_mode == 'discretize':
-                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), discretize, hough_thresh=hough_thresh,
+                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), lambda x: discretize(x, hough_discretize_thresh), hough_thresh=hough_thresh,
                              min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
-                             pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps,
-			     hough_discretize_thresh=hough_discretize_thresh)
+                             pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps)
             elif hough_discretize_mode == 'graphcut':
                 mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), lambda x: graph_cut(x, img), hough_thresh=hough_thresh,
                              min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
-                             pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps,
-			     hough_discretize_thesh=hough_discretize_thresh)
+                             pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps)
             else:
                 raise Exception('Unknown discretize mode for Hough postprocessing: ' + hough_discretize_mode)
                 
@@ -112,7 +110,7 @@ def hough_update_mask(mask, hough_lines, kernel, thresh=1, eps=0.2):
     return updated_mask
 
 def hough_pipeline(mask, kernel, discretize_func, hough_thresh=100, min_line_length=1,
-                    max_line_gap=500, pixel_up_thresh=1, eps=0.2, hough_discretize_thresh=0.5):
+                    max_line_gap=500, pixel_up_thresh=1, eps=0.2):
     """This method performs the complete update of probability
     maps using the hough transform to detect road segments
     with lower probability.
@@ -126,7 +124,7 @@ def hough_pipeline(mask, kernel, discretize_func, hough_thresh=100, min_line_len
     thresh -- How many lines need to pass through a pixel at least
     eps -- Which constant factor should be added to chosen pixels
     """
-    disc_mask = discretize_func(mask, hough_discretize_thresh)
+    disc_mask = discretize_func(mask)
     hough_lines = get_hough_lines(disc_mask, threshold=hough_thresh, min_line_length=min_line_length,
                     max_line_gap=max_line_gap)
     updated_mask = hough_update_mask(mask, hough_lines, kernel, thresh=pixel_up_thresh, eps=eps)
