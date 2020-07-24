@@ -40,7 +40,7 @@ def log_submission(submission_identifier, args):
 
     # Masking postprocessed result to kaggle submission format and saving file it as csv file
     result_path = os.path.join(submission_path, 'discrete_post_processed')
-    submission_filename = os.path.join(submission_path, 'submission_thresh_post_processed{}.csv'.format(args.sub_thresh))
+    submission_filename = os.path.join(submission_path, 'submission_pp_thresh{}.csv'.format(args.sub_thresh))
     image_filenames = []
     for file in os.listdir(result_path):
         image_filename = os.path.join(result_path, file)
