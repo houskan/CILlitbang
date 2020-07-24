@@ -100,7 +100,8 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
                  scale_mode='resize', window_stride=(208, 208),  gather_mode='avg', vote_thresh=5,
                  line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut', region_removal=True,
                  line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
-                 hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, region_removal_size=1024):
+                 hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2,
+		 region_removal_size=1024, hough_discretize_thresh=0.5):
     # Initializing index to keep track of where we are in results tensor abd batch size stride
     index = 0
     batch_size = 8 if (gather_mode == 'avg' or gather_mode == 'vote') else 1
@@ -184,7 +185,8 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
 
         mask_cont, mask_disc = postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode, region_removal,
                                            line_smoothing_R, line_smoothing_r, line_smoothing_threshold, hough_thresh, hough_min_line_length,
-                                           hough_max_line_gap, hough_pixel_up_thresh, hough_eps, region_removal_size)
+                                           hough_max_line_gap, hough_pixel_up_thresh, hough_eps,
+					   region_removal_size, hough_discretize_thresh)
         # Save post processed
         disc_path = os.path.join(test_path, result_dir, 'discrete_post_processed')
         if not os.path.exists(disc_path):
@@ -201,7 +203,8 @@ def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 4
                     scale_mode='resize', window_stride=(208, 208), gather_mode='avg', vote_thresh=5,
                     line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut', region_removal=True,
                     line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
-                    hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, region_removal_size=1024):
+                    hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2,
+		    region_removal_size=1024, hough_discretize_thresh=0.5):
 
     # Initializing combined test generator (different number of input images depending on scale mode and window stride)
     test_gen = test_generator(test_path=test_path, image_dir=image_dir, target_size=target_size,
@@ -225,4 +228,4 @@ def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 4
                  hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode, region_removal=region_removal,
                  line_smoothing_R=line_smoothing_R, line_smoothing_r=line_smoothing_r, line_smoothing_threshold=line_smoothing_threshold,
                  hough_thresh=hough_thresh, hough_min_line_length=hough_min_line_length, hough_max_line_gap=hough_max_line_gap,
-                 hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, region_removal_size=region_removal_size)
+                 hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, region_removal_size=region_removal_size, hough_discretize_thresh=hough_discretize_thresh)

@@ -9,7 +9,8 @@ from data.helper import *
 
 def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode, region_removal,
                 line_smoothing_R, line_smoothing_r, line_smoothing_threshold, hough_thresh, hough_min_line_length,
-                hough_max_line_gap, hough_pixel_up_thresh, hough_eps, region_removal_size):
+                hough_max_line_gap, hough_pixel_up_thresh, hough_eps, region_removal_size,
+		hough_discretize_thresh):
         if line_smoothing_mode == 'beforeHough' or line_smoothing_mode == 'both':
             mask_cont = line_smoothing(mask_cont, R=line_smoothing_R, r=line_smoothing_r, threshold=line_smoothing_threshold) 
 
@@ -17,7 +18,7 @@ def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hou
         if apply_hough:
             # Apply Hough dependent on discretize functio
             if hough_discretize_mode == 'discretize':
-                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), discretize, hough_thresh=hough_tresh,
+                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), lambda x: discretize(x, hough_discretize_thresh), hough_thresh=hough_thresh,
                              min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
                              pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps)
             elif hough_discretize_mode == 'graphcut':

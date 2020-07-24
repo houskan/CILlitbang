@@ -86,8 +86,10 @@ def get_parser():
                help='Apply line smoothin before(beforeHough, after (afterHough) or both(both) or not at all (None)')
     parser.add('--apply-hough', type=str2bool, default=True,
                help='Should Hough Transform postprocessing be applied')
-    parser.add('--hough-discretize-mode', type=str, default='graphcut', choices=['discretize', 'graphcut'],
+    parser.add('--hough-discretize-mode', type=str, default='discretize', choices=['discretize', 'graphcut'],
                help='which discretization function should be applied during Hough transform')
+    parser.add('--hough-discretize-thresh', type=float, default=0.4,
+               help='threshold for the discretize function in the hough transform')
     parser.add('--discretize-mode', type=str, default='graphcut', choices=['discretize', 'graphcut'],
                help='which discretization function should be applied for the final submission')
     parser.add('--region-removal', type=bool, default=True,
@@ -116,6 +118,7 @@ def get_parser():
     parser.add('--patch-size', type=int, default=32,
                help='patch size to be classified, context size is patch_size * 4')
 
+
     return parser
 
 
@@ -123,4 +126,5 @@ def write_config_file(args, path='config.cfg'):
     with open(path, 'w') as f:
         for k in sorted(args.__dict__):
             print(k.replace('_', '-'), '=', args.__dict__[k], file=f)
+
 
