@@ -116,6 +116,9 @@ def get_parser():
     parser.add('--patch-size', type=int, default=32,
                help='patch size to be classified, context size is patch_size * 4')
 
+    parser.add('--hough-discretize-thresh', type=float, default=0.5,
+               help='threshold for the discretize function in the hough transform')
+
     return parser
 
 
@@ -123,4 +126,5 @@ def write_config_file(args, path='config.cfg'):
     with open(path, 'w') as f:
         for k in sorted(args.__dict__):
             print(k.replace('_', '-'), '=', args.__dict__[k], file=f)
+
 
