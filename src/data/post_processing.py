@@ -18,7 +18,7 @@ def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hou
         if apply_hough:
             # Apply Hough dependent on discretize functio
             if hough_discretize_mode == 'discretize':
-                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), discretize, hough_thresh=hough_tresh,
+                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), discretize, hough_thresh=hough_thresh,
                              min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
                              pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps,
 			     hough_discretize_thresh=hough_discretize_thresh)
