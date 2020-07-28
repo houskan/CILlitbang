@@ -58,4 +58,4 @@ Reproducing the results of our paper can be done easily. We provide predefined c
 #### Train and predict results
 Pick the experiment you want to reproduce and select the corresponding config file from XYZ. Follow the above instructions on how to use config files with our code and let the job run.
 #### Predict using pretrained models
-Pick the experiment you want to reproduce and select the corresponding config file from XYZ. Follow the above instructions on how to use config files with our code. Now modify the config file and set the `train` parameter to `False` and set the `model-path` parameter to the model you want to use. Now, let the job run.
+Pick the experiment you want to reproduce and select the corresponding config file from XYZ. Follow the above instructions on how to use config files with our code. Now modify the config file and set the `train-model` parameter to `False` and set the `model-path` parameter to the model you want to use. Now, let the job run.
