@@ -110,7 +110,9 @@ predict_results(model=model, test_path=args.test_path, image_dir='images', resul
                 hough_discretize_mode=args.hough_discretize_mode, discretize_mode=args.discretize_mode, region_removal=args.region_removal,
                 line_smoothing_R=args.line_smoothing_R, line_smoothing_r=args.line_smoothing_r, line_smoothing_threshold=args.line_smoothing_threshold,
                 hough_thresh=args.hough_thresh, hough_min_line_length=args.hough_min_line_length, hough_max_line_gap=args.hough_max_line_gap,
-                hough_pixel_up_thresh=args.hough_pixel_up_thresh, hough_eps=args.hough_eps, region_removal_size=args.region_removal_size)
+                hough_pixel_up_thresh=args.hough_pixel_up_thresh, hough_eps=args.hough_eps,
+		region_removal_size=args.region_removal_size,
+		hough_discretize_thresh=args.hough_discretize_thresh)
 
 # Checking if submission should be logged and saving all relevant data in unique out submission directory
 if args.sub_log:
