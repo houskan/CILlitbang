@@ -12,6 +12,64 @@ This repository contains the source code for the graded semester project for the
 Please follow the instructions below to get started and reproduce our results.
 Read the [paper](todo) for more information about our experiments and design decisions.
 
+## Folder Structure
+```
+├── README.md
+├── data
+│   ├── test
+│   │   └── images
+│   ├── training
+│   │   ├── groundtruth
+│   │   └── images
+│   ├── training_original
+│   │   ├── groundtruth
+│   │   └── images
+│   ├── validation
+│   │   ├── groundtruth
+│   │   └── images
+│   └── validation_original
+│       ├── groundtruth
+│       └── images
+├── environment.yml
+├── notebook
+│   ├── postprocessing.ipynb
+│   └── test_results_comparison.ipynb
+└── src
+    ├── argparser.py
+    ├── baselines
+    │   ├── basic_cnn
+    │   │   ├── tf_aerial_images.py
+    │   │   ├── tf_aerial_images_submission.py
+    │   │   └── training
+    │   │       ├── groundtruth
+    │   │       └── images
+    │   └── keras_segmentation
+    │       ├── keras_seg.py
+    │       └── keras_seg_submission.py
+    ├── data
+    │   ├── combined_prediction.py
+    │   ├── data.py
+    │   ├── data_patch.py
+    │   ├── helper.py
+    │   ├── post_processing.py
+    │   └── tensorboard_image.py
+    ├── main.py
+    ├── main_patch.py
+    ├── models
+    │   ├── loss_functions.py
+    │   ├── unet.py
+    │   ├── unet_dilated_v1.py
+    │   ├── unet_dilated_v2.py
+    │   ├── unet_dilated_v3.py
+    │   ├── unet_dilated_v3_patch.py
+    │   ├── unet_dilated_v4.py
+    │   └── unet_patch.py
+    └── submission
+        ├── log_submission.py
+        ├── mask_to_submission.py
+        └── submission_to_mask.py
+```
+
 ## Getting Started
 ### Prerequisites
 - Conda
