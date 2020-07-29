@@ -18,59 +18,61 @@ Read the [paper](todo) for more information about our experiments and design dec
 ## Folder Structure
 ```
 ├── README.md
-├── data
-│   ├── test
+├── data                                             
+│   ├── test                                          - 94 test images provided for the project
 │   │   └── images
-│   ├── training
+│   ├── training                                      - 199 training images (provided and additional data)
 │   │   ├── groundtruth
 │   │   └── images
-│   ├── training_original
+│   ├── training_original                             - 90 of the 100 training images provided for the project
 │   │   ├── groundtruth
 │   │   └── images
-│   ├── validation
+│   ├── validation                                    - 22 validation images (provided and additional data)
 │   │   ├── groundtruth
 │   │   └── images
-│   └── validation_original
+│   └── validation_original                           - 10 validation images taken from the 100 training images provided for the project
 │       ├── groundtruth
 │       └── images
-├── environment.yml
-├── notebook
-│   ├── postprocessing.ipynb
-│   └── test_results_comparison.ipynb
+├── environment.yml                                   - YAML file for conda environment setup
+├── notebook                                          
+│   ├── postprocessing.ipynb                          - Jupyter notebook for the visualization of post-processing steps
+│   └── test_results_comparison.ipynb                 - Jupyter notebook for the comparison of different predictions
+├── out                                               - Created directory. Contains model weights, predictions, config file and submission file after completed run
+├── tmp                                               - Created directory. Contains model weights during training
 └── src
-    ├── argparser.py
-    ├── baselines
-    │   ├── basic_cnn
-    │   │   ├── tf_aerial_images.py
-    │   │   ├── tf_aerial_images_submission.py
-    │   │   └── training
+    ├── argparser.py                                  - Argumentparser for command line arguments
+    ├── baselines                                     - Separate baseline architectures
+    │   ├── basic_cnn                                 - Baseline from CIL 2020 exercise 9 (results not included in report)
+    │   │   ├── tf_aerial_images.py                        - Code to execute for this baseline
+    │   │   ├── tf_aerial_images_submission.py             - Creates submission file for this baseline (is called from tf_aerial_images.py)
+    │   │   └── training                                   - 100 provided training images for the project 
     │   │       ├── groundtruth
     │   │       └── images
-    │   └── keras_segmentation
-    │       ├── keras_seg.py
-    │       └── keras_seg_submission.py
+    │   └── keras_segmentation                         - Baseline from https://github.com/divamgupta/image-segmentation-keras (using resnet50_unet model)
+    │       ├── keras_seg.py                                - Code to execute for this baseline
+    │       └── keras_seg_submission.py                     - Creates submission file for this baseline (is called from keras_seg.py)
     ├── data
-    │   ├── combined_prediction.py
-    │   ├── data.py
-    │   ├── data_patch.py
-    │   ├── helper.py
-    │   ├── post_processing.py
-    │   └── tensorboard_image.py
-    ├── main.py
-    ├── main_patch.py
+    │   ├── combined_prediction.py                     - Creates predictions of test images
+    │   ├── data.py                                    - Prepares data for all models except patch-based
+    │   ├── data_patch.py                              - Prepares data for patch-based U-Net
+    │   ├── helper.py                                  - Helper functions for the other files in this directory
+    │   ├── post_processing.py                         - Post-processing functions
+    │   └── tensorboard_image.py                       - TensorBoard Callback
+    ├── main.py                                        - Main function for all models except patch-based
+    ├── main_patch.py                                  - Main function for patch-based U-Net
     ├── models
-    │   ├── loss_functions.py
-    │   ├── unet.py
-    │   ├── unet_dilated_v1.py
-    │   ├── unet_dilated_v2.py
-    │   ├── unet_dilated_v3.py
-    │   ├── unet_dilated_v3_patch.py
-    │   ├── unet_dilated_v4.py
-    │   └── unet_patch.py
+    │   ├── loss_functions.py                          - Custom loss functions and callback metrics
+    │   ├── unet.py                                    - Original U-Net model from https://github.com/zhixuhao/unet (serves as baseline in the report)
+    │   ├── unet_dilated_v1.py                         - U-Net dilated v1
+    │   ├── unet_dilated_v2.py                         - U-Net dilated v2
+    │   ├── unet_dilated_v3.py                         - U-Net dilated v2 with transposed convolutions
+    │   ├── unet_dilated_v3_patch.py                   - U-Net dilated v2 with transposed convolutions, adapted for patch-based model
+    │   ├── unet_dilated_v4.py                         - U-Net dilated v1 with transposed convolutions
+    │   └── unet_patch.py                              - Original U-Net model, adapted for patch-based model
     └── submission
-        ├── log_submission.py
-        ├── mask_to_submission.py
-        └── submission_to_mask.py
+        ├── log_submission.py                          - Prepares submission directory (see 'out' directory)
+        ├── mask_to_submission.py                      - Provided code to create submission file from binary mask
+        └── submission_to_mask.py                      - Provided code to create binary mask from submission file
 ```
 
 ## Getting Started
