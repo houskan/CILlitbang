@@ -1,12 +1,15 @@
 # CILlitbang
 ## Table of Contents
 * [About the Project](#about-the-project)
+* [Folder Structure](#folder-structure)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
 * [Usage](#usage)
   * [Run the code](#run-the-code)
   * [Reproduce our results](#reproduce-our-results)
-   
+    * [Train and predict results](#train-and-predict-results)
+    * [Predict using pretrained models](#predict-using-pretrained-models)
+
 ## About The Project
 This repository contains the source code for the graded semester project for the [Computational Intelligence Lab 2020 lecture](http://da.inf.ethz.ch/teaching/2020/CIL/) at ETH Zurich.
 Please follow the instructions below to get started and reproduce our results.
