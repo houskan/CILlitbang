@@ -207,10 +207,10 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
 
 def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 400),
                     scale_mode='resize', window_stride=(208, 208), gather_mode='avg', vote_thresh=5,
-                    line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut', region_removal=True,
+                    line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut',
+                    region_removal=True, region_removal_size=1024,
                     line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
-                    hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2,
-		    region_removal_size=1024, hough_discretize_thresh=0.5):
+                    hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, hough_discretize_thresh=0.5):
 
     # Initializing combined test generator (different number of input images depending on scale mode and window stride)
     test_gen = test_generator(test_path=test_path, image_dir=image_dir, target_size=target_size,
@@ -231,7 +231,8 @@ def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 4
                  target_size=(400, 400), scale_mode=scale_mode, window_stride=(208, 208),
                  gather_mode=gather_mode, vote_thresh=vote_thresh,
                  line_smoothing_mode=line_smoothing_mode, apply_hough=apply_hough,
-                 hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode, region_removal=region_removal,
+                 hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode,
+                 region_removal=region_removal, region_removal_size=region_removal_size,
                  line_smoothing_R=line_smoothing_R, line_smoothing_r=line_smoothing_r, line_smoothing_threshold=line_smoothing_threshold,
                  hough_thresh=hough_thresh, hough_min_line_length=hough_min_line_length, hough_max_line_gap=hough_max_line_gap,
-                 hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, region_removal_size=region_removal_size, hough_discretize_thresh=hough_discretize_thresh)
+                 hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, hough_discretize_thresh=hough_discretize_thresh)
