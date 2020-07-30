@@ -2,6 +2,7 @@ import numpy as np
 import skimage.io as io
 import skimage.transform as trans
 from skimage import img_as_ubyte
+import argparser
 import os
 
 from data.helper import *
@@ -96,17 +97,17 @@ def test_generator(test_path, image_dir='images', target_size=(400, 400),
             raise Exception('Unknown scale mode: ' + scale_mode)
 
 
-def save_results(results, test_path, image_dir, result_dir, target_size=(400, 400),
-                 scale_mode='resize', window_stride=(208, 208),  gather_mode='avg', vote_thresh=5,
-                 line_smoothing_mode='both', apply_hough=True,
-                 hough_discretize_mode='graphcut', discretize_mode='graphcut',
-                 region_removal=True, region_removal_size=1024,
-                 line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
-                 hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, hough_discretize_thresh=0.5):
+def save_results(results, test_path, image_dir, result_dir, args, target_size=(400, 400), window_stride=(208, 208)):
+#                scale_mode='resize', window_stride=(208, 208),  gather_mode='avg', vote_thresh=5,
+#                line_smoothing_mode='both', apply_hough=True,
+#                hough_discretize_mode='graphcut', discretize_mode='graphcut',
+#                region_removal=True, region_removal_size=1024,
+#                line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
+#                hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, hough_discretize_thresh=0.5):
 
     # Initializing index to keep track of where we are in results tensor abd batch size stride
     index = 0
-    batch_size = 8 if (gather_mode == 'avg' or gather_mode == 'vote') else 1
+    batch_size = 8 if (args.gather_mode == 'avg' or args.gather_mode == 'vote') else 1
 
     # Iterating through all images in test set
     for file in os.listdir(os.path.join(test_path, image_dir)):
@@ -119,16 +120,18 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
         img_name = file.split('.')[-2]
 
         # Checking which scale mode should be used (resizing image to fit target size or sliding window)
-        if scale_mode == 'resize':
+        if args.scale_mode == 'resize':
             # Checking if combined prediction should be applied
-            if gather_mode == 'avg' or gather_mode == 'vote':
+            if args.gather_mode == 'avg' or args.gather_mode == 'vote':
                 # Reversing transformations of results
                 res = reverse_transforms(results=results[index:index + 8])
                 # Resizing resulting output masks to original size
                 resized_results = np.zeros((8,) + original_size + (1,))
                 for i in range(8):
                     resized_results[i] = trans.resize(res[i], original_size + (1,))
-                mask_cont, mask_disc = gather_combined(results=resized_results, mode=gather_mode, thresh=vote_thresh)
+                mask_cont, mask_disc = gather_combined(results=resized_results,
+                                                       mode=args.gather_mode,
+                                                       thresh=args.vote_thresh)
             else:
                 # Resizing resulting output mask to original size
                 resized_result = trans.resize(results[index], original_size + (1,))
@@ -136,7 +139,7 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
                 mask_disc = discretize(mask_cont)
             # Updating results index by adding batch size
             index += batch_size
-        elif scale_mode == 'window':
+        elif args.scale_mode == 'window':
             # Initializing bookkeeping 2d arrays for access counts, as well as continuous and discrete accumulators
             counts = np.zeros(img.shape)
             mask_cont = np.zeros(img.shape)
@@ -145,11 +148,13 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
             for i in range(0, original_size[0] - target_size[0] + 1, window_stride[0]):
                 for j in range(0, original_size[1] - target_size[1] + 1, window_stride[1]):
                     # Checking if combined prediction should be applied
-                    if gather_mode == 'avg' or gather_mode == 'vote':
+                    if args.gather_mode == 'avg' or args.gather_mode == 'vote':
                         # Reversing transformations of results
                         res = reverse_transforms(results=results[index:index+8])
                         # Gathering results back to one continuous and discrete window with specific mode
-                        mask_window_cont, mask_window_disc = gather_combined(results=res, mode=gather_mode, thresh=vote_thresh)
+                        mask_window_cont, mask_window_disc = gather_combined(results=res,
+                                                                             mode=args.gather_mode,
+                                                                             thresh=args.vote_thresh)
                     else:
                         mask_window_cont = results[index]
                         mask_window_disc = discretize(mask_window_cont)
@@ -163,10 +168,10 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
             mask_cont = mask_cont / counts
             mask_disc = discretize(mask_cont)
         else:
-            raise Exception('Unknown scale mode: ' + scale_mode)
+            raise Exception('Unknown scale mode: ' + args.scale_mode)
 
-        mask_cont = mask_cont[:,:,0]
-        mask_disc = mask_disc[:,:,0]
+        mask_cont = mask_cont[:, :, 0]
+        mask_disc = mask_disc[:, :, 0]
 
         print('Saving discrete and continuous mask of image: ' + file)
 
@@ -185,13 +190,13 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
         io.imsave(os.path.join(disc_path, img_name + '.png'), img_as_ubyte(mask_disc))
         io.imsave(os.path.join(cont_path, img_name + '.png'), img_as_ubyte(mask_cont))
 
-        mask_cont, mask_disc = postprocess(img=img, mask_cont=mask_cont, mask_disc=mask_disc,
-                                           line_smoothing_mode=line_smoothing_mode, apply_hough=apply_hough,
-                                           hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode,
-                                           region_removal=region_removal, region_removal_size=region_removal_size,
-                                           line_smoothing_R=line_smoothing_R, line_smoothing_r=line_smoothing_r, line_smoothing_threshold=line_smoothing_threshold,
-                                           hough_thresh=hough_thresh, hough_min_line_length=hough_min_line_length,
-                                           hough_max_line_gap=hough_max_line_gap, hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, hough_discretize_thresh=hough_discretize_thresh)
+        mask_cont, mask_disc = postprocess(img=img, mask_cont=mask_cont, mask_disc=mask_disc, args=args)
+#                                          line_smoothing_mode=line_smoothing_mode, apply_hough=apply_hough,
+#                                          hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode,
+#                                          region_removal=region_removal, region_removal_size=region_removal_size,
+#                                          line_smoothing_R=line_smoothing_R, line_smoothing_r=line_smoothing_r, line_smoothing_threshold=line_smoothing_threshold,
+#                                          hough_thresh=hough_thresh, hough_min_line_length=hough_min_line_length,
+#                                          hough_max_line_gap=hough_max_line_gap, hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, hough_discretize_thresh=hough_discretize_thresh)
 
         # Save post processed
         disc_path = os.path.join(test_path, result_dir, 'discrete_post_processed')
@@ -205,21 +210,21 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
         io.imsave(os.path.join(cont_path, img_name + '.png'), img_as_ubyte(mask_cont))
 
 
-def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 400),
-                    scale_mode='resize', window_stride=(208, 208), gather_mode='avg', vote_thresh=5,
-                    line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut',
-                    region_removal=True, region_removal_size=1024,
-                    line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
-                    hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, hough_discretize_thresh=0.5):
+def predict_results(model, test_path, image_dir, result_dir, args, target_size=(400, 400), window_stride=(208, 208)):
+#                   scale_mode='resize', window_stride=(208, 208), gather_mode='avg', vote_thresh=5,
+#                   line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut',
+#                   region_removal=True, region_removal_size=1024,
+#                   line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
+#                   hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, hough_discretize_thresh=0.5):
 
     # Initializing combined test generator (different number of input images depending on scale mode and window stride)
     test_gen = test_generator(test_path=test_path, image_dir=image_dir, target_size=target_size,
-                              scale_mode=scale_mode, window_stride=window_stride, gather_mode=gather_mode)
+                              scale_mode=args.scale_mode, window_stride=window_stride, gather_mode=args.gather_mode)
 
     # Setting batch and validation steps for prediction with generator
-    batch_size = 8 if (gather_mode == 'avg' or gather_mode == 'vote') else 1
+    batch_size = 8 if (args.gather_mode == 'avg' or args.gather_mode == 'vote') else 1
     val_steps = len(os.listdir(os.path.join(test_path, image_dir)))
-    if scale_mode == 'window':
+    if args.scale_mode == 'window':
         # Adding multiplier factor for window images per input test image
         val_steps *= ((608 - target_size[0]) // window_stride[0] + 1) * ((608 - target_size[1]) // window_stride[1] + 1)
 
@@ -227,12 +232,13 @@ def predict_results(model, test_path, image_dir, result_dir, target_size=(400, 4
     results = model.predict(test_gen, steps=val_steps, batch_size=batch_size, verbose=1)
 
     # Gathering raw results (in case of sliding window) and saving results
-    save_results(results=results, test_path=test_path, image_dir=image_dir, result_dir=result_dir,
-                 target_size=(400, 400), scale_mode=scale_mode, window_stride=(208, 208),
-                 gather_mode=gather_mode, vote_thresh=vote_thresh,
-                 line_smoothing_mode=line_smoothing_mode, apply_hough=apply_hough,
-                 hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode,
-                 region_removal=region_removal, region_removal_size=region_removal_size,
-                 line_smoothing_R=line_smoothing_R, line_smoothing_r=line_smoothing_r, line_smoothing_threshold=line_smoothing_threshold,
-                 hough_thresh=hough_thresh, hough_min_line_length=hough_min_line_length, hough_max_line_gap=hough_max_line_gap,
-                 hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, hough_discretize_thresh=hough_discretize_thresh)
+    save_results(results=results, test_path=test_path, image_dir=image_dir, result_dir=result_dir, args=args,
+                 target_size=target_size, window_stride=window_stride)
+#                target_size=target_size, scale_mode=args.scale_mode, window_stride=window_stride)
+#                gather_mode=args.gather_mode, vote_thresh=args.vote_thresh,
+#                line_smoothing_mode=args.line_smoothing_mode, apply_hough=args.apply_hough,
+#                hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode,
+#                region_removal=region_removal, region_removal_size=region_removal_size,
+#                line_smoothing_R=line_smoothing_R, line_smoothing_r=line_smoothing_r, line_smoothing_threshold=line_smoothing_threshold,
+#                hough_thresh=hough_thresh, hough_min_line_length=hough_min_line_length, hough_max_line_gap=hough_max_line_gap,
+#                hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, hough_discretize_thresh=hough_discretize_thresh)

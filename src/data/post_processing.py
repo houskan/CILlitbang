@@ -4,52 +4,59 @@ import cv2
 import scipy
 import maxflow
 import skimage
+import argparser
 
 from data.helper import *
 
 
-def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode,
-                region_removal, region_removal_size, line_smoothing_R, line_smoothing_r, line_smoothing_threshold,
-                hough_thresh, hough_min_line_length, hough_max_line_gap, hough_pixel_up_thresh, hough_eps,
-                hough_discretize_thresh):
+def postprocess(img, mask_cont, mask_disc, args):
+#               line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode,
+#               region_removal, region_removal_size, line_smoothing_R, line_smoothing_r, line_smoothing_threshold,
+#               hough_thresh, hough_min_line_length, hough_max_line_gap, hough_pixel_up_thresh, hough_eps,
+#               hough_discretize_thresh):
 
-    if line_smoothing_mode == 'beforeHough' or line_smoothing_mode == 'both':
-        mask_cont = line_smoothing(mask_cont, R=line_smoothing_R, r=line_smoothing_r,
-                                   threshold=line_smoothing_threshold)
+    if args.line_smoothing_mode == 'beforeHough' or args.line_smoothing_mode == 'both':
+        mask_cont = line_smoothing(mask_cont, R=args.line_smoothing_R, r=args.line_smoothing_r,
+                                   threshold=args.line_smoothing_threshold)
 
         # Apply Hough Transform
-    if apply_hough:
+    if args.apply_hough:
         # Apply Hough dependent on discretize functio
-        if hough_discretize_mode == 'discretize':
+        if args.hough_discretize_mode == 'discretize':
             mask_cont = hough_pipeline(mask_cont, np.ones((3, 3), np.uint8),
-                                       lambda x: discretize(x, hough_discretize_thresh), hough_thresh=hough_thresh,
-                                       min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
-                                       pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps)
-        elif hough_discretize_mode == 'graphcut':
+                                       lambda x: discretize(x, args.hough_discretize_thresh),
+                                       hough_thresh=args.hough_thresh,
+                                       min_line_length=args.hough_min_line_length,
+                                       max_line_gap=args.hough_max_line_gap,
+                                       pixel_up_thresh=args.hough_pixel_up_thresh,
+                                       eps=args.hough_eps)
+        elif args.hough_discretize_mode == 'graphcut':
             mask_cont = hough_pipeline(mask_cont, np.ones((3, 3), np.uint8), lambda x: graph_cut(x, img),
-                                       hough_thresh=hough_thresh,
-                                       min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
-                                       pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps)
+                                       hough_thresh=args.hough_thresh,
+                                       min_line_length=args.hough_min_line_length,
+                                       max_line_gap=args.hough_max_line_gap,
+                                       pixel_up_thresh=args.hough_pixel_up_thresh,
+                                       eps=args.hough_eps)
         else:
-            raise Exception('Unknown discretize mode for Hough postprocessing: ' + hough_discretize_mode)
+            raise Exception('Unknown discretize mode for Hough postprocessing: ' + args.hough_discretize_mode)
 
     # Smooth Lines after Hough post-processing
-    if line_smoothing_mode == 'afterHough' or line_smoothing_mode == 'both':
-        mask_cont = line_smoothing(mask_cont, R=line_smoothing_R, r=line_smoothing_r,
-                                   threshold=line_smoothing_threshold)
+    if args.line_smoothing_mode == 'afterHough' or args.line_smoothing_mode == 'both':
+        mask_cont = line_smoothing(mask_cont, R=args.line_smoothing_R, r=args.line_smoothing_r,
+                                   threshold=args.line_smoothing_threshold)
 
     # Discretize the probability map
-    if discretize_mode == 'discretize':
+    if args.discretize_mode == 'discretize':
         discretize_function = discretize
-    elif discretize_mode == 'graphcut':
+    elif args.discretize_mode == 'graphcut':
         discretize_function = lambda x: graph_cut(x, img)
     else:
-        raise Exception('Unknown discretize mode for final discretization: ' + discretize_mode)
+        raise Exception('Unknown discretize mode for final discretization: ' + args.discretize_mode)
     mask_disc = discretize_function(mask_cont)
 
     # Remove Small Regions
-    if region_removal:
-        mask_disc = remove_small_regions(mask_disc, no_pixels=region_removal_size)
+    if args.region_removal:
+        mask_disc = remove_small_regions(mask_disc, no_pixels=args.region_removal_size)
 
     return mask_cont, mask_disc
 

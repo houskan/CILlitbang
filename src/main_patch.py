@@ -116,19 +116,20 @@ dim = test_image_size_adjusted // groundtruth_patch_size
 num_patches = len(images) * dim * dim
 
 test_gen = test_generator_patch(test_path=args.test_path, image_dir='images', target_size=test_image_size_adjusted,
-                              patch_size=groundtruth_patch_size)
+                                patch_size=groundtruth_patch_size)
 
 results = model.predict(test_gen, steps=num_patches, verbose=1)
 results = reshape_patch_results_to_images(results, len(images), groundtruth_patch_size, test_image_size_adjusted)
 
-save_results(results=results, test_path=args.test_path, image_dir='images', result_dir='results',
-                 target_size=(400, 400), scale_mode='resize', window_stride=(208, 208),
-                 gather_mode='None', vote_thresh=args.vote_thresh,
-                 line_smoothing_mode=args.line_smoothing_mode, apply_hough=args.apply_hough,
-                 hough_discretize_mode=args.hough_discretize_mode, discretize_mode=args.discretize_mode, region_removal=args.region_removal,
-                 line_smoothing_R=args.line_smoothing_R, line_smoothing_r=args.line_smoothing_r, line_smoothing_threshold=args.line_smoothing_threshold,
-                 hough_thresh=args.hough_thresh, hough_min_line_length=args.hough_min_line_length, hough_max_line_gap=args.hough_max_line_gap,
-                 hough_pixel_up_thresh=args.hough_pixel_up_thresh, hough_eps=args.hough_eps, region_removal_size=args.region_removal_size)
+save_results(results=results, test_path=args.test_path, image_dir='images', result_dir='results', args=args,
+             target_size=(400, 400), window_stride=(208, 208))
+#            target_size=(400, 400), scale_mode='resize', window_stride=(208, 208),
+#            gather_mode='None', vote_thresh=args.vote_thresh,
+#            line_smoothing_mode=args.line_smoothing_mode, apply_hough=args.apply_hough,
+#            hough_discretize_mode=args.hough_discretize_mode, discretize_mode=args.discretize_mode, region_removal=args.region_removal,
+#            line_smoothing_R=args.line_smoothing_R, line_smoothing_r=args.line_smoothing_r, line_smoothing_threshold=args.line_smoothing_threshold,
+#            hough_thresh=args.hough_thresh, hough_min_line_length=args.hough_min_line_length, hough_max_line_gap=args.hough_max_line_gap,
+#            hough_pixel_up_thresh=args.hough_pixel_up_thresh, hough_eps=args.hough_eps, region_removal_size=args.region_removal_size)
 
 
 # Checking if submission should be logged and saving all relevant data in unique out submission directory
