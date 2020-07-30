@@ -7,10 +7,10 @@ from tensorflow.keras.optimizers import *
 from models.loss_functions import *
 
 '''
-This file hosts the implementation of a dilated Unet V2 using transposed convolutions
+This file hosts the implementation of a dilated Unet V1 using transposed convolutions
 '''
 
-def unet_dilated_v3(input_size=(400, 400, 3), learning_rate=1e-4):
+def unet_dilated_v1_transposed(input_size=(400, 400, 3), learning_rate=1e-4):
     inputs = Input(input_size)
 
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
@@ -29,10 +29,9 @@ def unet_dilated_v3(input_size=(400, 400, 3), learning_rate=1e-4):
 
     # Parallel dilated convolution module
     conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool4)
+    conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv5)
     conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal', dilation_rate=2)(conv5)
     conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal', dilation_rate=4)(conv5)
-    conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal', dilation_rate=2)(conv5)
-    conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv5)
     drop5 = Dropout(0.5)(conv5)
 
     up6 = Conv2DTranspose(512, 2, activation='relu', padding='same', kernel_initializer='he_normal',
