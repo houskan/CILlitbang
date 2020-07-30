@@ -7,45 +7,52 @@ import skimage
 
 from data.helper import *
 
-def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode, region_removal,
-                line_smoothing_R, line_smoothing_r, line_smoothing_threshold, hough_thresh, hough_min_line_length,
-                hough_max_line_gap, hough_pixel_up_thresh, hough_eps, region_removal_size,
-		hough_discretize_thresh):
-        if line_smoothing_mode == 'beforeHough' or line_smoothing_mode == 'both':
-            mask_cont = line_smoothing(mask_cont, R=line_smoothing_R, r=line_smoothing_r, threshold=line_smoothing_threshold) 
+
+def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode,
+                region_removal, region_removal_size, line_smoothing_R, line_smoothing_r, line_smoothing_threshold,
+                hough_thresh, hough_min_line_length, hough_max_line_gap, hough_pixel_up_thresh, hough_eps,
+                hough_discretize_thresh):
+
+    if line_smoothing_mode == 'beforeHough' or line_smoothing_mode == 'both':
+        mask_cont = line_smoothing(mask_cont, R=line_smoothing_R, r=line_smoothing_r,
+                                   threshold=line_smoothing_threshold)
 
         # Apply Hough Transform
-        if apply_hough:
-            # Apply Hough dependent on discretize functio
-            if hough_discretize_mode == 'discretize':
-                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), lambda x: discretize(x, hough_discretize_thresh), hough_thresh=hough_thresh,
-                             min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
-                             pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps)
-            elif hough_discretize_mode == 'graphcut':
-                mask_cont = hough_pipeline(mask_cont, np.ones((3,3),np.uint8), lambda x: graph_cut(x, img), hough_thresh=hough_thresh,
-                             min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
-                             pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps)
-            else:
-                raise Exception('Unknown discretize mode for Hough postprocessing: ' + hough_discretize_mode)
-                
-        # Smooth Lines after Hough post-processing
-        if line_smoothing_mode == 'afterHough' or line_smoothing_mode == 'both':
-            mask_cont = line_smoothing(mask_cont, R=line_smoothing_R, r=line_smoothing_r, threshold=line_smoothing_threshold)
-
-        # Discretize the probability map
-        if discretize_mode == 'discretize':
-            discretize_function = discretize
-        elif discretize_mode == 'graphcut':
-            discretize_function = lambda x: graph_cut(x, img)
+    if apply_hough:
+        # Apply Hough dependent on discretize functio
+        if hough_discretize_mode == 'discretize':
+            mask_cont = hough_pipeline(mask_cont, np.ones((3, 3), np.uint8),
+                                       lambda x: discretize(x, hough_discretize_thresh), hough_thresh=hough_thresh,
+                                       min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
+                                       pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps)
+        elif hough_discretize_mode == 'graphcut':
+            mask_cont = hough_pipeline(mask_cont, np.ones((3, 3), np.uint8), lambda x: graph_cut(x, img),
+                                       hough_thresh=hough_thresh,
+                                       min_line_length=hough_min_line_length, max_line_gap=hough_max_line_gap,
+                                       pixel_up_thresh=hough_pixel_up_thresh, eps=hough_eps)
         else:
-            raise Exception('Unknown discretize mode for final discretization: ' + discretize_mode)
-        mask_disc = discretize_function(mask_cont)
+            raise Exception('Unknown discretize mode for Hough postprocessing: ' + hough_discretize_mode)
 
-        # Remove Small Regions
-        if region_removal:
-            mask_disc = remove_small_regions(mask_disc, no_pixels=region_removal_size)
+    # Smooth Lines after Hough post-processing
+    if line_smoothing_mode == 'afterHough' or line_smoothing_mode == 'both':
+        mask_cont = line_smoothing(mask_cont, R=line_smoothing_R, r=line_smoothing_r,
+                                   threshold=line_smoothing_threshold)
 
-        return mask_cont, mask_disc
+    # Discretize the probability map
+    if discretize_mode == 'discretize':
+        discretize_function = discretize
+    elif discretize_mode == 'graphcut':
+        discretize_function = lambda x: graph_cut(x, img)
+    else:
+        raise Exception('Unknown discretize mode for final discretization: ' + discretize_mode)
+    mask_disc = discretize_function(mask_cont)
+
+    # Remove Small Regions
+    if region_removal:
+        mask_disc = remove_small_regions(mask_disc, no_pixels=region_removal_size)
+
+    return mask_cont, mask_disc
+
 
 def remove_small_regions(mask, no_pixels=256):
     """Cleans up a discrete prediction by removing small regions
@@ -65,10 +72,11 @@ def remove_small_regions(mask, no_pixels=256):
     # remove set small regions to 0
     for i, lab in enumerate(labs):
         if cnts[i] < no_pixels:
-            mres[np.where(mres==lab)] = 0
+            mres[np.where(mres == lab)] = 0
 
     mres[np.where(mres != 0)] = 1
     return mres.astype('float32')
+
 
 def get_hough_lines(mask, threshold=100, min_line_length=1, max_line_gap=500):
     """Returns numpy array containing the number of hough lines passing through it.
@@ -78,18 +86,19 @@ def get_hough_lines(mask, threshold=100, min_line_length=1, max_line_gap=500):
     max_line_gap -- see cv2.HoughLinesP
     return -- numpy array containing hough line count per pixel
     """
-    gray = (mask*255).astype('uint8')
-    lines = cv2.HoughLinesP(gray,1,np.pi/180,threshold,minLineLength=min_line_length,maxLineGap=max_line_gap)
+    gray = (mask * 255).astype('uint8')
+    lines = cv2.HoughLinesP(gray, 1, np.pi / 180, threshold, minLineLength=min_line_length, maxLineGap=max_line_gap)
 
     hough_lines = np.zeros(gray.shape)
     if not lines is None:
         for x in range(0, len(lines)):
-            for x1,y1,x2,y2 in lines[x]:
+            for x1, y1, x2, y2 in lines[x]:
                 one_hough = np.zeros(gray.shape)
-                cv2.line(one_hough,(x1,y1),(x2,y2), 1., 1)
+                cv2.line(one_hough, (x1, y1), (x2, y2), 1., 1)
                 hough_lines = hough_lines + one_hough
 
     return hough_lines
+
 
 def hough_update_mask(mask, hough_lines, kernel, thresh=1, eps=0.2):
     """Updates the mask by increasing probabilities using hough_lines.
@@ -109,8 +118,9 @@ def hough_update_mask(mask, hough_lines, kernel, thresh=1, eps=0.2):
     updated_mask = updated_mask + eps * (hough_lines_c >= thresh)
     return updated_mask
 
+
 def hough_pipeline(mask, kernel, discretize_func, hough_thresh=100, min_line_length=1,
-                    max_line_gap=500, pixel_up_thresh=1, eps=0.2):
+                   max_line_gap=500, pixel_up_thresh=1, eps=0.2):
     """This method performs the complete update of probability
     maps using the hough transform to detect road segments
     with lower probability.
@@ -126,7 +136,7 @@ def hough_pipeline(mask, kernel, discretize_func, hough_thresh=100, min_line_len
     """
     disc_mask = discretize_func(mask)
     hough_lines = get_hough_lines(disc_mask, threshold=hough_thresh, min_line_length=min_line_length,
-                    max_line_gap=max_line_gap)
+                                  max_line_gap=max_line_gap)
     updated_mask = hough_update_mask(mask, hough_lines, kernel, thresh=pixel_up_thresh, eps=eps)
     return np.clip(updated_mask, a_min=0.0, a_max=1.0)
 
@@ -157,14 +167,14 @@ def graph_cut(prediction, img, lambda_=1, sigma=3):
     g = maxflow.Graph[float]()
     nodeids = g.add_grid_nodes(prediction.shape)
 
-    structure = np.array( [[0, 0, 0],
-                           [0, 0, 1],
-                           [0, 0, 0]])
+    structure = np.array([[0, 0, 0],
+                          [0, 0, 1],
+                          [0, 0, 0]])
 
     img_right = np.roll(img, 1, axis=2)
     weights = img - img_right
     weights = np.multiply(weights, weights)
-    weights = weights[:,:,0] + weights[:,:,1] + weights[:,:,2]
+    weights = weights[:, :, 0] + weights[:, :, 1] + weights[:, :, 2]
 
     weights = weights / (2 * sigma * sigma)
     weights = np.exp(-weights)
@@ -187,7 +197,8 @@ def graph_cut(prediction, img, lambda_=1, sigma=3):
 
     g.add_grid_edges(nodeids, weights=lambda_ * weights, structure=structure, symmetric=True)
 
-    g.add_grid_tedges(nodeids, -np.log(np.maximum(prediction, np.finfo(float).eps)), -np.log(np.maximum(1 - prediction, np.finfo(float).eps)))
+    g.add_grid_tedges(nodeids, -np.log(np.maximum(prediction, np.finfo(float).eps)),
+                      -np.log(np.maximum(1 - prediction, np.finfo(float).eps)))
 
     g.maxflow()
     sgm = g.get_grid_segments(nodeids)
@@ -208,8 +219,8 @@ def line_smoothing(prediction, R=20, r=3, threshold=0.25):
     footprint_0 = np.zeros((2 * R + 1, 2 * R + 1))
     footprint_0[R, R:2 * R + 1] = 1
     footprint_45 = np.zeros((2 * R + 1, 2 * R + 1))
-    for i in range(R+1):
-        footprint_45[i,i] = 1
+    for i in range(R + 1):
+        footprint_45[i, i] = 1
 
     footprint_90 = np.rot90(footprint_0)
     footprint_135 = np.rot90(footprint_45)
@@ -255,9 +266,9 @@ def line_smoothing(prediction, R=20, r=3, threshold=0.25):
     results = []
     for i in range(4):
         S_up_filter = footprints_R[i]
-        S_down_filter = footprints_R[i+4]
+        S_down_filter = footprints_R[i + 4]
         T_up_filter = footprints_r[i]
-        T_down_filter = footprints_r[i+4]
+        T_down_filter = footprints_r[i + 4]
 
         S_up = scipy.ndimage.maximum_filter(prediction, footprint=S_up_filter)
         S_down = scipy.ndimage.maximum_filter(prediction, footprint=S_down_filter)
@@ -271,7 +282,6 @@ def line_smoothing(prediction, R=20, r=3, threshold=0.25):
 
         result = np.maximum(prediction, np.minimum(s_up, s_down))
         results.append(result)
-
 
     smoothed = np.maximum(results[0], results[1], np.maximum(results[2], results[3]))
     return smoothed
