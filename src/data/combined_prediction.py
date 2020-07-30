@@ -83,7 +83,6 @@ def test_generator(test_path, image_dir='images', target_size=(400, 400),
     :param window_stride: Parameter for the sliding window mechanism
     :param gather_mode: Describes what kind of mode you want to use when combining results (for transformations)
     """
-    '''
     # Iterating through all images in test set
     for file in os.listdir(os.path.join(test_path, image_dir)):
         # Reading input test image image and normalizing it to range [0, 1],
