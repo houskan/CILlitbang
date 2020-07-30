@@ -197,8 +197,7 @@ def graph_cut(prediction, img, lambda_=1, sigma=3):
 
     g.add_grid_edges(nodeids, weights=lambda_ * weights, structure=structure, symmetric=True)
 
-    g.add_grid_tedges(nodeids, -np.log(np.maximum(prediction, np.finfo(float).eps)),
-                      -np.log(np.maximum(1 - prediction, np.finfo(float).eps)))
+    g.add_grid_tedges(nodeids, prediction, 1 - prediction)
 
     g.maxflow()
     sgm = g.get_grid_segments(nodeids)
