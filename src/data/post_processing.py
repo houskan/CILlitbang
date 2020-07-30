@@ -13,7 +13,8 @@ def postprocess(img, mask_cont, mask_disc, args):
 #               line_smoothing_mode, apply_hough, hough_discretize_mode, discretize_mode,
 #               region_removal, region_removal_size, line_smoothing_R, line_smoothing_r, line_smoothing_threshold,
 #               hough_thresh, hough_min_line_length, hough_max_line_gap, hough_pixel_up_thresh, hough_eps,
-#               hough_discretize_thresh):    """
+#               hough_discretize_thresh):
+    """
     This method implements the complete post-processing pipeline. It enables all reasonable
     combinations of the individual steps. 
     :param img: RGB image
