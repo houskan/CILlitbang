@@ -185,13 +185,13 @@ def save_results(results, test_path, image_dir, result_dir, target_size=(400, 40
         io.imsave(os.path.join(disc_path, img_name + '.png'), img_as_ubyte(mask_disc))
         io.imsave(os.path.join(cont_path, img_name + '.png'), img_as_ubyte(mask_cont))
 
-        mask_cont, mask_disc = postprocess(img, mask_cont, mask_disc,
-                                           line_smoothing_mode, apply_hough,
-                                           hough_discretize_mode, discretize_mode,
-                                           region_removal, region_removal_size,
-                                           line_smoothing_R, line_smoothing_r, line_smoothing_threshold,
-                                           hough_thresh, hough_min_line_length,
-                                           hough_max_line_gap, hough_pixel_up_thresh, hough_eps, hough_discretize_thresh)
+        mask_cont, mask_disc = postprocess(img=img, mask_cont=mask_cont, mask_disc=mask_disc,
+                                           line_smoothing_mode=line_smoothing_mode, apply_hough=apply_hough,
+                                           hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode,
+                                           region_removal=region_removal, region_removal_size=region_removal_size,
+                                           line_smoothing_R=line_smoothing_R, line_smoothing_r=line_smoothing_r, line_smoothing_threshold=line_smoothing_threshold,
+                                           hough_thresh=hough_thresh, hough_min_line_length=hough_min_line_length,
+                                           hough_max_line_gap=hough_max_line_gap, hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, hough_discretize_thresh=hough_discretize_thresh)
 
         # Save post processed
         disc_path = os.path.join(test_path, result_dir, 'discrete_post_processed')
