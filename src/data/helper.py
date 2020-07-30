@@ -2,6 +2,16 @@ import numpy as np
 import skimage.color
 import os
 
+def convertToLab(image):
+    lab = skimage.color.rgb2lab(image)
+    lab_scaled = (lab + [0.0, 128.0, 128.0]) / [100.0, 255.0, 255.0]
+    return lab_scaled
+
+def convertToHSV(image):
+    hsv = skimage.color.rgb2hsv(image)
+    hsv_scaled = hsv / [360.0, 255.0, 255.0]
+    return hsv_scaled
+
 def discretize(result_cont, eps=0.5):
     '''This creates a binary image from a continous one. This is basically the simple thresholding
     approach for our pipeline.
