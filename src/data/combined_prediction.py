@@ -10,6 +10,10 @@ from data.post_processing import *
 
 
 def apply_transforms(images):
+    '''This method takes images and applies multiple unique operations on them
+    :param images: array of images
+    :return: transformed images
+    '''
     # Applying rotation and flipping (mirroring) to input images array
     trans_images = np.zeros(images.shape)
     trans_images[0] = images[0]
@@ -24,6 +28,11 @@ def apply_transforms(images):
 
 
 def reverse_transforms(results):
+    '''This method reverts the transforms that apply_transforms did. We used this for reverting the
+    multiple predictions back to the original non-transformed setting.
+    :param results: continous masks / probability map
+    :return: Back-Transformed results
+    '''
     # Reversing rotation and flipping (mirroring) to output results array
     rev_results = np.zeros(results.shape)
     rev_results[0] = results[0]
@@ -38,6 +47,12 @@ def reverse_transforms(results):
 
 
 def gather_combined(results, mode, thresh):
+    '''This method impleemnts the combination of multiple prediction into one. Either by voting or
+    by averaging
+    :param results: Array of continous probability masks
+    :param mode: Choose between averaging(avg) and voting (vote)
+    :return: resulting mask continous and resulting mask binarized
+    '''
     # Checking which gather mode should be used (averaging continuous masks or threshold voting discrete masks)
     if mode == 'avg':
         # Computing average continuous mask and discretizing this averaged result
@@ -61,6 +76,15 @@ def gather_combined(results, mode, thresh):
 
 def test_generator(test_path, image_dir='images', target_size=(400, 400),
                    scale_mode='resize', window_stride=(208, 208), gather_mode='avg'):
+    '''THis provides the generator for the test images
+    :param test_path: This path is where the image directory is
+    :param image_dir: relative path to test_path, this directory contains the images
+    :param target_size: What size should the RGB images have
+    :param scale_mode: Describes if you want rescale images or apply a sliding window mechanism
+    :param window_stride: Parameter for the sliding window mechanism
+    :param gather_mode: Describes what kind of mode you want to use when combining results (for
+    transformations)
+    '''
     # Iterating through all images in test set
     for file in os.listdir(os.path.join(test_path, image_dir)):
         # Reading input test image image and normalizing it to range [0, 1],
@@ -104,6 +128,13 @@ def save_results(results, test_path, image_dir, result_dir, args, target_size=(4
 #                region_removal=True, region_removal_size=1024,
 #                line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
 #                hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, hough_discretize_thresh=0.5):
+    '''This method saves results according to the parameters
+    :param results: Array of continous masks
+    :param test_path: Path of the test images
+    :param image_dir: relative path to test_path, this directory hosts the images
+    :param result_dir: relative path to test_path, this directory hosts the results
+    :param others: see argparser for help
+    '''
 
     # Initializing index to keep track of where we are in results tensor abd batch size stride
     index = 0
@@ -216,6 +247,14 @@ def predict_results(model, test_path, image_dir, result_dir, args, target_size=(
 #                   region_removal=True, region_removal_size=1024,
 #                   line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
 #                   hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, hough_discretize_thresh=0.5):
+    '''This method predicts and saves results
+    :param model: Tensorflow model that will predict
+    :param results: Array of continous masks
+    :param test_path: Path of the test images
+    :param image_dir: relative path to test_path, this directory hosts the images
+    :param result_dir: relative path to test_path, this directory hosts the results
+    :param others: see argparser for help
+    '''
 
     # Initializing combined test generator (different number of input images depending on scale mode and window stride)
     test_gen = test_generator(test_path=test_path, image_dir=image_dir, target_size=target_size,

@@ -6,6 +6,10 @@ from tensorflow.keras.optimizers import *
 
 from models.loss_functions import *
 
+'''
+This file hosts our adapted U-Net architecture for the patch based approach
+'''
+
 def unet_patch(input_size=(128, 128, 3), learning_rate=1e-4):
     context_size = input_size[0]
     mask_size_half = context_size // 8

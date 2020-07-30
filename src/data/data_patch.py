@@ -8,6 +8,10 @@ import os
 
 from data.helper import *
 
+'''
+This file contains methods similiar to data.py. It was written for the patch based approach
+described in the paper
+'''
 
 def add_image_padding(image, padding):
     if len(image.shape) == 3:

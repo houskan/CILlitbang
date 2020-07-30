@@ -1,6 +1,10 @@
 from configargparse import ArgumentParser
 import argparse
 
+'''
+This file contains the declaration of our argument parser
+'''
+
 def str2bool(v):
     if isinstance(v, bool):
         return v
@@ -77,7 +81,14 @@ def get_parser():
     parser.add('--fill-mode', type=str, default='reflect',
                help='fill mode when shifting images')
 
-    parser.add('--model', type=str, default='unet_dilated2', choices=['unet', 'unet_dilated1', 'unet_dilated2', 'unet_dilated3', 'unet_dilated4', 'unet_patch', 'unet_dilated3_patch'],
+    parser.add('--model', type=str, default='unet_dilated_v2_transposed',
+               choices=['unet',
+                        'unet_dilated_v1',
+                        'unet_dilated_v2',
+                        'unet_dilated_v1_transposed',
+                        'unet_dilated_v2_transposed',
+                        'unet_patch',
+                        'unet_dilated_v2_transposed_patch'],
                help='which model to use for training')
     parser.add('--adam-lr', type=float, default=1e-4,
                help='learning rate of adam to use during training')
@@ -96,11 +107,11 @@ def get_parser():
                help='should small regions be removed')
 
     parser.add('--line-smoothing-R', type=int, default=20,
-               help='TODO NIK')
+               help='maximal look-ahead distance')
     parser.add('--line-smoothing-r', type=int, default=3,
-               help='TODO NIK')
+               help='minimal distance in which at least one pixel must be above threshold')
     parser.add('--line-smoothing-threshold', type=float, default=0.25,
-               help='TODO NIK')
+               help='threshold to consider pixels')
 
     parser.add('--hough-thresh', type=int, default=100,
                help='threshold for HoughTransformP')

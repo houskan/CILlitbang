@@ -4,6 +4,11 @@ import os
 
 from submission.mask_to_submission import masks_to_submission
 
+'''
+This file contains our logging mechanism. With the function provided we copy and save all data into
+the log directory. This is used for experiments. With this we have all data and can replicate what
+we did.
+'''
 
 def log_submission(submission_identifier, args):
     # Initializing submission path where submission will be logged

@@ -5,6 +5,11 @@ import numpy as np
 import matplotlib.image as mpimg
 import re
 
+
+'''
+File provided by the Kaggle Competition of CIL 2020
+'''
+
 #foreground_threshold = 0.25 # percentage of pixels > 1 required to assign a foreground label to a patch
 
 # assign a label to a patch

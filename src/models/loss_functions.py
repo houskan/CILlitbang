@@ -1,6 +1,10 @@
 from keras import backend as K
 import tensorflow as tf
 
+'''
+This file contains multiple loss functions with which we experimented with
+'''
+
 # Initializing foreground threshold (percentage of road pixels s.t. patch is considered road)
 foreground_threshold = 0.25
 
