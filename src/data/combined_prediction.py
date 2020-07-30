@@ -114,8 +114,8 @@ def test_generator(test_path, image_dir='images', target_size=(400, 400),
                     if gather_mode == 'avg' or gather_mode == 'vote':
                         yield apply_transforms(images=np.broadcast_to(img_window, (8,) + img_window.shape))
                     else:
-                        img = np.reshape(img, (1,) + img.shape)
-                        yield img
+                        img_window = np.reshape(img_window, (1,) + img_window.shape)
+                        yield img_window
         else:
             raise Exception('Unknown scale mode: ' + scale_mode)
 
