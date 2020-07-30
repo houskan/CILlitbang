@@ -5,11 +5,13 @@ from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 
 from models.loss_functions import *
+
 '''
-This file hosts an architecture that applies our patch based approach with U-Net Dilated V2
-Transposed
+This file hosts an architecture that applies our patch based approach with an adaptation of the
+U-Net Dilated V2 Transposed architecture
 '''
-def unet_dilated_v3_patch(input_size=(128, 128, 3), learning_rate=1e-4):
+
+def unet_dilated_v2_transposed_patch(input_size=(128, 128, 3), learning_rate=1e-4):
     context_size = input_size[0]
     mask_size_half = context_size // 8
     inputs = Input(input_size)
@@ -36,28 +38,24 @@ def unet_dilated_v3_patch(input_size=(128, 128, 3), learning_rate=1e-4):
     conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv5)
     drop5 = Dropout(0.5)(conv5)
 
-    up6 = Conv2DTranspose(512, 2, activation='relu', padding='same', kernel_initializer='he_normal',
-    strides=(2,2))(drop5)
+    up6 = Conv2DTranspose(512, 2, activation='relu', padding='same', kernel_initializer='he_normal', strides=(2, 2))(drop5)
     merge6 = concatenate([drop4, up6], axis=3)
     conv6 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge6)
     conv6 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv6)
 
-    up7 = Conv2DTranspose(256, 2, activation='relu', padding='same', kernel_initializer='he_normal',
-    strides=(2,2))(conv6)
+    up7 = Conv2DTranspose(256, 2, activation='relu', padding='same', kernel_initializer='he_normal', strides=(2, 2))(conv6)
     merge7 = concatenate([conv3, up7], axis=3)
     conv7 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge7)
     conv7 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv7)
 
-    up8 = Conv2DTranspose(128, 2, activation='relu', padding='same', kernel_initializer='he_normal',
-    strides=(1,1))(conv7)
+    up8 = Conv2DTranspose(128, 2, activation='relu', padding='same', kernel_initializer='he_normal', strides=(1, 1))(conv7)
     mid = context_size // 4 - 1
     conv2_middle = conv2[:, mid - mask_size_half:mid + mask_size_half, mid - mask_size_half:mid + mask_size_half, :]
     merge8 = concatenate([conv2_middle, up8], axis=3)
     conv8 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge8)
     conv8 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv8)
 
-    up9 = Conv2DTranspose(64, 2, activation='relu', padding='same', kernel_initializer='he_normal',
-    strides=(1,1))(conv8)
+    up9 = Conv2DTranspose(64, 2, activation='relu', padding='same', kernel_initializer='he_normal', strides=(1, 1))(conv8)
     mid = context_size // 2 - 1
     conv1_middle = conv1[:, mid - mask_size_half:mid + mask_size_half, mid - mask_size_half:mid + mask_size_half, :]
     merge9 = concatenate([conv1_middle, up9], axis=3)

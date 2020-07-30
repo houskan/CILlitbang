@@ -7,7 +7,7 @@ from tensorflow.keras.optimizers import *
 from models.loss_functions import *
 
 '''
-This file hosts the implementation of a dilated Unet V2 using transposed convolutions
+This file hosts the implementation of the dilated U-Net V2 architecture using transposed convolutions
 '''
 
 def unet_dilated_v2_transposed(input_size=(400, 400, 3), learning_rate=1e-4):

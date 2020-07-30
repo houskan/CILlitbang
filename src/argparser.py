@@ -88,7 +88,7 @@ def get_parser():
                         'unet_dilated_v1_transposed',
                         'unet_dilated_v2_transposed',
                         'unet_patch',
-                        'unet_dilated3_patch'],
+                        'unet_dilated_v2_transposed_patch'],
                help='which model to use for training')
     parser.add('--adam-lr', type=float, default=1e-4,
                help='learning rate of adam to use during training')
