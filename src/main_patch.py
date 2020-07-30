@@ -2,10 +2,8 @@ import argparser
 import datetime
 import numpy as np
 import numpy.random
-import skimage.io as io
-import skimage.transform as trans
-from skimage import img_as_ubyte
 import os
+
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
@@ -15,7 +13,6 @@ from models.unet_dilated_v2_transposed_patch import *
 
 from data.data_patch import *
 from data.helper import *
-from data.post_processing import *
 from data.tensorboard_image import *
 from data.combined_prediction import *
 from data.post_processing import *
