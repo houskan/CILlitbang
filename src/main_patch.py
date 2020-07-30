@@ -14,7 +14,7 @@ from models.unet_dilated_v2_transposed_patch import *
 from data.data_patch import *
 from data.helper import *
 from data.tensorboard_image import *
-from data.combined_prediction import *
+from data.result_prediction import *
 from data.post_processing import *
 from submission.log_submission import *
 

@@ -16,7 +16,7 @@ from models.unet_dilated_v2_transposed import *
 
 from data.data import *
 from data.tensorboard_image import *
-from data.combined_prediction import *
+from data.result_prediction import *
 from data.post_processing import *
 from submission.log_submission import *
 
