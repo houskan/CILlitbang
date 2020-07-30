@@ -1,6 +1,10 @@
 from configargparse import ArgumentParser
 import argparse
 
+'''
+This file contains the declaration of our argument parser
+'''
+
 def str2bool(v):
     if isinstance(v, bool):
         return v

@@ -3,12 +3,23 @@ import skimage.color
 import os
 
 def discretize(result_cont, eps=0.5):
+    '''This creates a binary image from a continous one. This is basically the simple thresholding
+    approach for our pipeline.
+    :param result_cont: continous mask / probability map
+    :param eps: eps is the threshold
+    '''
     result_disc = result_cont.copy()
     result_disc[result_disc > eps] = 1.0
     result_disc[result_disc <= eps] = 0.0
     return result_disc
 
 def get_path_pairs(path, image_dir, mask_dir):
+    '''This method pairs images and masks. 
+    :param path: This is the base path where the image directory and the mask directory are
+    :param image_dir: This is the directory where the images are, relative to path
+    :param mask_dir: This is the directory where the masks are, relative to path
+    :return: list of image/mask pairs
+    '''
     images = []
     masks = []
 

@@ -12,12 +12,20 @@ def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hou
                 region_removal, region_removal_size, line_smoothing_R, line_smoothing_r, line_smoothing_threshold,
                 hough_thresh, hough_min_line_length, hough_max_line_gap, hough_pixel_up_thresh, hough_eps,
                 hough_discretize_thresh):
+    """
+    This method implements the complete post-processing pipeline. It enables all reasonable
+    combinations of the individual steps. 
+    :param img: RGB image
+    :param mask_cont: Continous mask / Probability map / Output of the neural network
+    :param other parameters: see argparser
+    :return: Postprocessed binary segmentation mask
+    """
 
     if line_smoothing_mode == 'beforeHough' or line_smoothing_mode == 'both':
         mask_cont = line_smoothing(mask_cont, R=line_smoothing_R, r=line_smoothing_r,
                                    threshold=line_smoothing_threshold)
 
-        # Apply Hough Transform
+    # Apply Hough Transform
     if apply_hough:
         # Apply Hough dependent on discretize functio
         if hough_discretize_mode == 'discretize':
@@ -56,10 +64,10 @@ def postprocess(img, mask_cont, mask_disc, line_smoothing_mode, apply_hough, hou
 
 def remove_small_regions(mask, no_pixels=256):
     """Cleans up a discrete prediction by removing small regions
-    from the discrete mask
-    mask -- discretized mask, not getting modified
-    no_pixels -- minimum region size
-    return -- new cleaned up discrete mask
+    from the binary segmentation mask
+    :param mask: binary segmentation mask, not getting modified
+    :param no_pixels: minimum region size
+    :return: new cleaned up binary segmentation msk
     """
     mres = mask.copy()
     # detect and measure regions
@@ -80,11 +88,11 @@ def remove_small_regions(mask, no_pixels=256):
 
 def get_hough_lines(mask, threshold=100, min_line_length=1, max_line_gap=500):
     """Returns numpy array containing the number of hough lines passing through it.
-    mask -- discret mask (x,x). Two dimesnions only
-    threshold -- see cv2.HoughLinesP
-    min_line_length -- see cv2.HoughLinesP
-    max_line_gap -- see cv2.HoughLinesP
-    return -- numpy array containing hough line count per pixel
+    :param mask: binary mask, Two dimensions only
+    :param threshold: see cv2.HoughLinesP
+    :param min_line_length: see cv2.HoughLinesP
+    :param max_line_gap: see cv2.HoughLinesP
+    :return: numpy array containing hough line count per pixel
     """
     gray = (mask * 255).astype('uint8')
     lines = cv2.HoughLinesP(gray, 1, np.pi / 180, threshold, minLineLength=min_line_length, maxLineGap=max_line_gap)
@@ -102,14 +110,14 @@ def get_hough_lines(mask, threshold=100, min_line_length=1, max_line_gap=500):
 
 def hough_update_mask(mask, hough_lines, kernel, thresh=1, eps=0.2):
     """Updates the mask by increasing probabilities using hough_lines.
-    mask -- continous mask, not getting modified
-    hough_lines -- result obtained from  get_hough_lines
-    kernel -- for morphological closing applied on hough_lines for smoothing them
-    If kernel is not None, morphological closing is not applied
-    good kernel example np.ones((3,3),np.uint8)
-    thresh -- How many lines need to pass through a pixel at least
-    eps -- Which constant factor should be added to chosen pixels
-    return -- new updated continous mask
+    :param mask: continous mask / probability map, not getting modified
+    :param hough_lines: result obtained from  get_hough_lines
+    :param kernel: for morphological closing applied on hough_lines for smoothing them
+        If kernel is not None, morphological closing is not applied
+        good kernel example np.ones((3,3),np.uint8)
+    :param thresh: How many lines need to pass through a pixel at least
+    :param eps:  Which constant factor should be added to chosen pixels
+    :return: new updated continous mask / probability map
     """
     updated_mask = mask.copy()
     hough_lines_c = hough_lines.copy()
@@ -124,15 +132,16 @@ def hough_pipeline(mask, kernel, discretize_func, hough_thresh=100, min_line_len
     """This method performs the complete update of probability
     maps using the hough transform to detect road segments
     with lower probability.
-    mask -- continous mask, not getting modified
-    kernel -- for morphological closing applied on hough_lines for smoothing them
-    If kernel is not None, morphological closing is not applied
-    good kernel example np.ones((3,3),np.uint8)
-    hough_thresh -- see cv2.HoughLinesP
-    min_line_length -- see cv2.HoughLinesP
-    max_line_gap -- see cv2.HoughLinesP
-    thresh -- How many lines need to pass through a pixel at least
-    eps -- Which constant factor should be added to chosen pixels
+    :param mask: continous mask, not getting modified
+    :param kernel: for morphological closing applied on hough_lines for smoothing them
+        If kernel is not None, morphological closing is not applied
+        good kernel example np.ones((3,3),np.uint8)
+    :param hough_thresh: see cv2.HoughLinesP
+    :param min_line_length: see cv2.HoughLinesP
+    :param max_line_gap: see cv2.HoughLinesP
+    :param thresh: How many lines need to pass through a pixel at least
+    :param eps: Which constant factor should be added to chosen pixels
+    :return: continous mask
     """
     disc_mask = discretize_func(mask)
     hough_lines = get_hough_lines(disc_mask, threshold=hough_thresh, min_line_length=min_line_length,
@@ -144,6 +153,8 @@ def hough_pipeline(mask, kernel, discretize_func, hough_thresh=100, min_line_len
 def adjust_data_for_graphcut(img):
     """
     Some possible way to preprocess the colored test image for graph cut
+    :param img: image for preprocessing
+    :return: preprocessed image
     """
     img = skimage.color.rgb2lab(img)
     img = filters.gaussian(img, sigma=1, multichannel=True)

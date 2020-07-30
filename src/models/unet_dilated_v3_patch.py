@@ -5,7 +5,10 @@ from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 
 from models.loss_functions import *
-
+'''
+This file hosts an architecture that applies our patch based approach with U-Net Dilated V2
+Transposed
+'''
 def unet_dilated_v3_patch(input_size=(128, 128, 3), learning_rate=1e-4):
     context_size = input_size[0]
     mask_size_half = context_size // 8

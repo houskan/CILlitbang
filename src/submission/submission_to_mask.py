@@ -6,6 +6,10 @@ import math
 import matplotlib.image as mpimg
 import numpy as np
 
+'''
+File provided by the Kaggle Competition of CIL 2020
+'''
+
 label_file = 'dummy_submission.csv'
 
 h = 16
