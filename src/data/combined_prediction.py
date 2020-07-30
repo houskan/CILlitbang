@@ -10,10 +10,10 @@ from data.post_processing import *
 
 
 def apply_transforms(images):
-    '''This method takes images and applies multiple unique operations on them
+    """This method takes images and applies multiple unique operations on them
     :param images: array of images
     :return: transformed images
-    '''
+    """
     # Applying rotation and flipping (mirroring) to input images array
     trans_images = np.zeros(images.shape)
     trans_images[0] = images[0]
@@ -28,11 +28,11 @@ def apply_transforms(images):
 
 
 def reverse_transforms(results):
-    '''This method reverts the transforms that apply_transforms did. We used this for reverting the
+    """This method reverts the transforms that apply_transforms did. We used this for reverting the
     multiple predictions back to the original non-transformed setting.
-    :param results: continous masks / probability map
+    :param results: continuous masks / probability map
     :return: Back-Transformed results
-    '''
+    """
     # Reversing rotation and flipping (mirroring) to output results array
     rev_results = np.zeros(results.shape)
     rev_results[0] = results[0]
@@ -47,12 +47,11 @@ def reverse_transforms(results):
 
 
 def gather_combined(results, mode, thresh):
-    '''This method impleemnts the combination of multiple prediction into one. Either by voting or
-    by averaging
-    :param results: Array of continous probability masks
+    """This method impleemnts the combination of multiple prediction into one. Either by voting or by averaging
+    :param results: Array of continuous probability masks
     :param mode: Choose between averaging(avg) and voting (vote)
-    :return: resulting mask continous and resulting mask binarized
-    '''
+    :return: resulting mask continuous and resulting mask binarized
+    """
     # Checking which gather mode should be used (averaging continuous masks or threshold voting discrete masks)
     if mode == 'avg':
         # Computing average continuous mask and discretizing this averaged result
@@ -76,14 +75,14 @@ def gather_combined(results, mode, thresh):
 
 def test_generator(test_path, image_dir='images', target_size=(400, 400),
                    scale_mode='resize', window_stride=(208, 208), gather_mode='avg'):
-    '''THis provides the generator for the test images
+    """This provides the generator for the test images
     :param test_path: This path is where the image directory is
     :param image_dir: relative path to test_path, this directory contains the images
     :param target_size: What size should the RGB images have
     :param scale_mode: Describes if you want rescale images or apply a sliding window mechanism
     :param window_stride: Parameter for the sliding window mechanism
-    :param gather_mode: Describes what kind of mode you want to use when combining results (for
-    transformations)
+    :param gather_mode: Describes what kind of mode you want to use when combining results (for transformations)
+    """
     '''
     # Iterating through all images in test set
     for file in os.listdir(os.path.join(test_path, image_dir)):
@@ -122,19 +121,13 @@ def test_generator(test_path, image_dir='images', target_size=(400, 400),
 
 
 def save_results(results, test_path, image_dir, result_dir, args, target_size=(400, 400), window_stride=(208, 208)):
-#                scale_mode='resize', window_stride=(208, 208),  gather_mode='avg', vote_thresh=5,
-#                line_smoothing_mode='both', apply_hough=True,
-#                hough_discretize_mode='graphcut', discretize_mode='graphcut',
-#                region_removal=True, region_removal_size=1024,
-#                line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
-#                hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, hough_discretize_thresh=0.5):
-    '''This method saves results according to the parameters
-    :param results: Array of continous masks
+    """This method saves results according to the parameters
+    :param results: Array of continuous masks
     :param test_path: Path of the test images
     :param image_dir: relative path to test_path, this directory hosts the images
     :param result_dir: relative path to test_path, this directory hosts the results
     :param others: see argparser for help
-    '''
+    """
 
     # Initializing index to keep track of where we are in results tensor abd batch size stride
     index = 0
@@ -221,13 +214,8 @@ def save_results(results, test_path, image_dir, result_dir, args, target_size=(4
         io.imsave(os.path.join(disc_path, img_name + '.png'), img_as_ubyte(mask_disc))
         io.imsave(os.path.join(cont_path, img_name + '.png'), img_as_ubyte(mask_cont))
 
+        # Post processing results with hough transform, graphcut, region removal (and more)
         mask_cont, mask_disc = postprocess(img=img, mask_cont=mask_cont, mask_disc=mask_disc, args=args)
-#                                          line_smoothing_mode=line_smoothing_mode, apply_hough=apply_hough,
-#                                          hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode,
-#                                          region_removal=region_removal, region_removal_size=region_removal_size,
-#                                          line_smoothing_R=line_smoothing_R, line_smoothing_r=line_smoothing_r, line_smoothing_threshold=line_smoothing_threshold,
-#                                          hough_thresh=hough_thresh, hough_min_line_length=hough_min_line_length,
-#                                          hough_max_line_gap=hough_max_line_gap, hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, hough_discretize_thresh=hough_discretize_thresh)
 
         # Save post processed
         disc_path = os.path.join(test_path, result_dir, 'discrete_post_processed')
@@ -242,19 +230,17 @@ def save_results(results, test_path, image_dir, result_dir, args, target_size=(4
 
 
 def predict_results(model, test_path, image_dir, result_dir, args, target_size=(400, 400), window_stride=(208, 208)):
-#                   scale_mode='resize', window_stride=(208, 208), gather_mode='avg', vote_thresh=5,
-#                   line_smoothing_mode='both', apply_hough=True, hough_discretize_mode='graphcut', discretize_mode='graphcut',
-#                   region_removal=True, region_removal_size=1024,
-#                   line_smoothing_R=20, line_smoothing_r=3, line_smoothing_threshold=0.25, hough_thresh=100, hough_min_line_length=1,
-#                   hough_max_line_gap=500, hough_pixel_up_thresh=1, hough_eps=0.2, hough_discretize_thresh=0.5):
-    '''This method predicts and saves results
+    """This method predicts and saves results
     :param model: Tensorflow model that will predict
-    :param results: Array of continous masks
+    :param results: Array of continuous masks
     :param test_path: Path of the test images
     :param image_dir: relative path to test_path, this directory hosts the images
     :param result_dir: relative path to test_path, this directory hosts the results
-    :param others: see argparser for help
-    '''
+    :param args: all other parameters necessary for gathering mode, scaling mode and post processing
+    (see argparser for help)
+    :param target_size: target size of image
+    :window_stride: stride if scaling mode is sliding window
+    """
 
     # Initializing combined test generator (different number of input images depending on scale mode and window stride)
     test_gen = test_generator(test_path=test_path, image_dir=image_dir, target_size=target_size,
@@ -273,11 +259,3 @@ def predict_results(model, test_path, image_dir, result_dir, args, target_size=(
     # Gathering raw results (in case of sliding window) and saving results
     save_results(results=results, test_path=test_path, image_dir=image_dir, result_dir=result_dir, args=args,
                  target_size=target_size, window_stride=window_stride)
-#                target_size=target_size, scale_mode=args.scale_mode, window_stride=window_stride)
-#                gather_mode=args.gather_mode, vote_thresh=args.vote_thresh,
-#                line_smoothing_mode=args.line_smoothing_mode, apply_hough=args.apply_hough,
-#                hough_discretize_mode=hough_discretize_mode, discretize_mode=discretize_mode,
-#                region_removal=region_removal, region_removal_size=region_removal_size,
-#                line_smoothing_R=line_smoothing_R, line_smoothing_r=line_smoothing_r, line_smoothing_threshold=line_smoothing_threshold,
-#                hough_thresh=hough_thresh, hough_min_line_length=hough_min_line_length, hough_max_line_gap=hough_max_line_gap,
-#                hough_pixel_up_thresh=hough_pixel_up_thresh, hough_eps=hough_eps, hough_discretize_thresh=hough_discretize_thresh)
