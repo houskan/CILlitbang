@@ -50,13 +50,13 @@ for f in os.listdir(os.path.join(val_path, "groundtruth")):
     cv2.imwrite(path_save, img_array)
 
 
-model = resnet50_unet(n_classes=2 ,  input_height=416, input_width=416)
+model = resnet50_unet(n_classes=2, input_height=416, input_width=416)
 
 model.train(
-    train_images =  os.path.join(train_path, "images"),
-    train_annotations = os.path.join(binary_groundtruth_path, "train"),
-    val_images = os.path.join(val_path, "images"),
-    val_annotations = os.path.join(binary_groundtruth_path, "validation"),
+    train_images=os.path.join(train_path, "images"),
+    train_annotations=os.path.join(binary_groundtruth_path, "train"),
+    val_images=os.path.join(val_path, "images"),
+    val_annotations=os.path.join(binary_groundtruth_path, "validation"),
     do_augment=True,
     validate=True,
     epochs=1,

@@ -98,7 +98,7 @@ def validation_generator_patch(patch_size):
 
 def predictable_validation_generator_patch(fixed_patches):
     cycle = itertools.cycle(fixed_patches)
-    while(True):
+    while True:
         img, mask = next(cycle)
         yield img, mask
 

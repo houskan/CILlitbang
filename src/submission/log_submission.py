@@ -40,7 +40,6 @@ def log_submission(submission_identifier, args):
     image_filenames = []
     for file in os.listdir(result_path):
         image_filename = os.path.join(result_path, file)
-        #print(image_filename)
         image_filenames.append(image_filename)
     masks_to_submission(submission_filename, *image_filenames, foreground_threshold=args.sub_thresh)
 
@@ -50,6 +49,5 @@ def log_submission(submission_identifier, args):
     image_filenames = []
     for file in os.listdir(result_path):
         image_filename = os.path.join(result_path, file)
-        #print(image_filename)
         image_filenames.append(image_filename)
     masks_to_submission(submission_filename, *image_filenames, foreground_threshold=args.sub_thresh)
