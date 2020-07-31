@@ -13,14 +13,19 @@ from models.unet_dilated_v2_transposed_patch import *
 
 from data.data_patch import *
 from data.helper import *
-from data.tensorboard_image import *
 from data.result_prediction import *
 from data.post_processing import *
 from submission.log_submission import *
 
-# Load arguments from parser and saving it if requested
+# Load arguments from parser
 parser = argparser.get_parser()
 args = parser.parse_args()
+
+# Change default model argument to unet patch if invalid
+if args.model == 'unet_dilated_v2_transposed':
+    args.model = 'unet_patch'
+
+# Saving it if requested
 if args.arg_log:
     argparser.write_config_file(args)
 
@@ -62,11 +67,7 @@ if args.train_model:
 
     # Initializing tensorboard callback for plots, graph, etc.
     tensorboard_callback = TensorBoard(log_dir=log_dir, write_graph=True)
-    #callbacks.append(tensorboard_callback)
-
-    # Initializing tensorboard image callback for visualizing validation images each epoch
-    tensorboard_image_callback = TensorBoardImage(log_dir=log_dir, validation_path=args.val_path)
-    #callbacks.append(tensorboard_image_callback)
+    callbacks.append(tensorboard_callback)
 
     # Initialization model checkpoint to store model with best validation loss
     if not os.path.exists(os.path.dirname(args.model_path)):
@@ -86,13 +87,14 @@ if args.train_model:
                          fill_mode=args.fill_mode)
 
     # Initializing training and validation generators
-    train_gen, val_gen = getTrainGeneratorsPatch(data_gen_args,
-                                                 train_path=args.train_path, validation_path=args.val_path,
-                                                 image_folder='images', mask_folder='groundtruth',
-                                                 target_size=(400, 400), batch_size=args.batch_size,
-                                                 patch_size=groundtruth_patch_size, validation_steps=args.val_steps, seed=args.seed)
+    train_gen, val_gen = train_validation_generators_patch(data_gen_args,
+                                                           train_path=args.train_path, validation_path=args.val_path,
+                                                           image_folder='images', mask_folder='groundtruth',
+                                                           target_size=(400, 400), batch_size=args.batch_size,
+                                                           patch_size=groundtruth_patch_size,
+                                                           validation_steps=args.val_steps, seed=args.seed)
 
-    # Training unet model
+    # Training unet patch model
     model.fit(train_gen, steps_per_epoch=args.steps, epochs=args.epochs, validation_data=val_gen,
               validation_steps=args.val_steps, callbacks=callbacks, verbose=1)
 
@@ -101,10 +103,6 @@ if args.train_model:
 if args.predict_best:
     # Loading best result
     model.load_weights(args.model_path)
-
-# Saving images of best prediction model weights in tensorboard by calling callback one more time
-if args.predict_best and args.train_model:
-    pass#tensorboard_image_callback.on_epoch_end(epoch=args.epochs)
 
 # Predicting results with specific generator, gathering results and saving them depending on
 # scale mode, combined prediction boolean, as well as gathering mode
@@ -128,5 +126,3 @@ save_results(results=results, test_path=args.test_path, image_dir='images', resu
 # Checking if submission should be logged and saving all relevant data in unique out submission directory
 if args.sub_log:
     log_submission(submission_identifier=submission_identifier, args=args)
-
-

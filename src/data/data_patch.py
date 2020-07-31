@@ -32,7 +32,7 @@ def adjust_data(img, mask):
     return img, mask
 
 
-def getTrainGeneratorsPatch(aug_dict, train_path, validation_path, image_folder, mask_folder, target_size, batch_size, patch_size, validation_steps, seed):
+def train_validation_generators_patch(aug_dict, train_path, validation_path, image_folder, mask_folder, target_size, batch_size, patch_size, validation_steps, seed):
 
     train_img_generator = ImageDataGenerator(**aug_dict).flow_from_directory(
         train_path,
