@@ -1,9 +1,5 @@
 # CleanRoad: Road Segmentation of Aerial Images by Fusing Modern and Traditional Methods
 
-<div align="center">
-<img src="plots/comparisons/comparison_post_processing_plot.png" alt="Comparisons Post-Processing" width="90%"/>
-</div>
-
 ## Table of Contents
 * [About the Project](#about-the-project)
 * [Folder Structure](#folder-structure)
@@ -23,11 +19,15 @@ Read the [paper](https://github.com/winbergs/CILlitbang/blob/master/report.pdf) 
 
 Our final model is a dilated U-Net with transposed convolutional layers and has the following structure:
 
-<img src="plots/diagrams/unet_dilated_v2_transposed.png" alt="U-Net Dilated v2 Transposed" width="50%" align="center"/>
+<div align="center">
+<img src="plots/diagrams/unet_dilated_v2_transposed.png" alt="U-Net Dilated v2 Transposed" width="50%"/>
+</div>
 
 Furthermore, we constructed the following dedicated post-processing pipeline to further refine and cleanup the results.
 
-<img src="plots/diagrams/post_processing_pipeline.png" alt="Dedicated Post-Processing Pipeline" width="90%" align="center"/>
+<div align="center">
+<img src="plots/diagrams/post_processing_pipeline.png" alt="Dedicated Post-Processing Pipeline" width="90%"/>
+</div>
 
 ## Folder Structure
 ```
