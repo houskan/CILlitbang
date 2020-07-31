@@ -129,6 +129,6 @@ Once the virtual environment is activated you can run the code as follows.
 ### Reproduce our results
 Reproducing the results of our paper can be done easily. We provide predefined config files we used for our runs. These include fixed random seeds that worked well in our experiments. While exact reproduction of results is not possible when executing tensorflow code on a GPU, they should still be very similar when taking the same seed in different runs.
 #### Train and predict results
-Pick the experiment you want to reproduce and select the corresponding config file from XYZ. Follow the above instructions on how to use config files with our code and let the job run.
+Pick the experiment you want to reproduce and select the corresponding config file (e.g. CILlitbang/final_experiments/refinements/unet_dilated_v2_transposed graphcut 500-100/config.cfg). Follow the above instructions on how to use config files with our code and let the job run.
 #### Predict using pretrained models
-Pick the experiment you want to reproduce and select the corresponding config file from XYZ. Follow the above instructions on how to use config files with our code. Now modify the config file and set the `train-model` parameter to `False` and set the `model-path` parameter to the model you want to use. Now, let the job run.
+To download the model weights please follow the instructions from CILlitbang/final_experiments/models/README.md. Follow the above instructions on how to use config files with our code. Now modify the corresponding config file and set the `train-model` parameter to `False` and set the `model-path` parameter to the model weights you want to use. Now, let the job run.
