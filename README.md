@@ -138,7 +138,7 @@ Once the virtual environment is activated you can run the code as follows:
     ```sh
     python main.py -c <PATH_TO_CONFIG>
     ```
- - If you want to run this code on the Leonhard cluster submit your jobs with 8GB of memory. Example:
+ - If you want to run this code on the Leonhard cluster submit your jobs with 8GB of memory. Examples:
    ```sh
    bsub -W 8:30 -R "rusage[ngpus_excl_p=1,mem=8192]" "python main.py -c config.cfg"
    ```
