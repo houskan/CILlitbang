@@ -146,6 +146,12 @@ Once the virtual environment is activated you can run the code as follows:
    bsub -W 8:30 -R "rusage[ngpus_excl_p=1,mem=8192]" "python main.py -c \"<PATH_TO_CONFIG>\""
    ```
    
+To run the models for our patch-based approaches and the keras_segmentation baseline, follow the steps below:
+ - For our patch-based approach, please follow the steps from above and replace `main.py` with `main_patch.py`.
+ - For keras_segmentation, please call `cd src/baselines/keras_segmentation` instead and then submit the following job:
+   ```bsub -W 8:30 -R "rusage[ngpus_excl_p=1,mem=8192]" "python keras_seg.py"```
+
+
 ### Reproduce our results
 Reproducing the results of our paper can be done easily. We provide predefined config files that we used for our runs. These include fixed random seeds that worked well in our experiments. While exact reproduction of results is not possible when executing tensorflow code on a GPU, they should still be very similar when taking the same seed in different runs.
 #### Train and predict results
