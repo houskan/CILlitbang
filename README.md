@@ -149,4 +149,16 @@ Pick the experiment you want to reproduce and select the corresponding config fi
 #### Predict using pretrained models
 To download the model weights please follow the instructions from https://github.com/winbergs/CILlitbang/blob/master/final_experiments/models/README.md. Follow the above instructions on how to use config files with our code. Now modify the corresponding config file and set the `train-model` parameter to `False` and set the `model-path` parameter to the model weights you want to use. Now, let the job run.
 #### Find the results
-The directory ```out``` in the root directory will be created. There you will find multiple directories. You can find your desired run by name according to the name of the run in the config file. Moreover, you can check the date in the directory name to see if you started the job at this date. Once you have chosen the correct directory, you will find all outputs generated there. 
+The directory `out` in the root folder will be created. There you will find a summary of all your runs with the following structure:
+```
+- config.cfg            - Config file with all relevant parameter information
+- discrete/             - Binary masks of results without post-processing
+- continuous/           - Probabiliy masks of results without post-processing
+- discrete_post/        - Binary masks of results with post-processing
+- continuous_post/      - Probabiliy masks of results with post-processing
+- submission.csv        - Submission file for Kaggle without post-processing
+- submission_post.csv   - Submission file for Kaggle with post-processing
+- tensorboard/fit/      - Tensorboard plot and intermediate image result data
+- <MODEL_NAME>.h5       - Trained model weights file in h5 format
+```
+Moreover, you can check the date in the directory name to see if you started the job at this date. Once you have chosen the correct directory, you will find all outputs generated there. 
