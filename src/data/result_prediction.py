@@ -47,10 +47,10 @@ def reverse_transforms(results):
 
 
 def gather_combined(results, mode, thresh):
-    """This method impleemnts the combination of multiple prediction into one. Either by voting or by averaging
+    """This method implements the combination of multiple prediction into one. Either by voting or by averaging
     :param results: Array of continuous probability masks
     :param mode: Choose between averaging(avg) and voting (vote)
-    :return: resulting mask continuous and resulting mask binarized
+    :return: resulting mask continuous and resulting mask discrete (binary)
     """
     # Checking which gather mode should be used (averaging continuous masks or threshold voting discrete masks)
     if mode == 'avg':
@@ -125,7 +125,10 @@ def save_results(results, test_path, image_dir, result_dir, args, target_size=(4
     :param test_path: Path of the test images
     :param image_dir: relative path to test_path, this directory hosts the images
     :param result_dir: relative path to test_path, this directory hosts the results
-    :param others: see argparser for help
+    :param args: all other parameters necessary for gathering mode, scaling mode and post-processing
+    (see argparser for help)
+    :param target_size: target size of image
+    :window_stride: stride if scaling mode is sliding window
     """
 
     # Initializing index to keep track of where we are in results tensor abd batch size stride
@@ -235,7 +238,7 @@ def predict_results(model, test_path, image_dir, result_dir, args, target_size=(
     :param test_path: Path of the test images
     :param image_dir: relative path to test_path, this directory hosts the images
     :param result_dir: relative path to test_path, this directory hosts the results
-    :param args: all other parameters necessary for gathering mode, scaling mode and post processing
+    :param args: all other parameters necessary for gathering mode, scaling mode and post-processing
     (see argparser for help)
     :param target_size: target size of image
     :window_stride: stride if scaling mode is sliding window
