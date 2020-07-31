@@ -148,7 +148,7 @@ Once the virtual environment is activated you can run the code as follows:
    
 To run the models for our patch-based approaches and the keras_segmentation baseline, follow the steps below:
  - For our patch-based approach, please follow the steps from above and replace `main.py` with `main_patch.py`.
- - For keras_segmentation, please call `cd src/baselines/keras_segmentation` instead and then submit the following job:
+ - For keras_segmentation, please call `cd src/baselines/keras_segmentation` instead and then submit the following job (Note that the results will be under src/baselines/keras_segmentation/results):
    ```sh
    bsub -W 8:30 -R "rusage[ngpus_excl_p=1,mem=8192]" "python keras_seg.py"
    ```
