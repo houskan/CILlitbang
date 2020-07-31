@@ -4,7 +4,6 @@ from tensorflow import keras
 
 import skimage.io as io
 import skimage.color
-# import skimage.transform as trans
 import os
 
 from data.helper import *
@@ -12,6 +11,8 @@ from data.helper import *
 '''
 This file contains the callbacks for tensorboard
 '''
+
+
 class TensorBoardImage(keras.callbacks.Callback):
 
     def __init__(self, log_dir, validation_path, image_dir='images', mask_dir='groundtruth', target_size=(400, 400)):

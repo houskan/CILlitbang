@@ -10,6 +10,7 @@ from models.loss_functions import *
 This file hosts the implementation of the basic U-Net architecture
 '''
 
+
 def unet(input_size=(400, 400, 3), learning_rate=1e-4):
     inputs = Input(input_size)
 

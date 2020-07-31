@@ -11,6 +11,7 @@ This file hosts an architecture that applies our patch based approach with an ad
 U-Net Dilated V2 Transposed architecture
 '''
 
+
 def unet_dilated_v2_transposed_patch(input_size=(128, 128, 3), learning_rate=1e-4):
     context_size = input_size[0]
     mask_size_half = context_size // 8

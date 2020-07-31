@@ -70,7 +70,7 @@ def mask_to_submission(img, mask, thresh=0.5, patch_size=16, color=[0.3, 0.0, 0.
 color = [0.3, 0.0, 0.0]
 columns = 4
 rows = 2
-fig = plt.figure(figsize = (15.0 / rows,15.0 / columns))
+fig = plt.figure(figsize=(15.0 / rows, 15.0 / columns))
 plt.title(' ')
 plt.axis('off')
 plt.tight_layout()

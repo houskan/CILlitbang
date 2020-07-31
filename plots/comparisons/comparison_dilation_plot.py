@@ -42,7 +42,7 @@ def normalize(img):
 color = [0.3, 0.0, 0.0]
 columns = 3
 rows = 2
-fig = plt.figure(figsize = (15.0 / rows,15.0 / columns))
+fig = plt.figure(figsize=(15.0 / rows, 15.0 / columns))
 plt.title(' ')
 plt.axis('off')
 plt.tight_layout()

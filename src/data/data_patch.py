@@ -13,11 +13,12 @@ This file contains methods similiar to data.py. It was written for the patch bas
 described in the paper
 '''
 
+
 def add_image_padding(image, padding):
     if len(image.shape) == 3:
         return np.lib.pad(image, ((padding, padding), (padding, padding), (0, 0)), 'reflect')
     elif len(image.shape) == 4:
-        return np.lib.pad(image, ((0,0), (padding, padding), (padding, padding), (0, 0)), 'reflect')
+        return np.lib.pad(image, ((0, 0), (padding, padding), (padding, padding), (0, 0)), 'reflect')
     else:
         raise Exception("Expected list of images for add_image_padding")
 
@@ -139,8 +140,7 @@ def extract_random_patch_and_context(image, groundtruth, patch_size, discard_non
                 break
 
         context_shift = (context_patch_size - patch_size) // 2
-        context_patch = image[index, i - context_shift:i + patch_size + context_shift,
-                        j - context_shift:j + patch_size + context_shift, :]
+        context_patch = image[index, i - context_shift:i + patch_size + context_shift, j - context_shift:j + patch_size + context_shift, :]
         X.append(context_patch)
         Y.append(groundtruth_patch)
 

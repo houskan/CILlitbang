@@ -10,6 +10,7 @@ from models.loss_functions import *
 This file hosts the implementation of the dilated U-Net V2 architecture
 '''
 
+
 def unet_dilated_v2(input_size=(400, 400, 3), learning_rate=1e-4):
     inputs = Input(input_size)
 

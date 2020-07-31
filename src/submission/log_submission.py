@@ -10,6 +10,7 @@ the log directory. This is used for experiments. With this we have all data and 
 we did.
 '''
 
+
 def log_submission(submission_identifier, args):
     # Initializing submission path where submission will be logged
     submission_path = os.path.join('..', 'out', submission_identifier)
