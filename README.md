@@ -2,6 +2,7 @@
 ## Table of Contents
 * [About the Project](#about-the-project)
 * [Folder Structure](#folder-structure)
+* [Images](#images)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
 * [Usage](#usage)
