@@ -9,13 +9,13 @@
 * [Folder Structure](#folder-structure)
 * [Images](#images)
 * [Getting Started](#getting-started)
+  * [Download missing data](#download-missing-data)
   * [Prerequisites](#prerequisites)
 * [Usage](#usage)
   * [Run the code](#run-the-code)
   * [Reproduce our results](#reproduce-our-results)
     * [Train and predict results](#train-and-predict-results)
     * [Predict using pretrained models](#predict-using-pretrained-models)
-    * [Find the results](#find-the-results)
 
 ## About The Project
 This repository contains the source code for the graded semester project for the [Computational Intelligence Lab 2020 lecture](http://da.inf.ethz.ch/teaching/2020/CIL/) at ETH Zurich.
@@ -103,6 +103,9 @@ Furthermore, we constructed the following dedicated post-processing pipeline to 
 All training and validation images are from the chicago dataset from https://zenodo.org/record/1154821#.XyPssSgzaUk. Out of the total 221 images, 100 have been provided for the project and 121 have been selected by us. They all have been thoroughly investigated to not contain any parts of the test images.
 
 ## Getting Started
+### Download missing data
+Due to the size limit for the final submission, the content of the data/ and final_experiments/ directories has been moved to polybox. Please download them from the following [polybox link](TODO). If you want to also make predictions on our trained models, please also download the two folders from [this link](https://polybox.ethz.ch/index.php/s/61AMzol0pBlbKCl) and put them into the final_experiments/models/ directory. More information is also provided [here](https://github.com/winbergs/CILlitbang/blob/master/final_experiments/models/README.md).
+
 ### Prerequisites
 - Please consult the [Conda Installation Guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/#regular-installation) for more information.
   If you want to run this code on the Leonhard Cluster, please follow the relevant parts of [this tutorial](http://kevinkle.in/jekyll/update/2019/02/28/leonhard.html)
