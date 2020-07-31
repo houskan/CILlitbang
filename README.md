@@ -104,7 +104,7 @@ All training and validation images are from the chicago dataset from https://zen
 
 ## Getting Started
 ### Download missing data
-Due to the size limit for the final submission, the content of the data/ and final_experiments/ directories has been moved to polybox. Please download them from the following [polybox link](https://polybox.ethz.ch/index.php/s/3IrRQ6vBsY1osdT)(password: 'CIL2020'). If you want to also make predictions on our trained models, please also download the two folders from [this link](https://polybox.ethz.ch/index.php/s/61AMzol0pBlbKCl)(password: 'CIL2020') and put them into the final_experiments/models/ directory. More information is also provided [here](https://github.com/winbergs/CILlitbang/blob/master/final_experiments/models/README.md).
+Due to the size limit for the final submission, the content of the data/ and final_experiments/ directories has been moved to polybox. Please download them from the following [polybox link](https://polybox.ethz.ch/index.php/s/3IrRQ6vBsY1osdT)(password: `CIL2020`). If you want to also make predictions on our trained models, please also download the two folders from [this link](https://polybox.ethz.ch/index.php/s/61AMzol0pBlbKCl)(password: `CIL2020`) and put them into the final_experiments/models/ directory. More information is also provided [here](https://github.com/winbergs/CILlitbang/blob/master/final_experiments/models/README.md).
 
 ### Prerequisites
 - Please consult the [Conda Installation Guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/#regular-installation) for more information.
