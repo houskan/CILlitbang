@@ -69,7 +69,7 @@ if args.train_model:
 
     # Initialization model checkpoint to store model with best validation loss
     if not os.path.exists(os.path.dirname(args.model_path)):
-        os.mkdir(os.path.dirname(args.model_path))
+        os.makedirs(os.path.dirname(args.model_path))
     model_checkpoint_callback = ModelCheckpoint(args.model_path, monitor='val_loss', mode='min', save_best_only=True, verbose=1)
     callbacks.append(model_checkpoint_callback)
 
