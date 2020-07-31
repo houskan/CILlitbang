@@ -36,7 +36,7 @@ for f in os.listdir(os.path.join(train_path, "groundtruth")):
     img_array = img_array / np.max(img_array)
     img_array[img_array > 0.5] = 1
     img_array[img_array <= 0.5] = 0
-    cv2.imwrite(path_save ,img_array)
+    cv2.imwrite(path_save, img_array)
 
 # Produce binary mask (range [0, 1]) from original groundtruth (range [0, 255])
 for f in os.listdir(os.path.join(val_path, "groundtruth")):
@@ -47,7 +47,7 @@ for f in os.listdir(os.path.join(val_path, "groundtruth")):
     img_array = img_array / np.max(img_array)
     img_array[img_array > 0.5] = 1
     img_array[img_array <= 0.5] = 0
-    cv2.imwrite(path_save ,img_array)
+    cv2.imwrite(path_save, img_array)
 
 
 model = resnet50_unet(n_classes=2 ,  input_height=416, input_width=416)
