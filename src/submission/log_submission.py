@@ -23,8 +23,8 @@ def log_submission(submission_identifier, args):
     # Copying results directories
     shutil.copytree(os.path.join(args.test_path, 'results', 'discrete'), os.path.join(submission_path, 'discrete'))
     shutil.copytree(os.path.join(args.test_path, 'results', 'continuous'), os.path.join(submission_path, 'continuous'))
-    shutil.copytree(os.path.join(args.test_path, 'results', 'discrete_post_processed'), os.path.join(submission_path, 'discrete_post_processed'))
-    shutil.copytree(os.path.join(args.test_path, 'results', 'continuous_post_processed'), os.path.join(submission_path, 'continuous_post_processed'))
+    shutil.copytree(os.path.join(args.test_path, 'results', 'discrete_post'), os.path.join(submission_path, 'discrete_post'))
+    shutil.copytree(os.path.join(args.test_path, 'results', 'continuous_post'), os.path.join(submission_path, 'continuous_post'))
 
     # Copying tensorboard log files
     if args.train_model:
@@ -35,7 +35,7 @@ def log_submission(submission_identifier, args):
 
     # Masking result to kaggle submission format and saving file it as csv file
     result_path = os.path.join(submission_path, 'discrete')
-    submission_filename = os.path.join(submission_path, 'submission_thresh{}.csv'.format(args.sub_thresh))
+    submission_filename = os.path.join(submission_path, 'submission.csv')
     image_filenames = []
     for file in os.listdir(result_path):
         image_filename = os.path.join(result_path, file)
@@ -44,8 +44,8 @@ def log_submission(submission_identifier, args):
     masks_to_submission(submission_filename, *image_filenames, foreground_threshold=args.sub_thresh)
 
     # Masking postprocessed result to kaggle submission format and saving file it as csv file
-    result_path = os.path.join(submission_path, 'discrete_post_processed')
-    submission_filename = os.path.join(submission_path, 'submission_pp_thresh{}.csv'.format(args.sub_thresh))
+    result_path = os.path.join(submission_path, 'discrete_post')
+    submission_filename = os.path.join(submission_path, 'submission_post.csv')
     image_filenames = []
     for file in os.listdir(result_path):
         image_filename = os.path.join(result_path, file)

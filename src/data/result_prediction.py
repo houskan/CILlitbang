@@ -217,10 +217,10 @@ def save_results(results, test_path, image_dir, result_dir, args, target_size=(4
         mask_cont, mask_disc = postprocess(img=img, mask_cont=mask_cont, mask_disc=mask_disc, args=args)
 
         # Save post processed
-        disc_path = os.path.join(test_path, result_dir, 'discrete_post_processed')
+        disc_path = os.path.join(test_path, result_dir, 'discrete_post')
         if not os.path.exists(disc_path):
             os.mkdir(disc_path)
-        cont_path = os.path.join(test_path, result_dir, 'continuous_post_processed')
+        cont_path = os.path.join(test_path, result_dir, 'continuous_post')
         if not os.path.exists(cont_path):
             os.mkdir(cont_path)
 
