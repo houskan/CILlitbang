@@ -149,7 +149,7 @@ Pick the experiment you want to reproduce and select the corresponding config fi
 #### Predict using pretrained models
 To download the model weights please follow the instructions from https://github.com/winbergs/CILlitbang/blob/master/final_experiments/models/README.md. Follow the above instructions on how to use config files with our code. Now modify the corresponding config file and set the `train-model` parameter to `False` and set the `model-path` parameter to the model weights you want to use. Now, let the job run.
 #### Find the results
-The directory `out` in the root folder will be created and will contain a summary of all your submitted runs. You can check the date, as well as the description in the directory name to identify a specific run/submission. Each submission directory will hereby have the following structure:
+The directory `out` in the root folder will be created and will contain a summary of all your submitted runs. You can check the date, as well as the description in the directory name to identify a specific run/submission. Each submission directory will have the following structure:
 ```
 - config.cfg            - Config file with all relevant parameter information
 - discrete/             - Binary masks of results without post-processing
@@ -159,6 +159,6 @@ The directory `out` in the root folder will be created and will contain a summar
 - submission.csv        - Submission file for Kaggle without post-processing
 - submission_post.csv   - Submission file for Kaggle with post-processing
 - tensorboard/fit/      - Tensorboard plot and intermediate image result data
-- <MODEL_NAME>.h5       - Trained model weights file in h5 format
+- <MODEL_NAME>.h5       - Trained model weights file in .h5 format
 ```
-The result binary masks in `discrete` and `discrete_post` can then be compared with the respective results within the `final_experiments` folder. 
+The result binary masks in `discrete` and `discrete_post` can then be compared with the respective results within the `final_experiments` folder. Note that a markdown file within each experiment hints at which results and .csv file should be used, the one without or with post-processing.
