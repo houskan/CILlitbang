@@ -176,6 +176,8 @@ def graph_cut(prediction, img, lambda_=1, sigma=3):
     min cut (e.g. max flow)
     :param prediction: continuous prediction (grey scale image)
     :param img: original colored test image
+    :param lambda_: controls the  penalty to assign different labels to pixels with similar color value (> 0)
+    :param sigma: standard deviation
     :return: discretized mask
     """
     img = adjust_data_for_graphcut(img)
@@ -228,7 +230,7 @@ def line_smoothing(prediction, R=20, r=3, threshold=0.25):
     :param prediction: continuous mask
     :param R: how far up an down is looked to find maximum value to assign to current pixel
     :param r: how far up and down there needs to be at least 1 pixel value higher than threshold
-    :param threshold:
+    :param threshold: threshold for line smoothing
     :return: continuous mask with certain pixel probabilities increased
     """
     footprint_0 = np.zeros((2 * R + 1, 2 * R + 1))
