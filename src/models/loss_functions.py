@@ -78,8 +78,9 @@ def patch_loss(y_true, y_pred):
     return tf.reduce_mean(tf.square(y_true_patch_label - y_pred_patch_label))
 
 
-#https://lars76.github.io/neural-networks/object-detection/losses-for-segmentation/
 def weighted_cross_entropy(beta):
+    """Implementation taken from
+    https://lars76.github.io/neural-networks/object-detection/losses-for-segmentation/"""
     def convert_to_logits(y_pred):
         # see https://github.com/tensorflow/tensorflow/blob/r1.10/tensorflow/python/keras/backend.py#L3525
         y_pred = tf.clip_by_value(y_pred, tf.keras.backend.epsilon(), 1 - tf.keras.backend.epsilon())
