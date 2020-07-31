@@ -59,7 +59,7 @@ model.train(
     val_annotations=os.path.join(binary_groundtruth_path, "validation"),
     do_augment=True,
     validate=True,
-    epochs=1,
+    epochs=50,
     steps_per_epoch=100,
     val_steps_per_epoch=10,
     batch_size=4
