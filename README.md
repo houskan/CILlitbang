@@ -2,6 +2,7 @@
 ## Table of Contents
 * [About the Project](#about-the-project)
 * [Folder Structure](#folder-structure)
+* [Images](#images)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
 * [Usage](#usage)
@@ -33,10 +34,17 @@ Read the [paper](todo) for more information about our experiments and design dec
 │   └── validation_original                           - 10 validation images taken from the 100 training images provided for the project
 │       ├── groundtruth
 │       └── images
-├── environment.yml                                   - YAML file for conda environment setup
+├── final_experiments                                 - Results of experiments in report       
+│   ├── architectures                                      - Model architecture experiments
+│   ├── models                                             - Directory for model weights of models (see README in directory for download instructions)
+│   └── refinements                                        - Refinement experiments
 ├── notebook                                          
 │   ├── postprocessing.ipynb                          - Jupyter notebook for the visualization of post-processing steps
 │   └── test_results_comparison.ipynb                 - Jupyter notebook for the comparison of different predictions
+├── plots                                             - Figures in report
+│   ├── comparisons                                        - Comparison figures
+│   └── diagrams                                           - Illustrations diagrams 
+├── environment.yml                                   - YAML file for conda environment setup
 ├── out                                               - Created directory. Contains model weights, predictions, config file and submission file after completed run
 ├── tmp                                               - Created directory. Contains model weights during training
 └── src
@@ -48,32 +56,34 @@ Read the [paper](todo) for more information about our experiments and design dec
     │   │   └── training                                   - 100 provided training images for the project 
     │   │       ├── groundtruth
     │   │       └── images
-    │   └── keras_segmentation                         - Baseline from https://github.com/divamgupta/image-segmentation-keras (using resnet50_unet model)
-    │       ├── keras_seg.py                                - Code to execute for this baseline
-    │       └── keras_seg_submission.py                     - Creates submission file for this baseline (is called from keras_seg.py)
+    │   └── keras_segmentation                        - Baseline from https://github.com/divamgupta/image-segmentation-keras (using resnet50_unet model)
+    │       ├── keras_seg.py                               - Code to execute for this baseline
+    │       └── keras_seg_submission.py                    - Creates submission file for this baseline (is called from keras_seg.py)
     ├── data
-    │   ├── combined_prediction.py                     - Creates predictions of test images
-    │   ├── data.py                                    - Prepares data for all models except patch-based
-    │   ├── data_patch.py                              - Prepares data for patch-based U-Net
-    │   ├── helper.py                                  - Helper functions for the other files in this directory
-    │   ├── post_processing.py                         - Post-processing functions
-    │   └── tensorboard_image.py                       - TensorBoard Callback
-    ├── main.py                                        - Main function for all models except patch-based
-    ├── main_patch.py                                  - Main function for patch-based U-Net
+    │   ├── result_prediction.py                      - Creates predictions of test images
+    │   ├── data.py                                   - Prepares data for all models except patch-based
+    │   ├── data_patch.py                             - Prepares data for patch-based U-Net
+    │   ├── helper.py                                 - Helper functions for the other files in this directory
+    │   ├── post_processing.py                        - Post-processing functions
+    │   └── tensorboard_image.py                      - TensorBoard Callback
+    ├── main.py                                       - Main function for all models except patch-based
+    ├── main_patch.py                                 - Main function for patch-based U-Net
     ├── models
-    │   ├── loss_functions.py                          - Custom loss functions and callback metrics
-    │   ├── unet.py                                    - Original U-Net model from https://github.com/zhixuhao/unet (serves as baseline in the report)
-    │   ├── unet_dilated_v1.py                         - U-Net dilated v1
-    │   ├── unet_dilated_v1_transposed.py              - U-Net dilated v1 with transposed convolutions
-    │   ├── unet_dilated_v2.py                         - U-Net dilated v2
-    │   ├── unet_dilated_v2_transposed.py              - U-Net dilated v2 with transposed convolutions
-    │   ├── unet_dilated_v2_transposed_patch.py        - U-Net dilated v2 with transposed convolutions, adapted for patch-based model
-    │   └── unet_patch.py                              - Original U-Net model, adapted for patch-based model
+    │   ├── loss_functions.py                         - Custom loss functions and callback metrics
+    │   ├── unet.py                                   - Original U-Net model from https://github.com/zhixuhao/unet (serves as baseline in the report)
+    │   ├── unet_dilated_v1.py                        - U-Net dilated v1
+    │   ├── unet_dilated_v1_transposed.py             - U-Net dilated v1 with transposed convolutions
+    │   ├── unet_dilated_v2.py                        - U-Net dilated v2
+    │   ├── unet_dilated_v2_transposed.py             - U-Net dilated v2 with transposed convolutions
+    │   ├── unet_dilated_v2_transposed_patch.py       - U-Net dilated v2 with transposed convolutions, adapted for patch-based model
+    │   └── unet_patch.py                             - Original U-Net model, adapted for patch-based model
     └── submission
-        ├── log_submission.py                          - Prepares submission directory (see 'out' directory)
-        ├── mask_to_submission.py                      - Provided code to create submission file from binary mask
-        └── submission_to_mask.py                      - Provided code to create binary mask from submission file
+        ├── log_submission.py                         - Prepares submission directory (see 'out' directory)
+        ├── mask_to_submission.py                     - Provided code to create submission file from binary mask
+        └── submission_to_mask.py                     - Provided code to create binary mask from submission file
 ```
+## Images
+All training and validation images are from the chicago dataset from https://zenodo.org/record/1154821#.XyPssSgzaUk. Out of the total 221 images, 100 have been provided for the project and 121 have been selected by us. They all have been thoroughly investigated to not contain any parts of the test images.
 
 ## Getting Started
 ### Prerequisites
