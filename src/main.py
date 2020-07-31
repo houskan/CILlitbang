@@ -97,6 +97,9 @@ if args.train_model:
 
 # Checking if model weights for best val_loss should be picked for prediction
 if args.predict_best:
+    # Checking if model path exists
+    if not os.path.exists(args.model_path):
+        raise Exception('Could not find model path: ' + args.model_path)
     # Loading best result
     model.load_weights(args.model_path)
 
