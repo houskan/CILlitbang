@@ -1,7 +1,6 @@
 import numpy as np
 import skimage.io as io
 import matplotlib.pyplot as plt
-
 import os
 
 output_path = 'comparison_post_processing_plot.pdf'
@@ -31,7 +30,6 @@ xlabels = ['',
            '', 
            '', 
            '']
-
 ylabels = ['no post-processing', 
            '', 
            '', 
@@ -41,11 +39,13 @@ ylabels = ['no post-processing',
            '',
            '']
 
+
 def normalize(img):
-    if (np.max(img) > 1.0):
+    if np.max(img) > 1.0:
         return img / 255.0
     else:
         return img
+
 
 def patch_to_label(patch, thresh):
     df = np.mean(patch)
@@ -53,6 +53,7 @@ def patch_to_label(patch, thresh):
         return 1
     else:
         return 0
+
 
 def mask_to_submission(img, mask, thresh=0.5, patch_size=16, color=[0.3, 0.0, 0.0]):
     overlay = np.zeros(img.shape)
@@ -64,6 +65,7 @@ def mask_to_submission(img, mask, thresh=0.5, patch_size=16, color=[0.3, 0.0, 0.
             overlay[i:i + patch_size, j:j + patch_size, 1] = color[1] * label
             overlay[i:i + patch_size, j:j + patch_size, 2] = color[2] * label
     return np.minimum(img + overlay, 1.0)
+
 
 color = [0.3, 0.0, 0.0]
 columns = 4

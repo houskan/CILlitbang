@@ -1,7 +1,6 @@
 import numpy as np
 import skimage.io as io
 import matplotlib.pyplot as plt
-
 import os
 
 output_path = 'comparison_dilation_plot.pdf'
@@ -25,7 +24,6 @@ xlabels = ['',
            '', 
            '', 
            '']
-
 ylabels = ['no dilation', 
            '', 
            '', 
@@ -33,11 +31,13 @@ ylabels = ['no dilation',
            '', 
            '']
 
+
 def normalize(img):
-    if (np.max(img) > 1.0):
+    if np.max(img) > 1.0:
         return img / 255.0
     else:
         return img
+
 
 color = [0.3, 0.0, 0.0]
 columns = 3

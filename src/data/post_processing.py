@@ -15,8 +15,10 @@ def postprocess(img, mask_cont, mask_disc, args):
     combinations of the individual steps. 
     :param img: RGB image
     :param mask_cont: Continuous mask / Probability map / Output of the neural network
-    :param other parameters: see argparser
-    :return: Postprocessed binary segmentation mask
+    :param mask_disc: Discrete/Binary mask
+    :param args: all other parameters necessary for gathering mode, scaling mode and post-processing
+    (see argparser for help)
+    :return: Post-processed binary segmentation mask
     """
 
     if args.line_smoothing_mode == 'beforeHough' or args.line_smoothing_mode == 'both':
@@ -175,7 +177,6 @@ def graph_cut(prediction, img, lambda_=1, sigma=3):
     :param img: original colored test image
     :return: discretized mask
     """
-
     img = adjust_data_for_graphcut(img)
 
     g = maxflow.Graph[float]()
