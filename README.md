@@ -142,6 +142,11 @@ Once the virtual environment is activated you can run the code as follows:
    ```sh
    bsub -W 8:30 -R "rusage[ngpus_excl_p=1,mem=8192]" "python main.py -c config.cfg"
    ```
+   or alternatively, if you have a longer `<PATH_TO_CONFIG>` with e.g. whitespaces
+   ```
+   bsub -W 8:30 -R "rusage[ngpus_excl_p=1,mem=8192]" "python main.py -c \"<PATH_TO_CONFIG>\""
+   ```
+   
 ### Reproduce our results
 Reproducing the results of our paper can be done easily. We provide predefined config files that we used for our runs. These include fixed random seeds that worked well in our experiments. While exact reproduction of results is not possible when executing tensorflow code on a GPU, they should still be very similar when taking the same seed in different runs.
 #### Train and predict results
