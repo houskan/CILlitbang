@@ -15,6 +15,7 @@
   * [Reproduce our results](#reproduce-our-results)
     * [Train and predict results](#train-and-predict-results)
     * [Predict using pretrained models](#predict-using-pretrained-models)
+    * [Find the results](#find-the-results)
 
 ## About The Project
 This repository contains the source code for the graded semester project for the [Computational Intelligence Lab 2020 lecture](http://da.inf.ethz.ch/teaching/2020/CIL/) at ETH Zurich.
