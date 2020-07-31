@@ -141,10 +141,11 @@ def hough_pipeline(mask, kernel, discretize_func, hough_thresh=100, min_line_len
     :param kernel: for morphological closing applied on hough_lines for smoothing them
         If kernel is not None, morphological closing is not applied
         good kernel example np.ones((3,3),np.uint8)
+    :param discretize_func: lambda to discretize continuous mask to bindary
     :param hough_thresh: see cv2.HoughLinesP
     :param min_line_length: see cv2.HoughLinesP
     :param max_line_gap: see cv2.HoughLinesP
-    :param thresh: How many lines need to pass through a pixel at least
+    :param pixel_up_thresh: How many lines need to pass through a pixel at least
     :param eps: Which constant factor should be added to chosen pixels
     :return: continuous mask
     """
