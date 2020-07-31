@@ -81,6 +81,8 @@ Read the [paper](todo) for more information about our experiments and design dec
         ├── mask_to_submission.py                     - Provided code to create submission file from binary mask
         └── submission_to_mask.py                     - Provided code to create binary mask from submission file
 ```
+## Images
+All training and validation images are from the chicago dataset from https://zenodo.org/record/1154821#.XyPssSgzaUk. Out of the total 221 images, 100 have been provided for the project and 121 have been selected by us. They all have been thoroughly investigated to not contain any parts of the test images.
 
 ## Getting Started
 ### Prerequisites
