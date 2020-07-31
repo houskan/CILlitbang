@@ -14,7 +14,7 @@
 ## About The Project
 This repository contains the source code for the graded semester project for the [Computational Intelligence Lab 2020 lecture](http://da.inf.ethz.ch/teaching/2020/CIL/) at ETH Zurich.
 Please follow the instructions below to get started and reproduce our results.
-Read the [paper](todo) for more information about our experiments and design decisions.
+Read the [paper](https://github.com/winbergs/CILlitbang/blob/master/report.pdf) for more information about our experiments and design decisions.
 
 ## Folder Structure
 ```
