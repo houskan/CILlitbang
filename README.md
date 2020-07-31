@@ -39,7 +39,7 @@ Read the [paper](https://github.com/winbergs/CILlitbang/blob/master/report.pdf) 
 │   ├── models                                             - Directory for model weights of models (see README in directory for download instructions)
 │   └── refinements                                        - Refinement experiments
 ├── notebook                                          
-│   ├── postprocessing.ipynb                          - Jupyter notebook for the visualization of post-processing steps
+│   ├── post_processing.ipynb                          - Jupyter notebook for the visualization of post-processing steps
 │   └── test_results_comparison.ipynb                 - Jupyter notebook for the comparison of different predictions
 ├── plots                                             - Figures in report
 │   ├── comparisons                                        - Comparison figures
