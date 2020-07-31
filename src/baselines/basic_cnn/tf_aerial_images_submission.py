@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.image as mpimg
 import re
 
-# assign a label to a patch
 def patch_to_label(patch, foreground_threshold):
+    """Binarizes a patch"""
     df = np.mean(patch)
     if df > foreground_threshold:
         return 1

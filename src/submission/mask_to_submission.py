@@ -7,10 +7,9 @@ import re
 
 
 '''
-File provided by the Kaggle Competition of CIL 2020
+File provided by the Kaggle Competition of CIL 2020, slightly modified to be able to automate the
+submission process with different threshold values at the same time.
 '''
-
-#foreground_threshold = 0.25 # percentage of pixels > 1 required to assign a foreground label to a patch
 
 # assign a label to a patch
 def patch_to_label(patch, foreground_threshold):
