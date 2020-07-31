@@ -95,7 +95,7 @@ def get_parser():
                help='learning rate of adam to use during training')
 
     parser.add('--line-smoothing-mode', type=str, default='both', choices=['beforeHough', 'afterHough', 'both', 'None'],
-               help='Apply line smoothin before(beforeHough, after (afterHough) or both(both) or not at all (None)')
+               help='apply line smoothing before(beforeHough, after (afterHough) or both(both) or not at all (None)')
     parser.add('--apply-hough', type=str2bool, default=True,
                help='Should Hough Transform postprocessing be applied')
     parser.add('--hough-discretize-mode', type=str, default='discretize', choices=['discretize', 'graphcut'],
@@ -130,7 +130,6 @@ def get_parser():
     parser.add('--patch-size', type=int, default=32,
                help='patch size to be classified, context size is patch_size * 4')
 
-
     return parser
 
 
@@ -138,5 +137,3 @@ def write_config_file(args, path='config.cfg'):
     with open(path, 'w') as f:
         for k in sorted(args.__dict__):
             print(k.replace('_', '-'), '=', args.__dict__[k], file=f)
-
-

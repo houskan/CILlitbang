@@ -89,7 +89,7 @@ Read the [paper](todo) for more information about our experiments and design dec
 
 ## Usage
 ### Run the code
-Once the virutal environment is activated you can run the code as follows.
+Once the virtual environment is activated you can run the code as follows.
 - Go into the `src` directory.
   ```sh
   cd src/

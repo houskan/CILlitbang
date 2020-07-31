@@ -1,10 +1,8 @@
 import numpy as np
 from tensorflow import keras
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
 import skimage.io as io
 import skimage.transform as trans
-
 import os
 
 from data.helper import *
@@ -36,7 +34,7 @@ def train_validation_generators(aug_dict, train_path, validation_path, image_dir
     :param mask_dir: Path relative to train/validation_path. Describes where the grayscale images are
     :param target_size: What size should the images have
     :param batch_size: How many images per batch
-    :param seed: What seed should be used for the shuffle. This is for reproducability
+    :param seed: What seed should be used for the shuffle. This is for reproducibility
     :return: A train and a validation generator that can be served to TF fit method
     """
 

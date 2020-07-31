@@ -3,13 +3,12 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import itertools
 import skimage.io as io
 import skimage.transform as trans
-
 import os
 
 from data.helper import *
 
 '''
-This file contains methods similiar to data.py. It was written for the patch based approach
+This file contains methods similar to data.py. It was written for the patch based approach
 described in the paper
 '''
 
