@@ -1,4 +1,4 @@
-# CILlitbang
+# CleanRoad: Road Segmentation of Aerial Images by Fusing Modern and Traditional Methods
 ## Table of Contents
 * [About the Project](#about-the-project)
 * [Folder Structure](#folder-structure)
