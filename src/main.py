@@ -111,5 +111,3 @@ predict_results(model=model, test_path=args.test_path, image_dir='images', resul
 # Checking if submission should be logged and saving all relevant data in unique out submission directory
 if args.sub_log:
     log_submission(submission_identifier=submission_identifier, args=args)
-
-
