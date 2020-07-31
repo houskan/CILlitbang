@@ -115,7 +115,7 @@ All training and validation images are from the chicago dataset from https://zen
 
 ## Usage
 ### Run the code
-Once the virtual environment is activated you can run the code as follows.
+Once the virtual environment is activated you can run the code as follows:
 - Go into the `src` directory.
   ```sh
   cd src/
@@ -143,8 +143,8 @@ Once the virtual environment is activated you can run the code as follows.
    bsub -W 8:30 -R "rusage[ngpus_excl_p=1,mem=8192]" "python main.py -c config.cfg"
    ```
 ### Reproduce our results
-Reproducing the results of our paper can be done easily. We provide predefined config files we used for our runs. These include fixed random seeds that worked well in our experiments. While exact reproduction of results is not possible when executing tensorflow code on a GPU, they should still be very similar when taking the same seed in different runs.
+Reproducing the results of our paper can be done easily. We provide predefined config files that we used for our runs. These include fixed random seeds that worked well in our experiments. While exact reproduction of results is not possible when executing tensorflow code on a GPU, they should still be very similar when taking the same seed in different runs.
 #### Train and predict results
-Pick the experiment you want to reproduce and select the corresponding config file. Under final_experiments/architectures and final_experiments/refinements you will find directories that are named like our experiments in the report along with number of epochs and steps per epoch. For all experiments you will find config files named config.cfg that you can use (except for the keras_segmentation baseline that runs without config file). Follow the above instructions on how to use config files with our code and let the job run.
+Pick the experiment you want to reproduce and select the corresponding config file. Under `final_experiments/architectures` and `final_experiments/refinements` you will find directories that are named like our experiments in the report along with number of epochs and steps per epoch. For all experiments you will find config files named `config.cfg` that you can use (except for the keras_segmentation baseline that runs without config file). Follow the above instructions on how to use config files with our code and let the job run.
 #### Predict using pretrained models
 To download the model weights please follow the instructions from https://github.com/winbergs/CILlitbang/blob/master/final_experiments/models/README.md. Follow the above instructions on how to use config files with our code. Now modify the corresponding config file and set the `train-model` parameter to `False` and set the `model-path` parameter to the model weights you want to use. Now, let the job run.
