@@ -14,7 +14,7 @@
 ## About The Project
 This repository contains the source code for the graded semester project for the [Computational Intelligence Lab 2020 lecture](http://da.inf.ethz.ch/teaching/2020/CIL/) at ETH Zurich.
 Please follow the instructions below to get started and reproduce our results.
-Read the [paper](todo) for more information about our experiments and design decisions.
+Read the [paper](https://github.com/winbergs/CILlitbang/blob/master/report.pdf) for more information about our experiments and design decisions.
 
 ## Folder Structure
 ```
@@ -129,6 +129,6 @@ Once the virtual environment is activated you can run the code as follows.
 ### Reproduce our results
 Reproducing the results of our paper can be done easily. We provide predefined config files we used for our runs. These include fixed random seeds that worked well in our experiments. While exact reproduction of results is not possible when executing tensorflow code on a GPU, they should still be very similar when taking the same seed in different runs.
 #### Train and predict results
-Pick the experiment you want to reproduce and select the corresponding config file (e.g. CILlitbang/final_experiments/refinements/unet_dilated_v2_transposed graphcut 500-100/config.cfg). Follow the above instructions on how to use config files with our code and let the job run.
+Pick the experiment you want to reproduce and select the corresponding config file. Under final_experiments/architectures and final_experiments/refinements you will find directories that are named like our experiments in the report along with number of epochs and steps per epoch. For all experiments you will find config files named config.cfg that you can use (except for the keras_segmentation baseline that runs without config file). Follow the above instructions on how to use config files with our code and let the job run.
 #### Predict using pretrained models
 To download the model weights please follow the instructions from https://github.com/winbergs/CILlitbang/blob/master/final_experiments/models/README.md. Follow the above instructions on how to use config files with our code. Now modify the corresponding config file and set the `train-model` parameter to `False` and set the `model-path` parameter to the model weights you want to use. Now, let the job run.
