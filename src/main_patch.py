@@ -86,10 +86,10 @@ if args.train_model:
                          vertical_flip=args.vertical_flip,
                          fill_mode=args.fill_mode)
 
-    # Initializing training and validation generators
+    # Initializing training and validation generators for patches
     train_gen, val_gen = train_validation_generators_patch(data_gen_args,
                                                            train_path=args.train_path, validation_path=args.val_path,
-                                                           image_folder='images', mask_folder='groundtruth',
+                                                           image_dir='images', mask_dir='groundtruth',
                                                            target_size=(400, 400), batch_size=args.batch_size,
                                                            patch_size=groundtruth_patch_size,
                                                            validation_steps=args.val_steps, seed=args.seed)

@@ -23,6 +23,11 @@ def add_image_padding(image, padding):
 
 
 def adjust_data(img, mask):
+    """Method adjusting images and discrete masks
+    :param img: RGB image
+    :param mask: segmentation mask
+    :return: image/mask pair where the image is in range [0,1] and the mask's pixels are either 0 or 1
+    """
     if np.max(img) > 1.0:
         img = img / 255.0
     if np.max(mask) > 1.0:
@@ -32,11 +37,26 @@ def adjust_data(img, mask):
     return img, mask
 
 
-def train_validation_generators_patch(aug_dict, train_path, validation_path, image_folder, mask_folder, target_size, batch_size, patch_size, validation_steps, seed):
+def train_validation_generators_patch(aug_dict, train_path, validation_path, image_dir, mask_dir, target_size, batch_size, patch_size, validation_steps, seed):
+    """Method returning patch based generators for the training data and the validation data. Each generator
+    returns image/groundtruth patch pairs
+    :param aug_dict: Dictionary describing which augmentations you want to perform. See
+    Documentation of ImageDataGenerator of tf.keras
+    :param train_path: Path where the training data resides
+    :param validation_path: Path where the validation data resides
+    :param image_dir: Path relative to train/validation_path. Describes where the RGB images are
+    :param mask_dir: Path relative to train/validation_path. Describes where the grayscale images are
+    :param target_size: What size should the images have
+    :param batch_size: How many images per batch
+    :param patch_size: How big is one patch
+    :param validation_steps: How many patches should be used for validation
+    :param seed: What seed should be used for the shuffle. This is for reproducibility
+    :return: A patch based train and a validation generator that can be served to TF fit method
+    """
 
     train_img_generator = ImageDataGenerator(**aug_dict).flow_from_directory(
         train_path,
-        classes=[image_folder],
+        classes=[image_dir],
         class_mode=None,
         color_mode='rgb',
         target_size=target_size,
@@ -44,7 +64,7 @@ def train_validation_generators_patch(aug_dict, train_path, validation_path, ima
         seed=seed)
     train_mask_generator = ImageDataGenerator(**aug_dict).flow_from_directory(
         train_path,
-        classes=[mask_folder],
+        classes=[mask_dir],
         class_mode=None,
         color_mode='grayscale',
         target_size=target_size,
@@ -52,7 +72,7 @@ def train_validation_generators_patch(aug_dict, train_path, validation_path, ima
         seed=seed)
     validation_img_generator = ImageDataGenerator().flow_from_directory(
         validation_path,
-        classes=['images'],
+        classes=[image_dir],
         class_mode=None,
         color_mode='rgb',
         target_size=target_size,
@@ -60,7 +80,7 @@ def train_validation_generators_patch(aug_dict, train_path, validation_path, ima
         seed=seed)
     validation_mask_generator = ImageDataGenerator().flow_from_directory(
         validation_path,
-        classes=['groundtruth'],
+        classes=[mask_dir],
         class_mode=None,
         color_mode='grayscale',
         target_size=target_size,
@@ -80,6 +100,8 @@ def train_validation_generators_patch(aug_dict, train_path, validation_path, ima
 
 
 def train_generator_patch(patch_size):
+    """Defines the train_generator_patch
+    """
     global train_gen
     for (img, mask) in train_gen:
         img, mask = adjust_data(img, mask)
@@ -88,6 +110,8 @@ def train_generator_patch(patch_size):
 
 
 def validation_generator_patch(patch_size):
+    """Defines the validation_generator_patch
+    """
     global validation_gen
     for (img, mask) in validation_gen:
         img, mask = adjust_data(img, mask)
