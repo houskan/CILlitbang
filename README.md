@@ -104,8 +104,7 @@ All training and validation images are from the chicago dataset from https://zen
 
 ## Getting Started
 ### Prerequisites
-- Conda
-  Please consult the [Conda Installation Guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/#regular-installation) for more information.
+- Please consult the [Conda Installation Guide](https://docs.conda.io/projects/conda/en/latest/user-guide/install/#regular-installation) for more information.
   If you want to run this code on the Leonhard Cluster, please follow the relevant parts of [this tutorial](http://kevinkle.in/jekyll/update/2019/02/28/leonhard.html)
 - Create and activate the virtual environment
   ```
