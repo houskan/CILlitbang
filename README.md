@@ -16,6 +16,14 @@ This repository contains the source code for the graded semester project for the
 Please follow the instructions below to get started and reproduce our results.
 Read the [paper](https://github.com/winbergs/CILlitbang/blob/master/report.pdf) for more information about our experiments and design decisions.
 
+Our final model is a dilated U-Net with transposed convolutional layers and has the following structure:
+
+<img src="plots/diagrams/unet_dilated_v2_transposed.png" alt="U-Net Dilated v2 Transposed" width="50%"/>
+
+Furthermore, we constructed the following dedicated post-processing pipeline to further refine and cleanup the results.
+
+<img src="plots/diagrams/post_processing_pipeline.png" alt="Dedicated Post-Processing Pipeline" width="90%"/>
+
 ## Folder Structure
 ```
 ├── README.md
