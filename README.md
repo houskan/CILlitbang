@@ -64,10 +64,10 @@ Read the [paper](todo) for more information about our experiments and design dec
     │   ├── loss_functions.py                          - Custom loss functions and callback metrics
     │   ├── unet.py                                    - Original U-Net model from https://github.com/zhixuhao/unet (serves as baseline in the report)
     │   ├── unet_dilated_v1.py                         - U-Net dilated v1
+    │   ├── unet_dilated_v1_transposed.py              - U-Net dilated v1 with transposed convolutions
     │   ├── unet_dilated_v2.py                         - U-Net dilated v2
-    │   ├── unet_dilated_v3.py                         - U-Net dilated v2 with transposed convolutions
-    │   ├── unet_dilated_v3_patch.py                   - U-Net dilated v2 with transposed convolutions, adapted for patch-based model
-    │   ├── unet_dilated_v4.py                         - U-Net dilated v1 with transposed convolutions
+    │   ├── unet_dilated_v2_transposed.py              - U-Net dilated v2 with transposed convolutions
+    │   ├── unet_dilated_v2_transposed_patch.py        - U-Net dilated v2 with transposed convolutions, adapted for patch-based model
     │   └── unet_patch.py                              - Original U-Net model, adapted for patch-based model
     └── submission
         ├── log_submission.py                          - Prepares submission directory (see 'out' directory)
