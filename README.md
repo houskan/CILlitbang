@@ -63,7 +63,6 @@ Furthermore, we constructed the following dedicated post-processing pipeline to 
 │   └── diagrams                                           - Illustrations diagrams 
 ├── environment.yml                                   - YAML file for conda environment setup
 ├── out                                               - Created directory. Contains model weights, predictions, config file and submission file after completed run
-├── tmp                                               - Created directory. Contains model weights during training
 └── src
     ├── argparser.py                                  - Argumentparser for command line arguments
     ├── baselines                                     - Separate baseline architectures
