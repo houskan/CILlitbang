@@ -1,4 +1,5 @@
 # CleanRoad: Road Segmentation of Aerial Images by Fusing Modern and Traditional Methods
+2020 -  Sebastian Winberg, Steven Stalder, Niklaus Houska and Kenan Bešić
 
 <div align="center">
 <img src="plots/comparisons/comparison_overview.png" alt="Overview" width="90%"/>
